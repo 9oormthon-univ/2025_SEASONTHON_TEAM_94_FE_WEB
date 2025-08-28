@@ -12,9 +12,9 @@ import type { Route } from './+types/root';
 import '@/app.css';
 import { ExpenseProvider } from '@/features/expenses/hooks/useExpenses';
 
-import { ReactComponent as HomeIcon } from '@/assets/home.svg';
-import { ReactComponent as ReportIcon } from '@/assets/report.svg';
-import { ReactComponent as MoreIcon } from '@/assets/more.svg';
+import HomeIcon from '@/assets/home.svg?react';
+import ReportIcon from '@/assets/report.svg?react';
+import MoreIcon from '@/assets/more.svg?react';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

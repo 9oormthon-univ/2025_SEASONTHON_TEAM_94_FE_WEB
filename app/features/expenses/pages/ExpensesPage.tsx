@@ -6,8 +6,8 @@ import { UncategorizedExpenseList } from '../components/UncategorizedExpenseList
 import { CategorizedExpenseList } from '../components/CategorizedExpenseList';
 import { EXPENSE_TYPES, type Transaction } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import ArrowDown from '@/assets/keyboard_arrow_down.svg';
-import Plus from '@/assets/plus.svg';
+import ArrowDownIcon from '@/assets/keyboard_arrow_down.svg?react';
+import PlusIcon from '@/assets/plus.svg?react';
 
 export function ExpensesPage() {
   const [searchParams] = useSearchParams();
@@ -157,7 +157,7 @@ export function ExpensesPage() {
 
           {/* Plus Button - 탭과 같은 라인 */}
           <button onClick={loadExpenses} disabled={loading}>
-            <img src={Plus} alt="plus" className="w-9 h-9" />
+            <PlusIcon className="w-9 h-9" />
           </button>
         </div>
       </div>
@@ -165,12 +165,7 @@ export function ExpensesPage() {
       {/* Date Filter */}
       <div className="text-sm text-[#757575] px-6 pt-4 pb-2 flex items-center">
         {selectedMonth}
-        <img
-          src={ArrowDown}
-          alt="arrow-down"
-          className="w-4 h-4 ml-2"
-          style={{ width: '12px', height: '12px' }}
-        />
+        <ArrowDownIcon className="w-3 h-3 ml-2" />
       </div>
 
       <div className="px-6 pt-2">

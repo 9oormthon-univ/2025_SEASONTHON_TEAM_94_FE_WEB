@@ -47,7 +47,7 @@ export function ExpenseDetailPage() {
         price: updatedExpense.price,
         type: updatedExpense.type,
         category: updatedExpense.category,
-        startAt: updatedExpense.startAt,
+        startAt: updatedExpense.startedAt,
       });
 
       const nextTab =

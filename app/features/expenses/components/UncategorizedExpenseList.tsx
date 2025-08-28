@@ -56,7 +56,7 @@ function UncategorizedExpenseItem({ expense }: UncategorizedExpenseItemProps) {
       {/* Main Card */}
       <div className="bg-white rounded-[10px] p-4 mb-1.5 flex flex-col">
         <div className="text-[12px] text-[#101010] mb-1 font-medium">
-          {formatExpenseDate(expense.startAt)}
+          {formatExpenseDate(expense.startedAt)}
         </div>
         <div className="text-base text-[#101010] mb-3 font-medium">
           <span className="text-black">{bankName}</span>

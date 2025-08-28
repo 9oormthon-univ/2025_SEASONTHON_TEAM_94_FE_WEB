@@ -29,11 +29,11 @@ export const AUTH_CONFIG = {
 export const MOCK_USER_UID = 'a';
 
 /**
- * API 엔드포인트 상수
+ * API 엔드포인트 상수 (Swagger 스펙 기준)
  */
 export const API_ENDPOINTS = {
   TRANSACTIONS: '/api/v1/transactions',
   TRANSACTION_BY_ID: (id: number) => `/api/v1/transactions/${id}`,
-  TOTAL_PRICE: '/api/v1/transactions/total-price',
+  TRANSACTIONS_REPORT: '/api/v1/transactions/report',
   CATEGORIES: '/api/v1/transactions/categories',
 } as const;

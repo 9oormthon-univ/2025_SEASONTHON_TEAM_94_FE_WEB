@@ -16,13 +16,15 @@ import type {
   Transaction,
   TransactionCreateRequest,
   TransactionUpdateRequest,
+  ExpenseType,
+  TransactionFilter,
 } from '@/shared/types/expense';
 
 interface ExpenseContextType {
   expenses: Transaction[];
   loading: boolean;
   error: string | null;
-  refreshExpenses: () => Promise<void>;
+  refreshExpenses: (filter?: Partial<TransactionFilter>) => Promise<void>;
   updateExpense: (
     userUid: string,
     id: number,
@@ -38,10 +40,12 @@ export function ExpenseProvider({
   children,
   initialExpenses,
   userUid = MOCK_USER_UID, // 실제로는 사용자 인증에서 가져옴
+  defaultType = 'NONE' as ExpenseType, // 기본 타입 추가
 }: {
   children: React.ReactNode;
   initialExpenses?: Transaction[];
   userUid?: string;
+  defaultType?: ExpenseType;
 }) {
   const [expenses, setExpenses] = useState<Transaction[]>(
     initialExpenses || []
@@ -49,22 +53,30 @@ export function ExpenseProvider({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshExpenses = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchTransactions({ userUid });
-      setExpenses(data);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : '지출 데이터를 불러오는데 실패했습니다.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [userUid]);
+  const refreshExpenses = useCallback(
+    async (filter?: Partial<TransactionFilter>) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const finalFilter: TransactionFilter = {
+          userUid,
+          type: defaultType,
+          ...filter,
+        };
+        const data = await fetchTransactions(finalFilter);
+        setExpenses(data);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : '지출 데이터를 불러오는데 실패했습니다.'
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [userUid, defaultType]
+  );
 
   const updateExpense = useCallback(
     async (

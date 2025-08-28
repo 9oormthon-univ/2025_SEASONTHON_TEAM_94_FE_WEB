@@ -1,8 +1,10 @@
-// API 응답 타입 정의
+// API 응답 타입 정의 (Swagger 스펙에 맞게 수정)
 export interface ApiResponse<T> {
-  data: T;
-  message?: string;
   success: boolean;
+  status: number;
+  code: string;
+  message: string;
+  data: T;
 }
 
 export interface PaginatedResponse<T> {

@@ -1,69 +1,129 @@
-import { Card, CardContent, CardTitle } from '@/shared/components/ui/card';
-import { useExpenses } from '@/features/expenses/hooks/useExpenses';
-import { ReportCards } from '../components/ReportCards';
-import { CategoryAnalysis } from '../components/CategoryAnalysis';
-import { ReportSummary } from '../components/ReportSummary';
+// features/reports/pages/ReportPage.tsx
+import { useNavigate } from 'react-router-dom';
+import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import ProgressBar from '../components/ProgressBar';
+import ReportSummary from '../components/ReportSummary';
+import { useReport } from '../hooks/useReport';
+import { fmt } from '../utils/number';
+import { dateK } from '../utils/date';
 
-export function ReportsPage() {
-  const { expenses, loading, error, refreshExpenses } = useExpenses();
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-white rounded-lg border border-red-200 p-6 max-w-md">
-          <div className="text-red-600 text-center">
-            <div className="text-4xl mb-4">⚠️</div>
-            <h3 className="text-lg font-semibold mb-2">오류가 발생했습니다</h3>
-            <p className="text-sm mb-4">{error}</p>
-            <button
-              onClick={refreshExpenses}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              다시 시도
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (expenses.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="py-12">
-            <div className="text-6xl mb-6">📊</div>
-            <CardTitle className="mb-4 text-xl font-bold">아직 지출 내역이 없어요</CardTitle>
-            <p className="text-muted-foreground text-base">지출을 추가하면 리포트를 볼 수 있습니다.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+export default function ReportPage() {
+  const navigate = useNavigate();
+  const {
+    ym, today, monthStart, monthEnd,
+    monthOver, monthFixed, overSum, fixedSum, total,
+    monthlyGoal, barPercent, percentCenterLeft, barLabel, markerLeft, labelTransform, isOver,
+  } = useReport();
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-        <CardContent className="text-center py-8">
-          <div className="text-4xl mb-4">📊</div>
-          <CardTitle className="text-2xl font-bold mb-2">지출 리포트</CardTitle>
-          <p className="text-muted-foreground text-base">총 {expenses.length}개의 지출 항목</p>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto pb-20">
+      <ExpenseHeader />
 
-      <ReportCards expenses={expenses} />
+      {/* 상단 지출분석: 회색 배경 + 카드만 */}
+      <section className="bg-[#F5F5F5] py-4">
+      <div className="px-4 pt-2 pb-3">
+        {/* 날짜 + 아이콘 (아이콘만 클릭 가능) */}
+        <div className="flex items-center gap-1 text-sm text-[#757575]">
+          <span>{`${ym.m}월 ${ym.d}일`}</span>
+          <button
+            type="button"
+            aria-label="날짜 선택"
+            className="p-1 -m-1 rounded outline-none hover:bg-black/5 active:bg-black/10"
+            onClick={() => {
+              // 👉 여기서 드롭다운/바텀시트 열기
+              // openMonthPicker(true)
+            }}
+          >
+            {/* chevron-down 아이콘 */}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="#757575" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
 
-      <CategoryAnalysis expenses={expenses} />
+        <h2 className="mt-1 text-xl font-extrabold !text-[#002B5B]">
+          여울 님의 지출분석
+        </h2>
+      </div>
 
-      <ReportSummary expenses={expenses} />
+      <ReportSummary
+        monthlyGoal={monthlyGoal}
+        isOver={isOver}
+        total={total}
+        monthOverCount={monthOver.length}
+        monthFixedCount={monthFixed.length}
+        overSum={overSum}
+        fixedSum={fixedSum}
+        monthStart={monthStart}
+        monthEnd={monthEnd}
+        today={today}
+        showList={false}
+        barPercent={barPercent}
+        progressEl={
+          <ProgressBar
+            barPercent={barPercent}
+            percentCenterLeft={percentCenterLeft}
+            barLabel={barLabel}
+            markerLeft={markerLeft}
+            labelTransform={labelTransform}
+          />
+        }
+      />
+    </section>
+
+      <div className="bg-white px-4 pt-4 pb-24 space-y-6">
+        <div>
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-semibold text-[#002B5B]">목표 초과지출</div>
+            <div className="text-[11px] text-[#757575]">
+              {`${dateK(monthStart)} - ${dateK(monthEnd)}`}
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-medium text-[#FF6200]">
+            {monthlyGoal > 0 ? (isOver ? `+ ${fmt(total - monthlyGoal)}` : `- 0원`) : '- 0원'}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-semibold text-[#002B5B]">초과지출</div>
+            <div className="text-[11px] text-[#757575]">
+              {`${dateK(monthStart)} - ${dateK(today)} · ${monthOver.length}번 지출`}
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-medium text-[#FF6200]">- {fmt(overSum)}</div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-semibold text-[#002B5B]">고정지출</div>
+            <div className="text-[11px] text-[#757575]">
+              {`${dateK(monthStart)} - ${dateK(monthEnd)} · ${monthFixed.length}번 지출`}
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-medium text-[#757575]">- {fmt(fixedSum)}</div>
+        </div>
+
+        <div className="pt-2">
+          <button type="button" onClick={() => navigate('/')}
+            className="
+              mx-auto                 /* 가운데 정렬 */
+              !w-[364px] max-w-full   /* 고정폭(364px), 부모보다 크면 줄이기 */
+              !h-[45px]               /* 높이 고정 */
+              !rounded-[8px]          /* 모서리 8px */
+              !px-[10px] !py-[10px]    /* 패딩 10px */
+              !flex items-center !justify-center gap-[10px] /* 아이콘/텍스트 간격 10px */
+              !font-light !text-white text-center
+              shadow-md active:shadow-sm
+              appearance-none
+              !bg-[#FF6200] hover:opacity-90 disabled:opacity-100
+            "
+          >
+            {monthlyGoal > 0 ? '목표 지출 설정하기' : '목표 지출 설정하기'}
+          </button>
+        </div>
+
+      </div>
     </div>
   );
 }

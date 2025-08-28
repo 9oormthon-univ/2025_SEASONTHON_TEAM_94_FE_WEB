@@ -1,5 +1,2 @@
-import { ReportsPage } from '@/features/reports';
-
-export default function Report() {
-  return <ReportsPage />;
-}
+import ReportPage from '@/features/reports/pages/ReportsPage';
+export default ReportPage;

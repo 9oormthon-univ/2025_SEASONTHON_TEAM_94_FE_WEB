@@ -7,11 +7,14 @@ import {
   ScrollRestoration,
 } from 'react-router';
 import { Link, useLocation } from 'react-router';
-import { useEffect } from 'react';
 
 import type { Route } from './+types/root';
 import '@/app.css';
 import { ExpenseProvider } from '@/features/expenses/hooks/useExpenses';
+
+import { ReactComponent as HomeIcon } from '@/assets/home.svg';
+import { ReactComponent as ReportIcon } from '@/assets/report.svg';
+import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -144,46 +147,55 @@ export default function App() {
           <Outlet />
         </main>
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-1">
-          <Link to="/expenses" className="flex flex-col items-center py-1 px-4">
-            <svg
-              className="w-6 h-6 mb-1"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-            </svg>
+          <Link
+            to="/expenses"
+            className={`flex flex-col items-center py-1 px-4 ${
+              location.pathname.startsWith('/expenses')
+                ? 'text-black'
+                : 'text-gray-500'
+            }`}
+          >
+            <HomeIcon
+              className={`w-6 h-6 mb-1 ${
+                location.pathname.startsWith('/expenses')
+                  ? 'text-black'
+                  : 'text-gray-500'
+              }`}
+            />
             <span className="text-xs">홈</span>
           </Link>
-          <Link to="/report" className="flex flex-col items-center py-1 px-4">
-            <svg
-              className="w-6 h-6 mb-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
+          <Link
+            to="/report"
+            className={`flex flex-col items-center py-1 px-4 ${
+              location.pathname.startsWith('/report')
+                ? 'text-black'
+                : 'text-gray-500'
+            }`}
+          >
+            <ReportIcon
+              className={`w-6 h-6 mb-1 ${
+                location.pathname.startsWith('/report')
+                  ? 'text-black'
+                  : 'text-gray-500'
+              }`}
+            />
             <span className="text-xs">리포트</span>
           </Link>
-          <Link to="/more" className="flex flex-col items-center py-1 px-4">
-            <svg
-              className="w-6 h-6 mb-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-              />
-            </svg>
+          <Link
+            to="/more"
+            className={`flex flex-col items-center py-1 px-4 ${
+              location.pathname.startsWith('/more')
+                ? 'text-black'
+                : 'text-gray-500'
+            }`}
+          >
+            <MoreIcon
+              className={`w-6 h-6 mb-1 ${
+                location.pathname.startsWith('/more')
+                  ? 'text-black'
+                  : 'text-gray-500'
+              }`}
+            />
             <span className="text-xs">더보기</span>
           </Link>
         </nav>

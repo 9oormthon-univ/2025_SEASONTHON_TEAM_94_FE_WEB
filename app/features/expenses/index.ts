@@ -5,7 +5,8 @@ export * from './api/expenseApi';
 export * from './hooks/useExpenses';
 
 // Components
-export * from './components/ExpenseList';
+export * from './components/UncategorizedExpenseList';
+export * from './components/CategorizedExpenseList';
 export * from './components/ExpenseDetail';
 export * from './components/ExpenseHeader';
 

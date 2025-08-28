@@ -107,6 +107,34 @@ export function formatDateTime(dateString: string): string {
 }
 
 /**
+ * 지출 목록에서 사용하는 상세한 날짜 포맷팅 함수
+ * 형식: "월일 요일 시:분:초"
+ */
+export function formatExpenseDate(dateStr: string): string {
+  try {
+    const date = new Date(dateStr);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const dayOfWeek = [
+      '일요일',
+      '월요일',
+      '화요일',
+      '수요일',
+      '목요일',
+      '금요일',
+      '토요일',
+    ][date.getDay()];
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${month}월 ${day}일 ${dayOfWeek} ${hours}:${minutes}:${seconds}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
  * 오늘 날짜를 YYYY-MM-DD 형식으로 반환합니다
  */
 export function getTodayYMD(): string {

@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 import type { Transaction } from '@/shared/types/expense';
+import { formatExpenseDate } from '../utils/expenseUtils';
 
-interface ExpenseListProps {
+interface UncategorizedExpenseListProps {
   expenses: Transaction[];
   emptyState?: {
     icon: string;
@@ -10,7 +11,10 @@ interface ExpenseListProps {
   };
 }
 
-export function ExpenseList({ expenses, emptyState }: ExpenseListProps) {
+export function UncategorizedExpenseList({
+  expenses,
+  emptyState,
+}: UncategorizedExpenseListProps) {
   if (expenses.length === 0 && emptyState) {
     return (
       <div className="py-12 text-center">
@@ -25,7 +29,7 @@ export function ExpenseList({ expenses, emptyState }: ExpenseListProps) {
     return (
       <div className="py-12 text-center">
         <div className="text-4xl mb-4">📝</div>
-        <p className="text-gray-500 text-base">항목이 없습니다.</p>
+        <p className="text-gray-500 text-base">미분류 항목이 없습니다.</p>
       </div>
     );
   }
@@ -33,44 +37,19 @@ export function ExpenseList({ expenses, emptyState }: ExpenseListProps) {
   return (
     <div className="space-y-6 pb-32">
       {expenses.map(expense => (
-        <ExpenseItem key={expense.id} expense={expense} />
+        <UncategorizedExpenseItem key={expense.id} expense={expense} />
       ))}
     </div>
   );
 }
 
-interface ExpenseItemProps {
+interface UncategorizedExpenseItemProps {
   expense: Transaction;
 }
 
-function ExpenseItem({ expense }: ExpenseItemProps) {
+function UncategorizedExpenseItem({ expense }: UncategorizedExpenseItemProps) {
   // 은행명 추출 (title에서 첫 번째 단어 또는 기본값)
   const bankName = expense.title.split(' ')[0] || '은행';
-
-  // 날짜 포맷팅
-  const formatExpenseDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      const dayOfWeek = [
-        '일요일',
-        '월요일',
-        '화요일',
-        '수요일',
-        '목요일',
-        '금요일',
-        '토요일',
-      ][date.getDay()];
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-
-      return `${month}월 ${day}일 ${dayOfWeek} ${hours}:${minutes}:${seconds}`;
-    } catch {
-      return dateStr;
-    }
-  };
 
   return (
     <div className="w-full flex flex-col gap-2">

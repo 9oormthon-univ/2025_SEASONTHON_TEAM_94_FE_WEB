@@ -2,10 +2,12 @@ import { useSearchParams, Link } from 'react-router';
 import { useState, useEffect } from 'react';
 import { fetchTransactions } from '../api/expenseApi';
 import { ExpenseHeader } from '../components/ExpenseHeader';
-import { ExpenseList } from '../components/ExpenseList';
+import { UncategorizedExpenseList } from '../components/UncategorizedExpenseList';
+import { CategorizedExpenseList } from '../components/CategorizedExpenseList';
 import { EXPENSE_TYPES, type Transaction } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
 import ArrowDown from '@/assets/keyboard_arrow_down.svg';
+import Plus from '@/assets/plus.svg';
 
 export function ExpensesPage() {
   const [searchParams] = useSearchParams();
@@ -25,15 +27,28 @@ export function ExpensesPage() {
       setLoading(true);
       setError(null);
 
-      const type =
-        activeTab === 'unclassified'
-          ? EXPENSE_TYPES.NONE
-          : EXPENSE_TYPES.OVER_EXPENSE; // 분류 탭은 OVER_EXPENSE만
+      let data: Transaction[] = [];
 
-      const data = await fetchTransactions({
-        userUid: MOCK_USER_UID,
-        type,
-      });
+      if (activeTab === 'unclassified') {
+        // 미분류 탭: NONE 타입만
+        data = await fetchTransactions({
+          userUid: MOCK_USER_UID,
+          type: EXPENSE_TYPES.NONE,
+        });
+      } else {
+        // 분류 탭: OVER_EXPENSE와 FIXED_EXPENSE 둘 다 가져오기
+        const [overExpenses, fixedExpenses] = await Promise.all([
+          fetchTransactions({
+            userUid: MOCK_USER_UID,
+            type: EXPENSE_TYPES.OVER_EXPENSE,
+          }),
+          fetchTransactions({
+            userUid: MOCK_USER_UID,
+            type: EXPENSE_TYPES.FIXED_EXPENSE,
+          }),
+        ]);
+        data = [...overExpenses, ...fixedExpenses];
+      }
 
       setExpenses(data);
     } catch (err) {
@@ -76,7 +91,7 @@ export function ExpensesPage() {
   const renderContent = () => {
     if (activeTab === 'unclassified') {
       return (
-        <ExpenseList
+        <UncategorizedExpenseList
           expenses={expenses}
           emptyState={{
             icon: '🎉',
@@ -88,13 +103,14 @@ export function ExpensesPage() {
     }
 
     return (
-      <ExpenseList
+      <CategorizedExpenseList
         expenses={expenses}
         emptyState={{
           icon: '📝',
           title: '분류된 지출이 없어요',
           description: '지출을 추가하고 분류해보세요.',
         }}
+        onExpenseUpdate={loadExpenses}
       />
     );
   };
@@ -140,16 +156,8 @@ export function ExpensesPage() {
           </div>
 
           {/* Plus Button - 탭과 같은 라인 */}
-          <button
-            className="w-[35px] h-[35px] bg-white border border-black rounded-full flex items-center justify-center"
-            onClick={loadExpenses}
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#ff6200]"></div>
-            ) : (
-              <span className="text-black text-lg leading-none">+</span>
-            )}
+          <button onClick={loadExpenses} disabled={loading}>
+            <img src={Plus} alt="plus" className="w-9 h-9" />
           </button>
         </div>
       </div>

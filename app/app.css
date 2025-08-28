@@ -1,11 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    'Spoqa Han Sans Neo', 'Inter', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
   /* Shadcn UI 라이트 테마 색상 */
   --color-background: #ffffff;
@@ -33,7 +34,7 @@
 html,
 body {
   @apply bg-background text-foreground;
-  font-family: var(--font-sans);
+  font-family: 'Spoqa Han Sans Neo', var(--font-sans);
 
   /* 웹뷰에서 확대/축소 비활성화 */
   -webkit-text-size-adjust: 100%;
@@ -80,7 +81,9 @@ body {
 }
 
 /* 입력 필드에서만 선택 허용 */
-input, textarea, [contenteditable] {
+input,
+textarea,
+[contenteditable] {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -88,7 +91,9 @@ input, textarea, [contenteditable] {
 }
 
 /* 링크와 버튼에서 터치 동작 최적화 */
-a, button, [role="button"] {
+a,
+button,
+[role='button'] {
   touch-action: manipulation;
 }
 
@@ -119,7 +124,7 @@ img {
 .content {
   @apply flex-1 bg-background;
   /* 모바일에서 더 나은 패딩 */
-  @apply px-4 py-6;
+  /* @apply px-4 py-6; */
   /* 스크롤 부드럽게 */
   scroll-behavior: smooth;
 
@@ -198,7 +203,11 @@ img {
   /* 모바일에서 더 나은 간격 */
   @apply mx-0;
   /* 그라데이션 효과 */
-  background: linear-gradient(135deg, var(--color-muted) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-muted) 0%,
+    var(--color-accent) 100%
+  );
 }
 
 .action-group strong {
@@ -247,7 +256,9 @@ p {
 }
 
 /* 폼 컨트롤 개선 */
-input, textarea, select {
+input,
+textarea,
+select {
   @apply text-base; /* iOS 줌 방지 */
   @apply min-h-[52px]; /* 터치 영역 확보 */
   @apply rounded-2xl border border-border px-4 py-3;
@@ -327,12 +338,12 @@ input, textarea, select {
   }
 
   /* iOS Safari에서 줌 방지 */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='url'],
   textarea,
   select {
     font-size: 16px !important;
@@ -478,16 +489,16 @@ input, textarea, select {
 .page-unboxed select:focus,
 .page-unboxed textarea:focus {
   /* 원하면 포커스 때만 밑줄 표시 */
-  border-bottom: 1px solid color-mix(in oklab, var(--color-foreground) 30%, transparent) !important;
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--color-foreground) 30%, transparent) !important;
 }
 
 /* 숫자 인풋 스핀버튼 숨김(크롬/사파리) */
-.page-unboxed input[type="number"] {
+.page-unboxed input[type='number'] {
   appearance: textfield;
 }
-.page-unboxed input[type="number"]::-webkit-outer-spin-button,
-.page-unboxed input[type="number"]::-webkit-inner-spin-button {
+.page-unboxed input[type='number']::-webkit-outer-spin-button,
+.page-unboxed input[type='number']::-webkit-inner-spin-button {
   appearance: none;
   margin: 0;
 }
-

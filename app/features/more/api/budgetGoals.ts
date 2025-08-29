@@ -1,5 +1,6 @@
-// src/api/budgetGoals.ts
-import { get } from './index';
+import { httpClient } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
 
 export type BudgetGoal = {
   id: number;
@@ -9,11 +10,19 @@ export type BudgetGoal = {
   updatedAt: string;
 };
 
-export function getBudgetGoalById(id: number, signal?: AbortSignal) {
-  return get<BudgetGoal>(`/api/v1/budgetgoals/${id}`, undefined, signal);
+export function getBudgetGoalById(
+  id: number,
+  params?: { userUid?: string }   // ✅ 추가
+) {
+  return httpClient.get<ApiResponse<BudgetGoal>>(
+    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
+    params                                 // ✅ 전달
+  );
 }
 
-// 목록이 있을 경우(없으면 사용 안 해도 됨)
-export function listBudgetGoals(userUid: string, signal?: AbortSignal) {
-  return get<BudgetGoal[]>(`/api/v1/budgetgoals`, { userUid }, signal);
+export function listBudgetGoals(userUid: string) {
+  return httpClient.get<ApiResponse<BudgetGoal[]>>(
+    API_ENDPOINTS.BUDGET_GOALS,
+    { userUid }
+  );
 }

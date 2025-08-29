@@ -36,4 +36,12 @@ export const API_ENDPOINTS = {
   TRANSACTION_BY_ID: (id: number) => `/api/v1/transactions/${id}`,
   TRANSACTIONS_REPORT: '/api/v1/transactions/report',
   CATEGORIES: '/api/v1/transactions/categories',
+
+  // budget goals
+  BUDGET_GOALS: '/api/v1/budgetgoals',
+  BUDGET_GOAL_BY_ID: (id: number) => `/api/v1/budgetgoals/${id}`,
+
+  // user/auth (실제 백엔드 경로와 다르면 여기만 바꾸면 됨)
+  USERS_ME: '/api/v1/users/me',
+  AUTH_LOGOUT: '/api/logout',
 } as const;

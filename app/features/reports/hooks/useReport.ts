@@ -2,95 +2,48 @@
 import { useEffect, useState } from 'react';
 import { inThisMonth, monthEnd, monthStart, today, ym } from '../utils/date';
 import { fmt } from '../utils/number';
-import { get } from '@/features/more/api/index';
-import type { TransactionResponse } from '@/features/more/api/transactions';
 
-// ===== 테스트용 상수 =====
-const USER_UID = 'a';  // 유저 하나로만 테스트
-const GOAL_ID  = 1;    // /budgetgoals/{id} 의 id
+import { fetchOverAndFixed } from '../api/reportApi';
+import { getBudgetGoalById } from '@/features/more/api/budgetGoals';
 
-// ===== 타입 =====
-type BudgetGoalResponse = {
-  id: number;
-  price: number;
-  userUid: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import type { Transaction } from '@/shared/types/expense';
 
-// ===== 헬퍼: 월 목표 금액(price) 조회 =====
-async function fetchMonthlyGoal(signal?: AbortSignal): Promise<number> {
+const USER_UID = 'a';  
+
+async function fetchMonthlyGoal(): Promise<number> {
   try {
-    // get()이 data를 풀어서 반환하므로 바로 BudgetGoalResponse로 받는다
-    const goal = await get<BudgetGoalResponse>(
-      `/api/v1/budgetgoals/${GOAL_ID}`,
-      { userUid: USER_UID },
-      signal
-    );
-    return Number.isFinite(goal?.price) ? Math.max(0, goal.price) : 0;
+    const res = await getBudgetGoalById(1, { userUid: USER_UID }); // ✅ userUid 전달
+    const price = res?.data?.price;
+    return Number.isFinite(price) ? Math.max(0, price) : 0;
   } catch {
     return 0;
   }
 }
 
-// ===== 헬퍼: 트랜잭션 조회 =====
-async function fetchTransactionsByType(
-  type: 'OVER_EXPENSE' | 'FIXED_EXPENSE',
-  signal?: AbortSignal
-): Promise<TransactionResponse[]> {
-  try {
-    return await get<TransactionResponse[]>(
-      `/api/v1/transactions`,
-      { userUid: USER_UID, type },
-      signal
-    );
-  } catch {
-    // 타입별 엔드포인트 실패 시 전체를 불러 폴백
-    try {
-      const all = await get<TransactionResponse[]>(
-        `/api/v1/transactions`,
-        { userUid: USER_UID },
-        signal
-      );
-      return all.filter((t: TransactionResponse) => t.type === type);
-    } catch {
-      return [];
-    }
-  }
-}
-
-// ===== 메인 훅 =====
 export function useReport() {
-  const [overList, setOverList]   = useState<TransactionResponse[]>([]);
-  const [fixedList, setFixedList] = useState<TransactionResponse[]>([]);
+  const [overList, setOverList]   = useState<Transaction[]>([]);
+  const [fixedList, setFixedList] = useState<Transaction[]>([]);
   const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
 
   // 1) 목표 금액(price) 로드
   useEffect(() => {
-    const ac = new AbortController();
-    fetchMonthlyGoal(ac.signal)
+    fetchMonthlyGoal()
       .then(setMonthlyGoal)
       .catch(() => setMonthlyGoal(0));
-    return () => ac.abort();
   }, []);
 
   // 2) 트랜잭션 로드
   useEffect(() => {
-    const ac = new AbortController();
     (async () => {
-      const [over, fixed] = await Promise.all([
-        fetchTransactionsByType('OVER_EXPENSE', ac.signal),
-        fetchTransactionsByType('FIXED_EXPENSE', ac.signal),
-      ]);
+      const { over, fixed } = await fetchOverAndFixed({ userUid: USER_UID });
       setOverList(over);
       setFixedList(fixed);
     })();
-    return () => ac.abort();
   }, []);
 
   // 3) 이번 달 필터링/집계
-  const monthOver  = overList.filter(t => inThisMonth(t.createdAt || t.startAt));
-  const monthFixed = fixedList.filter(t => inThisMonth(t.createdAt || t.startAt));
+  const monthOver  = overList.filter(t => inThisMonth(t.createdAt || (t as any).startAt));
+  const monthFixed = fixedList.filter(t => inThisMonth(t.createdAt || (t as any).startAt));
 
   const overSum  = monthOver.reduce((s, t) => s + (t.price || 0), 0);
   const fixedSum = monthFixed.reduce((s, t) => s + (t.price || 0), 0);
@@ -107,7 +60,6 @@ export function useReport() {
     ? (isOver ? `+ ${fmt(Math.abs(diff))}` : `- ${fmt(Math.abs(diff))}`)
     : `- ${fmt(overSum)}`;
 
-  // ProgressBar에 넘겨줄 라벨 위치 보정(선택 prop로 넘길 수 있음)
   const labelTransform =
     barPercent <= 12 || barPercent >= 92
       ? 'translateX(calc(-100% - 6px))'

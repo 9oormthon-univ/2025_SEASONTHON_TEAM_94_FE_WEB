@@ -27,7 +27,6 @@ export default function ReportSummary({
   barPercent,
   showList = true,
 }: Props) {
-  const isFull = barPercent === 100;
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { useSearchParams, Link } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchTransactions } from '../api/expenseApi';
 import { ExpenseHeader } from '../components/ExpenseHeader';
@@ -68,6 +68,12 @@ export function ExpensesPage() {
     loadExpenses();
   }, [activeTab]);
 
+  // Transaction 업데이트 후 콜백 함수
+  const handleTransactionUpdate = useCallback((expenseId: number) => {
+    // 해당 아이템을 로컬 상태에서 제거 (애니메이션 완료 후)
+    setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
+  }, []);
+
   // 에러 상태 처리
   if (error) {
     return (
@@ -99,6 +105,7 @@ export function ExpensesPage() {
             title: '미분류 지출이 없어요!',
             description: '모든 지출이 분류되었습니다.',
           }}
+          onTransactionUpdate={handleTransactionUpdate}
         />
       );
     }
@@ -177,9 +184,9 @@ export function ExpensesPage() {
           </div>
 
           {/* Plus Button - 탭과 같은 라인 */}
-          <button onClick={loadExpenses} disabled={loading}>
+          <Link to="/expenses/add">
             <PlusIcon className="w-9 h-9" />
-          </button>
+          </Link>
         </div>
       </div>
 

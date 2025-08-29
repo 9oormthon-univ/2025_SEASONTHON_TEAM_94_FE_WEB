@@ -21,7 +21,7 @@ interface HttpRequestConfig {
   headers?: Record<string, string>;
   retries?: number;
   timeout?: number;
-  params?: Record<string, any>;
+  params?: Record<string, string | number | boolean | undefined>;
 }
 
 // 에러 타입들
@@ -113,7 +113,7 @@ export class HttpService {
   }
 
   // 환경별 URL 생성
-  private createUrl(endpoint: string, params?: Record<string, any>): string {
+  private createUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
     let apiPath: string;
 
     if (endpoint.startsWith('http')) {
@@ -289,7 +289,7 @@ export class HttpService {
   // 편의 메서드들
   async get<T>(
     endpoint: string,
-    params?: Record<string, any>,
+    params?: Record<string, string | number | boolean | undefined>,
     config?: Omit<HttpRequestConfig, 'method' | 'body' | 'params'>
   ): Promise<T> {
     return this.request<T>(endpoint, { ...config, method: 'GET', params });

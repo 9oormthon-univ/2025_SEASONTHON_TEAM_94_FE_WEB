@@ -9,6 +9,7 @@ import {
   type Transaction,
   type ExpenseType,
   type TransactionCreateRequest,
+  type TransactionCreateByAlertRequest,
   type TransactionUpdateRequest,
   type TransactionCategoryResponse,
   type TransactionReportResponse,
@@ -51,6 +52,19 @@ export async function createTransaction(
 ): Promise<Transaction> {
   const response = await httpClient.post<ApiResponse<Transaction>>(
     API_ENDPOINTS.TRANSACTIONS,
+    transaction
+  );
+  return response.data;
+}
+
+/**
+ * 알림으로 지출 생성 (Swagger 스펙: POST /api/v1/transactions/alarm)
+ */
+export async function createTransactionByAlert(
+  transaction: TransactionCreateByAlertRequest
+): Promise<Transaction> {
+  const response = await httpClient.post<ApiResponse<Transaction>>(
+    API_ENDPOINTS.TRANSACTIONS_ALARM,
     transaction
   );
   return response.data;
@@ -112,6 +126,7 @@ export async function fetchCategories(): Promise<
 export const fetchAllExpenses = fetchTransactions;
 export const fetchExpenseById = fetchTransactionById;
 export const createExpense = createTransaction;
+export const createExpenseByAlert = createTransactionByAlert;
 export const updateExpense = updateTransaction;
 export const deleteExpense = deleteTransaction;
 

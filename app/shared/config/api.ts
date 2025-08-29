@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
   TRANSACTIONS: '/api/v1/transactions',
   TRANSACTION_BY_ID: (id: number) => `/api/v1/transactions/${id}`,
   TRANSACTIONS_REPORT: '/api/v1/transactions/report',
+  TRANSACTIONS_ALARM: '/api/v1/transactions/alarm',
   CATEGORIES: '/api/v1/transactions/categories',
 
   // budget goals
@@ -43,5 +44,6 @@ export const API_ENDPOINTS = {
 
   // user/auth (실제 백엔드 경로와 다르면 여기만 바꾸면 됨)
   USERS_ME: '/api/v1/users/me',
+  USERS: '/api/v1/users',
   AUTH_LOGOUT: '/api/logout',
 } as const;

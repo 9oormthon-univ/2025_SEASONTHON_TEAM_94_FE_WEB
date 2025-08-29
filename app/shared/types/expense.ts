@@ -43,7 +43,7 @@ export interface Transaction {
   category: ExpenseCategory;
   createdAt: string; // date-time format
   updatedAt: string; // date-time format
-  startedAt: string; // date-time format (startAt -> startedAt로 변경)
+  startedAt: string; // date-time format (API 응답에서 startedAt로 옴)
 }
 
 // 카테고리 응답 타입
@@ -71,6 +71,14 @@ export interface TransactionUpdateRequest {
   category?: ExpenseCategory; // optional
 }
 
+// 알림으로 생성 요청 타입 (Swagger 스펙 기준)
+export interface TransactionCreateByAlertRequest {
+  price: number; // integer format, required
+  startAt?: string; // date-time format, optional
+  title: string; // required
+  userUid: string; // required
+}
+
 // Report 응답 타입 (Swagger 스펙 기준)
 export interface TransactionReportResponse {
   totalPrice: number; // integer format
@@ -80,7 +88,7 @@ export interface TransactionReportResponse {
 }
 
 // 조회 필터 타입 (GET /api/v1/transactions 파라미터)
-export interface TransactionFilter {
+export interface TransactionFilter extends Record<string, string | number | boolean | undefined> {
   userUid: string; // required
   type: ExpenseType; // required - OVER_EXPENSE, FIXED_EXPENSE, NONE
   startAt?: string; // date format, optional

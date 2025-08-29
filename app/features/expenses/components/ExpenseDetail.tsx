@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { ChevronLeft, Trash2 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
+import { ExpenseForm } from './ExpenseForm';
 import type { Transaction } from '@/shared/types/expense';
+import type { ExpenseFormData } from '@/features/expenses/utils/validation';
 
 interface ExpenseDetailProps {
   expense: Transaction | null;
-  onSave: (expense: Transaction) => void;
+  onSave: (formData: ExpenseFormData) => void;
   onCancel: () => void;
   onDelete?: () => void;
+  isLoading?: boolean;
 }
 
 export function ExpenseDetail({
@@ -14,76 +18,91 @@ export function ExpenseDetail({
   onSave,
   onCancel,
   onDelete,
+  isLoading = false,
 }: ExpenseDetailProps) {
   if (!expense) {
     return (
-      <div className="p-6 text-center text-muted-foreground">
-        항목을 찾을 수 없습니다.
+      <div className="bg-white min-h-screen max-w-md mx-2 relative pb-20">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center text-gray-500">
+            <div className="text-4xl mb-4">💸</div>
+            <p>지출 정보를 찾을 수 없습니다.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
+  // Transaction을 ExpenseFormData로 변환
+  const getDefaultValues = (): Partial<ExpenseFormData> => {
+    return {
+      price: expense.price,
+      title: expense.title,
+      userUid: expense.userUid,
+      selectedDate: new Date(expense.startedAt),
+      type: expense.type,
+      category: expense.category,
+      dutchPayCount: 1, // 기본값
+      app: '', // 기본값 (Transaction에 app 필드가 없으므로)
+    };
+  };
+
   return (
-    <div className="max-w-xl mx-auto px-4 py-3 space-y-6">
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-bold mb-4">지출 상세</h2>
-
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm text-gray-600">제목</label>
-            <p className="font-semibold">{expense.title}</p>
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-600">금액</label>
-            <p className="font-semibold text-lg">
-              {expense.price.toLocaleString()}원
-            </p>
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-600">날짜</label>
-            <p>{new Date(expense.startedAt).toLocaleDateString('ko-KR')}</p>
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-600">타입</label>
-            <p>
-              {expense.type === 'FIXED_EXPENSE'
-                ? '고정지출'
-                : expense.type === 'OVER_EXPENSE'
-                  ? '초과지출'
-                  : '미분류'}
-            </p>
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-600">카테고리</label>
-            <p>{expense.category}</p>
-          </div>
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4">
+        <div
+          onClick={onCancel}
+          className="p-0 cursor-pointer"
+        >
+          <ChevronLeft className="w-6 h-6" />
         </div>
-
-        <div className="flex justify-between items-center mt-6">
+        <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
+          지출 수정
+        </h1>
+        <div className="w-6 flex justify-end">
           {onDelete && (
-            <Button
-              variant="outline"
-              size="sm"
+            <div
               onClick={onDelete}
-              className="text-red-600 border-red-600 hover:bg-red-50"
+              className="p-0 cursor-pointer"
             >
-              삭제
-            </Button>
+              <Trash2 className="w-5 h-5 text-red-500" />
+            </div>
           )}
-          <div className="flex gap-2 ml-auto">
-            <Button variant="outline" size="sm" onClick={onCancel}>
-              취소
-            </Button>
-            <Button size="sm" onClick={() => onSave(expense)}>
-              확인
-            </Button>
-          </div>
         </div>
       </div>
-    </div>
+
+      {/* Form */}
+      <ExpenseForm
+        onSubmit={onSave}
+        defaultValues={getDefaultValues()}
+      />
+
+      {/* Action Buttons */}
+      <div className="fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
+        <div className="flex gap-3">
+          <Button
+            onClick={onCancel}
+            className="flex-1 h-[45px] border-[#002b5b] text-[#002b5b] text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/5"
+          >
+             삭제
+          </Button>
+          <Button
+            form="expense-form"
+            type="submit"
+            disabled={isLoading}
+            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50"
+          >
+            {isLoading ? '수정 중...' : '수정'}
+          </Button>
+        </div>
+      </div>
+    </motion.div>
   );
 }

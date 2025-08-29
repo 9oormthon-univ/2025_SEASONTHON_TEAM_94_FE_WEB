@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router';
+import { Button } from '@/shared/components/ui/button';
 import type { Transaction } from '@/shared/types/expense';
 import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
 import { EXPENSE_TYPES } from '@/shared/types/expense';
@@ -21,6 +23,7 @@ export function CategorizedExpenseList({
 }: CategorizedExpenseListProps) {
   const [isOverExpenseExpanded, setIsOverExpenseExpanded] = useState(false);
   const [isFixedExpenseExpanded, setIsFixedExpenseExpanded] = useState(false);
+  const navigate = useNavigate();
 
   if (expenses.length === 0 && emptyState) {
     return (
@@ -80,6 +83,7 @@ export function CategorizedExpenseList({
                 key={expense.id}
                 expense={expense}
                 onUpdate={onExpenseUpdate}
+                onClick={() => navigate(`/expenses/${expense.id}`)}
               />
             ))}
 
@@ -103,6 +107,7 @@ export function CategorizedExpenseList({
                       <CategorizedExpenseItem
                         expense={expense}
                         onUpdate={onExpenseUpdate}
+                        onClick={() => navigate(`/expenses/${expense.id}`)}
                       />
                     </div>
                   </motion.div>
@@ -111,15 +116,13 @@ export function CategorizedExpenseList({
           </div>
           {overExpenses.length > ITEMS_PER_PAGE && (
             <div className="text-center mt-4">
-              <motion.div
+              <Button
+                variant="ghost"
                 onClick={() => setIsOverExpenseExpanded(!isOverExpenseExpanded)}
-                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors p-0 h-auto"
               >
                 {isOverExpenseExpanded ? '접기' : `더보기`}
-              </motion.div>
+              </Button>
             </div>
           )}
         </div>
@@ -140,6 +143,7 @@ export function CategorizedExpenseList({
                 key={expense.id}
                 expense={expense}
                 onUpdate={onExpenseUpdate}
+                onClick={() => navigate(`/expenses/${expense.id}`)}
               />
             ))}
 
@@ -163,6 +167,7 @@ export function CategorizedExpenseList({
                       <CategorizedExpenseItem
                         expense={expense}
                         onUpdate={onExpenseUpdate}
+                        onClick={() => navigate(`/expenses/${expense.id}`)}
                       />
                     </div>
                   </motion.div>
@@ -171,17 +176,13 @@ export function CategorizedExpenseList({
           </div>
           {fixedExpenses.length > ITEMS_PER_PAGE && (
             <div className="text-center mt-4">
-              <motion.div
-                onClick={() =>
-                  setIsFixedExpenseExpanded(!isFixedExpenseExpanded)
-                }
-                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              <Button
+                variant="ghost"
+                onClick={() => setIsFixedExpenseExpanded(!isFixedExpenseExpanded)}
+                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors p-0 h-auto"
               >
                 {isFixedExpenseExpanded ? '접기' : `더보기`}
-              </motion.div>
+              </Button>
             </div>
           )}
         </div>
@@ -232,11 +233,13 @@ function ExpenseSectionHeader({
 interface CategorizedExpenseItemProps {
   expense: Transaction;
   onUpdate?: () => void;
+  onClick?: () => void;
 }
 
 function CategorizedExpenseItem({
   expense,
   onUpdate,
+  onClick,
 }: CategorizedExpenseItemProps) {
   // 은행명 추출 (title에서 첫 번째 단어 또는 기본값)
   const bankName = expense.title.split(' ')[0] || '은행';
@@ -244,7 +247,10 @@ function CategorizedExpenseItem({
   return (
     <div className="flex flex-col gap-1">
       {/* Main Card */}
-      <div className="bg-white rounded-[10px] p-4 flex flex-col">
+      <div 
+        className="bg-white rounded-[10px] p-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={onClick}
+      >
         <div className="text-[12px] text-[#101010] mb-1 font-medium">
           {formatExpenseDate(expense.startedAt)}
         </div>

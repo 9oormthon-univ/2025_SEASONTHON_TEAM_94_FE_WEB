@@ -1,7 +1,7 @@
 import type { ExpenseType } from '@/shared/types/expense';
 
-// ExpenseForm 관련 타입
-export interface ExpenseFormData {
+// ExpenseForm 관련 타입 (기존 - legacy)
+export interface LegacyExpenseFormData {
   amount: string;
   merchant: string;
   app: string;
@@ -10,14 +10,13 @@ export interface ExpenseFormData {
 }
 
 export interface ExpenseFormProps {
-  formData: ExpenseFormData;
-  onFormDataChange: (data: Partial<ExpenseFormData>) => void;
+  formData: LegacyExpenseFormData;
+  onFormDataChange: (data: Partial<LegacyExpenseFormData>) => void;
   isDatePickerOpen: boolean;
   onDatePickerOpenChange: (open: boolean) => void;
 }
 
-// ExpenseTypeSelector 관련 타입
-export interface ExpenseTypeSelectorProps {
-  expenseType: ExpenseType;
-  onTypeChange: (type: ExpenseType) => void;
+// react-hook-form용 새로운 Props 타입
+export interface ExpenseHookFormProps {
+  // react-hook-form props는 내부에서 useForm으로 관리
 }

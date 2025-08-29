@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Button } from '@/shared/components/ui/button';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
 import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
 import { updateTransaction } from '@/features/expenses/api/expenseApi';
@@ -44,7 +45,6 @@ export function UncategorizedExpenseList({
           }, ANIMATION_DELAY_MS);
         }
       } catch (error) {
-        console.error('Transaction update failed:', error);
         // 실패 시 removing 상태 제거
         setRemovingIds(prev => {
           const newSet = new Set(prev);
@@ -154,19 +154,20 @@ function UncategorizedExpenseItem({
 
       {/* Action Buttons */}
       <div className="flex space-x-1.5">
-        <div
+        <Button
+          variant="outline"
           onClick={handleFixedExpenseClick}
-          className="flex-1 h-[45px] bg-white border border-[#ff6200] rounded-[10px] flex items-center justify-center"
+          className="flex-1 h-[45px] border-[#ff6200] text-[#ff6200] bg-white rounded-[10px] text-[16px] font-bold hover:bg-[#ff6200]/5"
         >
-          <span className="text-[16px] font-bold text-[#ff6200]">고정지출</span>
-        </div>
+          고정지출
+        </Button>
 
-        <div
+        <Button
           onClick={handleOverExpenseClick}
-          className="flex-1 h-[45px] bg-[#ff6200] rounded-[10px] flex items-center justify-center"
+          className="flex-1 h-[45px] bg-[#ff6200] text-[#fffefb] rounded-[10px] text-[16px] font-bold hover:bg-[#ff6200]/90"
         >
-          <span className="text-[16px] font-bold text-[#fffefb]">초과지출</span>
-        </div>
+          초과지출
+        </Button>
       </div>
     </div>
   );

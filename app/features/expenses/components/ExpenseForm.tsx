@@ -1,7 +1,11 @@
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  ChevronDown,
-  Pencil,
+  ChevronRight,
 } from 'lucide-react';
+import Edit from '@/assets/edit.svg';
+import xIconUrl from '@/assets/X.svg?url';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -10,16 +14,106 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 import { Calendar } from '@/shared/components/ui/calendar';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { cn } from '@/shared/utils/utils';
-import type { ExpenseFormProps } from '@/features/expenses/_lib/types/components';
+import { EXPENSE_TYPES } from '@/shared/types/expense';
+import { expenseFormSchema, type ExpenseFormData } from '@/features/expenses/utils/validation';
+import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/components';
+
+interface ExpenseFormProps extends ExpenseHookFormProps {
+  onSubmit: (data: ExpenseFormData) => void;
+  defaultValues?: Partial<ExpenseFormData>;
+  onValidationChange?: (isValid: boolean) => void;
+}
 
 export function ExpenseForm({
-  formData,
-  onFormDataChange,
-  isDatePickerOpen,
-  onDatePickerOpenChange,
+  onSubmit,
+  defaultValues,
+  onValidationChange,
 }: ExpenseFormProps) {
-  const { amount, merchant, app, selectedDate, dutchPayCount } = formData;
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [priceInputFocused, setPriceInputFocused] = useState(false);
+  const [priceInputPx, setPriceInputPx] = useState<number>(0);
+  const priceInputRef = useRef<HTMLInputElement>(null);
+  
+  // Price Input 관련 헬퍼 함수들
+  const PRICE_SUFFIX = '원';
+  const PRICE_PREFIX = '-';
+  
+  const toDigits = (v: string) => v.replace(/[^\d]/g, '');
+  const formatPriceDisplay = (n: number) => n ? `${PRICE_PREFIX}${n.toLocaleString()}${PRICE_SUFFIX}` : '';
+  
+  const caretBeforeSuffix = (n: number) => {
+    const before = n ? `${PRICE_PREFIX}${n.toLocaleString()}`.length : 0;
+    requestAnimationFrame(() => {
+      const el = priceInputRef.current;
+      if (!el) return;
+      try { el.setSelectionRange(before, before); } catch {}
+    });
+  };
+  
+  const defaultSelectedDate = useMemo(() => {
+    return defaultValues?.selectedDate || new Date();
+  }, [defaultValues?.selectedDate]);
+  
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ExpenseFormData>({
+    resolver: zodResolver(expenseFormSchema),
+    defaultValues: {
+      price: 0,
+      title: '',
+      userUid: '',
+      app: '',
+      category: undefined,
+      type: EXPENSE_TYPES.OVER_EXPENSE,
+      dutchPayCount: 1,
+      ...defaultValues,
+      selectedDate: defaultSelectedDate,
+    },
+  });
+
+  const watchedValues = watch();
+  const { selectedDate, dutchPayCount, price, type, title } = watchedValues;
+
+  // Price Input width 측정 함수
+  const measurePriceWidth = () => {
+    const el = priceInputRef.current;
+    if (!el) return;
+    const valueStr = formatPriceDisplay(price) || `${PRICE_PREFIX}0${PRICE_SUFFIX}`;
+
+    const cs = getComputedStyle(el);
+    const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return; 
+    ctx.font = font;
+
+    const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const extra = 0;
+    const w = ctx.measureText(valueStr).width + paddingX + extra;
+    setPriceInputPx(w);
+  };
+
+  useEffect(() => { 
+    if (!priceInputFocused) measurePriceWidth(); 
+  }, [price, priceInputFocused]);
+  
+  useEffect(() => {
+    document.fonts?.ready?.then(() => { 
+      if (!priceInputFocused) measurePriceWidth(); 
+    });
+  }, []);
+
+  const isFormValid = price > 0 && title.trim().length > 0;
+
+  useEffect(() => {
+    onValidationChange?.(isFormValid);
+  }, [isFormValid, onValidationChange]);
 
   const formatDate = (date: Date) => {
     const year = date.getFullYear().toString().slice(-2);
@@ -31,42 +125,187 @@ export function ExpenseForm({
   };
 
   const calculateDutchPayAmount = () => {
-    if (dutchPayCount <= 1 || !amount) return amount;
-    const totalAmount = parseInt(amount.replace(/[^0-9]/g, '')) || 0;
-    return Math.floor(totalAmount / dutchPayCount).toLocaleString();
+    if (dutchPayCount <= 1 || !price) return price.toLocaleString();
+    return Math.floor(price / dutchPayCount).toLocaleString();
   };
 
-  const handleAmountChange = (value: string) => {
-    // 숫자만 허용하고 천 단위 구분자 추가
-    const numericValue = value.replace(/[^0-9]/g, '');
-    if (numericValue) {
-      const formattedValue = parseInt(numericValue).toLocaleString();
-      onFormDataChange({ amount: formattedValue });
-    } else {
-      onFormDataChange({ amount: '' });
-    }
+  const handleFormSubmit = (data: ExpenseFormData) => {
+    onSubmit(data);
   };
 
   return (
-    <>
+    <form id="expense-form" onSubmit={handleSubmit(onSubmit as any)}>
+      <div className="px-4 sm:px-6 pb-4">
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <Tabs 
+              value={field.value} 
+              onValueChange={field.onChange}
+              className="w-full"
+            >
+              <TabsList 
+                className="!bg-[#e6e6e6] !rounded-[10px] !h-[45px] !w-full !p-1 !relative !border-none !shadow-none !flex !items-center !justify-center"
+                style={{ 
+                  backgroundColor: '#e6e6e6',
+                  borderRadius: '10px',
+                  height: '45px',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <div
+                  className={cn(
+                    'absolute top-1 left-1 h-[37px] bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm',
+                    field.value === EXPENSE_TYPES.FIXED_EXPENSE
+                      ? 'translate-x-full'
+                      : 'translate-x-0'
+                  )}
+                  style={{
+                    width: 'calc(50% - 2px)',
+                  }}
+                />
+                
+                <TabsTrigger 
+                  value={EXPENSE_TYPES.OVER_EXPENSE}
+                  className="!h-[37px] !rounded-[8px] !text-[16px] !font-bold !min-h-[37px] !min-w-auto !relative !z-10 !bg-transparent !transition-colors !duration-300 !flex-1 !flex !items-center !justify-center !self-center data-[state=active]:!bg-transparent data-[state=active]:!text-white data-[state=inactive]:!text-gray-600"
+                  style={{
+                    height: '37px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    minHeight: '37px',
+                    minWidth: 'auto',
+                    backgroundColor: 'transparent',
+                    flex: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    alignSelf: 'center'
+                  }}
+                >
+                  초과지출
+                </TabsTrigger>
+                <TabsTrigger 
+                  value={EXPENSE_TYPES.FIXED_EXPENSE}
+                  className="!h-[37px] !rounded-[8px] !text-[16px] !font-bold !min-h-[37px] !min-w-auto !relative !z-10 !bg-transparent !transition-colors !duration-300 !flex-1 !flex !items-center !justify-center !self-center data-[state=active]:!bg-transparent data-[state=active]:!text-white data-[state=inactive]:!text-gray-600"
+                  style={{
+                    height: '37px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    minHeight: '37px',
+                    minWidth: 'auto',
+                    backgroundColor: 'transparent',
+                    flex: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    alignSelf: 'center'
+                  }}
+                >
+                  고정지출
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+        />
+        {errors.type && (
+          <p className="text-red-500 text-xs mt-2 text-center">{errors.type.message}</p>
+        )}
+      </div>
+
       {/* Amount Input */}
-      <div className="px-4 sm:px-6 pb-8">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <Input
-              type="number"
-              inputMode='numeric'
-              value={amount ? `-${amount}원` : ''}
-              onChange={e => {
-                const value = e.target.value.replace(/[-원]/g, '');
-                handleAmountChange(value);
+      <div className="px-4 pb-8">
+        <div className="relative group flex items-center">
+          <Controller
+            name="price"
+            control={control}
+            render={({ field }) => (
+              <input
+                ref={priceInputRef}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                onFocus={() => { 
+                  setPriceInputFocused(true); 
+                  caretBeforeSuffix(field.value); 
+                }}
+                onBlur={() => setPriceInputFocused(false)}
+                style={{
+                  width: priceInputFocused ? '100%' : (priceInputPx || '100%'),
+                  border: '0', 
+                  borderRadius: 0, 
+                  outline: 'none',
+                  boxShadow: 'none', 
+                  WebkitAppearance: 'none', 
+                  appearance: 'none',
+                }}
+                className={`
+                  bg-transparent
+                  outline-none ring-0 focus:ring-0
+                  border-none
+                  !text-2xl font-bold text-black
+                  placeholder:text-[#B9B9B9]
+                  ${priceInputFocused ? 'pr-9' : ''} 
+                `}
+                placeholder={`${PRICE_PREFIX}0${PRICE_SUFFIX}`}
+                value={formatPriceDisplay(field.value)}
+                onChange={(e) => {
+                  const next = Number(toDigits(e.target.value) || '0');
+                  field.onChange(next);
+                  caretBeforeSuffix(next);
+                }}
+              />
+            )}
+          />
+
+          {!priceInputFocused && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="편집"
+              className="w-14 h-14 p-0 hover:bg-black/5 active:bg-black/10 flex items-center justify-center ml-1"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { 
+                priceInputRef.current?.focus(); 
+                caretBeforeSuffix(price); 
               }}
-              placeholder="금액을 입력하세요"
-              className="!text-2xl !font-bold !text-black !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto"
-              style={{ fontSize: '1.5rem' }}
-            />
-          </div>
-          <Pencil className="w-4 h-4 text-gray-400" />
+            >
+              <img src={Edit} alt="편집" className="w-4 h-4 opacity-70" />
+            </Button>
+          )}
+
+          {priceInputFocused && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="지우기"
+              className="w-14 h-14 p-0 hover:bg-black/5 active:bg-black/10 flex items-center justify-center ml-auto"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { 
+                setValue('price', 0); 
+                caretBeforeSuffix(0); 
+                priceInputRef.current?.focus(); 
+              }}
+            >
+              <img src={xIconUrl} alt="지우기" className="w-4 h-4 opacity-70" />
+            </Button>
+          )}
+
+          {/* 밑줄 애니메이션 */}
+          <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" />
+
+          {errors.price && (
+            <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
+          )}
         </div>
       </div>
 
@@ -77,13 +316,21 @@ export function ExpenseForm({
           <label className="text-[16px] text-[#757575] tracking-[-0.176px] flex-shrink-0">
             거래처
           </label>
-          <Input
-            type="text"
-            value={merchant}
-            onChange={e => onFormDataChange({ merchant: e.target.value })}
-            placeholder="거래처를 입력하세요."
-            className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="text"
+                {...field}
+                placeholder="거래처를 입력하세요."
+                className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
+              />
+            )}
           />
+          {errors.title && (
+            <p className="text-red-500 text-xs mt-1 text-right">{errors.title.message}</p>
+          )}
         </div>
 
         {/* App */}
@@ -91,13 +338,21 @@ export function ExpenseForm({
           <label className="text-base text-[#757575] tracking-[-0.176px] flex-shrink-0">
             앱
           </label>
-          <Input
-            type="text"
-            value={app}
-            onChange={e => onFormDataChange({ app: e.target.value })}
-            placeholder="앱을 선택하세요"
-            className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
+          <Controller
+            name="app"
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="text"
+                {...field}
+                placeholder="앱을 입력하세요. (선택사항)"
+                className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
+              />
+            )}
           />
+          {errors.app && (
+            <p className="text-red-500 text-xs mt-1 text-right">{errors.app.message}</p>
+          )}
         </div>
 
         {/* Date */}
@@ -105,64 +360,62 @@ export function ExpenseForm({
           <label className="text-base text-[#757575] tracking-[-0.176px]">
             날짜
           </label>
-          <Popover open={isDatePickerOpen} onOpenChange={onDatePickerOpenChange}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                className="text-base text-[#3d3d3d] text-right tracking-[-0.176px] p-0 h-auto font-normal"
-              >
-                {formatDate(selectedDate)}
-                <ChevronDown className="w-3 h-3 ml-2" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0 max-w-[260px] sm:max-w-[300px]"
-              align="center"
-              side="top"
-              sideOffset={8}
-              avoidCollisions={true}
-            >
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={date => {
-                  if (date) {
-                    onFormDataChange({ selectedDate: date });
-                    onDatePickerOpenChange(false);
-                  }
-                }}
-                captionLayout="dropdown"
-                className="rounded-md border shadow-lg text-sm"
-                classNames={{
-                  months:
-                    'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
-                  month: 'space-y-4',
-                  caption: 'flex justify-center pt-1 relative items-center',
-                  caption_label: 'text-sm font-medium',
-                  nav: 'space-x-1 flex items-center',
-                  nav_button:
-                    'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                  nav_button_previous: 'absolute left-1',
-                  nav_button_next: 'absolute right-1',
-                  table: 'w-full border-collapse space-y-1',
-                  head_row: 'flex',
-                  head_cell:
-                    'text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]',
-                  row: 'flex w-full mt-2',
-                  cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                  day: 'h-7 w-7 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground',
-                  day_selected:
-                    'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
-                  day_today: 'bg-accent text-accent-foreground',
-                  day_outside: 'text-muted-foreground opacity-50',
-                  day_disabled: 'text-muted-foreground opacity-50',
-                  day_range_middle:
-                    'aria-selected:bg-accent aria-selected:text-accent-foreground',
-                  day_hidden: 'invisible',
-                }}
-              />
-            </PopoverContent>
-          </Popover>
+          <Controller
+            name="selectedDate"
+            control={control}
+            render={({ field }) => (
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-base text-[#3d3d3d] text-right tracking-[-0.176px] p-0 h-auto font-normal"
+                  >
+                    {formatDate(field.value)}
+                    <ChevronRight className="w-3 h-3 ml-2" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0 max-w-[260px] sm:max-w-[300px]"
+                  align="center"
+                  side="top"
+                  sideOffset={8}
+                  avoidCollisions={true}
+                >
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => {
+                      if (date) {
+                        // 캘린더에서 선택된 날짜는 로컬 타임존의 00:00:00
+                        // 기존 시간을 보존하면서 날짜만 변경
+                        const currentDate = field.value;
+                        
+                        // 새로운 날짜 객체 생성 (로컬 타임존 유지)
+                        const newDate = new Date(
+                          date.getFullYear(),
+                          date.getMonth(), 
+                          date.getDate(),
+                          currentDate.getHours(),
+                          currentDate.getMinutes(),
+                          currentDate.getSeconds(),
+                          currentDate.getMilliseconds()
+                        );
+                        
+                        field.onChange(newDate);
+                        // 날짜 선택 후 캘린더 닫기
+                        setIsCalendarOpen(false);
+                      }
+                    }}
+                    captionLayout="dropdown"
+                    className="rounded-md border shadow-lg text-sm"
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
+          />
+          {errors.selectedDate && (
+            <p className="text-red-500 text-xs mt-1 text-right">{errors.selectedDate.message}</p>
+          )}
         </div>
 
         {/* Dutch Pay */}
@@ -171,28 +424,37 @@ export function ExpenseForm({
             더치페이
           </label>
           <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              inputMode='numeric'
-              value={dutchPayCount || ''}
-              onChange={e => {
-                const value = e.target.value;
-                const numericValue = value.replace(/[^0-9]/g, '');
-                const parsedValue =
-                  numericValue === '' ? 0 : parseInt(numericValue, 10);
-                onFormDataChange({ dutchPayCount: parsedValue });
-              }}
-              placeholder="0"
-              className="!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"
+            <Controller
+              name="dutchPayCount"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  value={field.value || 1}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numericValue = value.replace(/[^0-9]/g, '');
+                    const parsedValue = numericValue === '' ? 1 : Math.max(1, parseInt(numericValue, 10));
+                    field.onChange(parsedValue);
+                  }}
+                  placeholder="1"
+                  className="!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"
+                />
+              )}
             />
-            {dutchPayCount > 1 && amount && (
+            {dutchPayCount > 1 && price && (
               <div className="text-sm text-[#757575]">
                 (1인당: {calculateDutchPayAmount()}원)
               </div>
             )}
           </div>
+          {errors.dutchPayCount && (
+            <p className="text-red-500 text-xs mt-1 text-right">{errors.dutchPayCount.message}</p>
+          )}
         </div>
       </div>
-    </>
+    </form>
   );
 }

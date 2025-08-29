@@ -21,6 +21,9 @@ type Pages = {
       "expenseId": string;
     };
   };
+  "/expenses/add": {
+    params: {};
+  };
   "/report": {
     params: {};
   };
@@ -29,7 +32,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/expenses" | "/expenses/:expenseId" | "/report";
+    page: "/" | "/expenses" | "/expenses/:expenseId" | "/expenses/add" | "/report";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -42,6 +45,10 @@ type RouteFiles = {
   "routes/expenses.$expenseId.tsx": {
     id: "routes/expenses.$expenseId";
     page: "/expenses/:expenseId";
+  };
+  "routes/expenses.add.tsx": {
+    id: "routes/expenses.add";
+    page: "/expenses/add";
   };
   "routes/report.tsx": {
     id: "routes/report";

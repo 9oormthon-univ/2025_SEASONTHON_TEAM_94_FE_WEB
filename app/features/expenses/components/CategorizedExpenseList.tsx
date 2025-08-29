@@ -220,9 +220,10 @@ function ExpenseSectionHeader({
         <span>8월 1일 - 8월 28일</span>
         <span className="mx-2">·</span>
         <span>{count}회 지출</span>
-        <svg className="w-3 h-3 ml-2" viewBox="0 0 12 12" fill="currentColor">
+        {/* 추가 항목 버튼 | 그냥 최상단에서 처리하는게 낫지 않나? */}
+        {/* <svg className="w-3 h-3 ml-2" viewBox="0 0 12 12" fill="currentColor">
           <path d="M6 8.5L2.5 5 3.5 4L6 6.5L8.5 4L9.5 5L6 8.5Z" />
-        </svg>
+        </svg> */}
       </div>
     </div>
   );

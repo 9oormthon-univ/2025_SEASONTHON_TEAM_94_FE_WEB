@@ -184,9 +184,9 @@ export function ExpensesPage() {
           </div>
 
           {/* Plus Button - 탭과 같은 라인 */}
-          <button onClick={loadExpenses} disabled={loading}>
+          <Link to="/expenses/add">
             <PlusIcon className="w-9 h-9" />
-          </button>
+          </Link>
         </div>
       </div>
 

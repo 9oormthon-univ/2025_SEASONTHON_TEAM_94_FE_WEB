@@ -1,10 +1,11 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   ChevronRight,
 } from 'lucide-react';
-import Edit from '@/assets/edit.svg?react';
+import Edit from '@/assets/edit.svg';
+import xIconUrl from '@/assets/X.svg?url';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -31,6 +32,25 @@ export function ExpenseForm({
   onValidationChange,
 }: ExpenseFormProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [priceInputFocused, setPriceInputFocused] = useState(false);
+  const [priceInputPx, setPriceInputPx] = useState<number>(0);
+  const priceInputRef = useRef<HTMLInputElement>(null);
+  
+  // Price Input 관련 헬퍼 함수들
+  const PRICE_SUFFIX = '원';
+  const PRICE_PREFIX = '-';
+  
+  const toDigits = (v: string) => v.replace(/[^\d]/g, '');
+  const formatPriceDisplay = (n: number) => n ? `${PRICE_PREFIX}${n.toLocaleString()}${PRICE_SUFFIX}` : '';
+  
+  const caretBeforeSuffix = (n: number) => {
+    const before = n ? `${PRICE_PREFIX}${n.toLocaleString()}`.length : 0;
+    requestAnimationFrame(() => {
+      const el = priceInputRef.current;
+      if (!el) return;
+      try { el.setSelectionRange(before, before); } catch {}
+    });
+  };
   
   // 기본 날짜 값을 메모이제이션하여 리렌더링 시에도 동일한 시간 유지
   const defaultSelectedDate = useMemo(() => {
@@ -64,6 +84,35 @@ export function ExpenseForm({
   const watchedValues = watch();
   const { selectedDate, dutchPayCount, price, type, title } = watchedValues;
 
+  // Price Input width 측정 함수
+  const measurePriceWidth = () => {
+    const el = priceInputRef.current;
+    if (!el) return;
+    const valueStr = formatPriceDisplay(price) || `${PRICE_PREFIX}0${PRICE_SUFFIX}`;
+
+    const cs = getComputedStyle(el);
+    const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.font = font;
+
+    const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const extra = 0; // 여유 공간을 더 늘려서 다른 컴포넌트와 길이 맞춤
+    const w = ctx.measureText(valueStr).width + paddingX + extra;
+    setPriceInputPx(w);
+  };
+
+  useEffect(() => { 
+    if (!priceInputFocused) measurePriceWidth(); 
+  }, [price, priceInputFocused]);
+  
+  useEffect(() => {
+    document.fonts?.ready?.then(() => { 
+      if (!priceInputFocused) measurePriceWidth(); 
+    });
+  }, []);
+
   // 필수 필드 검증
   const isFormValid = price > 0 && title.trim().length > 0;
 
@@ -84,12 +133,6 @@ export function ExpenseForm({
   const calculateDutchPayAmount = () => {
     if (dutchPayCount <= 1 || !price) return price.toLocaleString();
     return Math.floor(price / dutchPayCount).toLocaleString();
-  };
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[-원,]/g, '');
-    const numericValue = parseInt(value) || 0;
-    return numericValue;
   };
 
   const handleFormSubmit = (data: ExpenseFormData) => {
@@ -184,32 +227,94 @@ export function ExpenseForm({
       </div>
 
       {/* Amount Input */}
-      <div className="px-4 sm:px-6 pb-8">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <Controller
-              name="price"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  type="text"
-                  value={field.value ? `-${field.value.toLocaleString()}원` : ''}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[-원,]/g, '');
-                    const numericValue = parseInt(value) || 0;
-                    field.onChange(numericValue);
-                  }}
-                  placeholder="금액을 입력하세요"
-                  className="!text-2xl !font-bold !text-black !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto"
-                  style={{ fontSize: '1.5rem' }}
-                />
-              )}
-            />
-            {errors.price && (
-              <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
+      <div className="px-4 pb-8">
+        <div className="relative group">
+          <Controller
+            name="price"
+            control={control}
+            render={({ field }) => (
+              <input
+                ref={priceInputRef}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                onFocus={() => { 
+                  setPriceInputFocused(true); 
+                  caretBeforeSuffix(field.value); 
+                }}
+                onBlur={() => setPriceInputFocused(false)}
+                style={{
+                  width: priceInputFocused ? '100%' : (priceInputPx || '100%'),
+                  border: '0', 
+                  borderRadius: 0, 
+                  outline: 'none',
+                  boxShadow: 'none', 
+                  WebkitAppearance: 'none', 
+                  appearance: 'none',
+                }}
+                className={`
+                  w-full bg-transparent
+                  outline-none ring-0 focus:ring-0
+                  border-none
+                  !text-2xl font-bold text-black
+                  placeholder:text-[#B9B9B9] pb-2
+                  ${priceInputFocused ? 'pr-9' : ''} 
+                `}
+                placeholder={`${PRICE_PREFIX}0${PRICE_SUFFIX}`}
+                value={formatPriceDisplay(field.value)}
+                onChange={(e) => {
+                  const next = Number(toDigits(e.target.value) || '0');
+                  field.onChange(next);
+                  caretBeforeSuffix(next);
+                }}
+              />
             )}
-          </div>
-          <Edit className="w-4 h-4 text-gray-400" />
+          />
+
+          {!priceInputFocused && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="편집"
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 p-0 hover:bg-black/5 active:bg-black/10"
+              style={{ left: (priceInputRef.current ? (priceInputRef.current.offsetLeft + (priceInputPx || 0)) : 0) }}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { 
+                priceInputRef.current?.focus(); 
+                caretBeforeSuffix(price); 
+              }}
+            >
+              <img src={Edit} alt="편집" className="w-4 h-4 opacity-70" />
+            </Button>
+          )}
+
+          {priceInputFocused && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="지우기"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 p-0 hover:bg-black/5 active:bg-black/10"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { 
+                setValue('price', 0); 
+                caretBeforeSuffix(0); 
+                priceInputRef.current?.focus(); 
+              }}
+            >
+              <img src={xIconUrl} alt="지우기" className="w-4 h-4 opacity-70" />
+            </Button>
+          )}
+
+          {/* 밑줄 애니메이션 */}
+          <div className="pointer-events-none absolute left-0 right-0 -bottom-[3px] h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" />
+
+          {errors.price && (
+            <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
+          )}
         </div>
       </div>
 

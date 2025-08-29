@@ -1,4 +1,5 @@
 import { type RouteConfig, index, route } from '@react-router/dev/routes';
+import { ro } from 'date-fns/locale';
 
 export default [
   index('routes/_index.tsx'),
@@ -6,5 +7,6 @@ export default [
   route('expenses/:expenseId', 'routes/expenses.$expenseId.tsx'),
   route('expenses/add', 'routes/expenses.add.tsx'),
   route('report', 'routes/report.tsx'),
-  route("more", "features/more/pages/MorePage.tsx")
+  route("more", "features/more/pages/MorePage.tsx"),
+  route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx")
 ] satisfies RouteConfig;

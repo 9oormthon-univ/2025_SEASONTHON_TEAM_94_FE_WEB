@@ -30,12 +30,15 @@ type Pages = {
   "/more": {
     params: {};
   };
+  "/reports/budget-goal": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/expenses" | "/expenses/:expenseId" | "/expenses/add" | "/report" | "/more";
+    page: "/" | "/expenses" | "/expenses/:expenseId" | "/expenses/add" | "/report" | "/more" | "/reports/budget-goal";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -60,5 +63,9 @@ type RouteFiles = {
   "features/more/pages/MorePage.tsx": {
     id: "features/more/pages/MorePage";
     page: "/more";
+  };
+  "features/reports/pages/BudgetGoalPage.tsx": {
+    id: "features/reports/pages/BudgetGoalPage";
+    page: "/reports/budget-goal";
   };
 };

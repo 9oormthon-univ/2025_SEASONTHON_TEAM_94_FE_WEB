@@ -20,7 +20,7 @@ export default function MiniReport({
   barLabel,
   monthlyGoal,
   className,
-  setGoalTo = '/report',
+  setGoalTo = '/reports/budget-goal',
 }: Props) {
   return (
     <Card className={`mx-4 mt-4 rounded-lg border-0 shadow-none ${className ?? ''}`}>
@@ -35,12 +35,20 @@ export default function MiniReport({
           />
         </div>
 
-        {/* 아래 줄: 중앙 링크 + 우측 목표 금액 */}
-        <div className="mt-2 flex items-center justify-between text-[11px] text-[#757575]">
-          <Link to={setGoalTo} className="mx-auto text-[#BDBDBD] hover:underline underline-offset-2">
-            목표 초과지출 설정
-          </Link>
-          <Money>{monthlyGoal > 0 ? `- ${monthlyGoal.toLocaleString()}원` : '0원'}</Money>
+        <div className="mt-2 text-[11px]">
+          <div className="mt-1 flex justify-end text-[#757575]">
+            <Money>{monthlyGoal > 0 ? `- ${monthlyGoal.toLocaleString()}원` : '0원'}</Money>
+          </div>
+
+          <div className="flex justify-center">
+            <Link
+              to={setGoalTo}
+              className="text-[#757575] underline underline-offset-4 decoration-[#BDBDBD] hover:decoration-[#757575]"
+            >
+              목표 초과지출 설정
+            </Link>
+          </div>
+          
         </div>
       </CardContent>
     </Card>

@@ -1,28 +1,46 @@
+// features/more/api/budgetGoals.ts
 import { httpClient } from '@/shared/utils/httpClient';
 import { API_ENDPOINTS } from '@/shared/config/api';
 import type { ApiResponse } from '@/shared/types/api';
+import type {
+  BudgetGoalResponse,
+  BudgetGoalCreateRequest,
+  BudgetGoalUpdateRequest,
+} from '@/shared/types/budget';
 
-export type BudgetGoal = {
-  id: number;
-  price: number;
-  userUid: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export function getBudgetGoalById(
-  id: number,
-  params?: { userUid?: string }   // ✅ 추가
-) {
-  return httpClient.get<ApiResponse<BudgetGoal>>(
-    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
-    params                                 // ✅ 전달
+// 1) 생성
+export function createBudgetGoal(body: BudgetGoalCreateRequest) {
+  return httpClient.post<ApiResponse<BudgetGoalResponse>>(
+    API_ENDPOINTS.BUDGET_GOALS,
+    body
   );
 }
 
-export function listBudgetGoals(userUid: string) {
-  return httpClient.get<ApiResponse<BudgetGoal[]>>(
+// 2) 단건 조회 (id) — userUid 쿼리 필수
+export function getBudgetGoalById(id: number, params: { userUid: string }) {
+  return httpClient.get<ApiResponse<BudgetGoalResponse>>(
+    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
+    params
+  );
+}
+
+// 3) 날짜 기준 최근 데이터(해당 월) — 단건 반환
+export function getBudgetGoalByDate(params: { userUid: string; date?: string }) {
+  return httpClient.get<ApiResponse<BudgetGoalResponse>>(
     API_ENDPOINTS.BUDGET_GOALS,
-    { userUid }
+    params
+  );
+}
+
+// 4) 수정 — userUid 쿼리 필수
+export function updateBudgetGoal(
+  id: number,
+  params: { userUid: string },
+  body: BudgetGoalUpdateRequest
+) {
+  return httpClient.put<ApiResponse<BudgetGoalResponse>>(
+    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
+    body,
+    { params }
   );
 }

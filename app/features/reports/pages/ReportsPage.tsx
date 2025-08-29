@@ -6,6 +6,8 @@ import ReportSummary from '../components/ReportSummary';
 import { useReport } from '../hooks/useReport';
 import { fmt } from '../utils/number';
 import { dateK } from '../utils/date';
+import { Button } from '@/shared/components/ui/button';
+
 
 export default function ReportPage() {
   const navigate = useNavigate();
@@ -78,7 +80,6 @@ export default function ReportPage() {
               {`${dateK(monthStart)} - ${dateK(monthEnd)}`}
             </div>
           </div>
-          {/* ✅ 고정: API price 그대로 */}
           <div className="mt-2 text-xl font-medium text-[#FF6200]">
             - {fmt(monthlyGoal)}
           </div>
@@ -105,23 +106,24 @@ export default function ReportPage() {
         </div>
 
         <div className="pt-2">
-          <button type="button" onClick={() => navigate('/')}
-            className="
-              mx-auto                 /* 가운데 정렬 */
-              !w-[364px] max-w-full   /* 고정폭(364px), 부모보다 크면 줄이기 */
-              !h-[45px]               /* 높이 고정 */
-              !rounded-[8px]          /* 모서리 8px */
-              !px-[10px] !py-[10px]    /* 패딩 10px */
-              !flex items-center !justify-center gap-[10px] /* 아이콘/텍스트 간격 10px */
-              !font-light !text-white text-center
-              shadow-md active:shadow-sm
-              appearance-none
-              !bg-[#FF6200] hover:opacity-90 disabled:opacity-100
-            "
-          >
-            {monthlyGoal > 0 ? '목표 지출 설정하기' : '목표 지출 설정하기'}
-          </button>
-        </div>
+        <Button
+          type="button"
+          onClick={() => navigate('/reports/budget-goal')}
+          className="
+            mx-auto
+            w-[364px] max-w-full
+            h-[45px]
+            !rounded-[8px]
+            px-[10px] 
+            flex items-center justify-center
+            !font-light !text-white text-center
+            shadow-md active:shadow-sm
+            !bg-[#FF6200] hover:opacity-90 disabled:opacity-100
+          "
+        >
+          {monthlyGoal > 0 ? '목표 지출 설정하기' : '목표 지출 설정하기'}
+        </Button>
+      </div>
 
       </div>
     </div>

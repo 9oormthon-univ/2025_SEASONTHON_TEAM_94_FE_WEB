@@ -4,22 +4,25 @@ import { inThisMonth, monthEnd, monthStart, today, ym } from '../utils/date';
 import { fmt } from '../utils/number';
 
 import { fetchOverAndFixed } from '../api/reportApi';
-import { getBudgetGoalById } from '@/features/more/api/budgetGoals';
-
+import { getBudgetGoalByDate } from '@/features/more/api/budgetGoals';
+import type { BudgetGoalResponse } from '@/shared/types/budget';
 import type { Transaction } from '@/shared/types/expense';
 
-const USER_UID = 'a';  
+const USER_UID = 'a';
 
+// ===== 월 목표 금액 조회 =====
 async function fetchMonthlyGoal(): Promise<number> {
   try {
-    const res = await getBudgetGoalById(1, { userUid: USER_UID }); // ✅ userUid 전달
-    const price = res?.data?.price;
+    const res = await getBudgetGoalByDate({ userUid: USER_UID });
+    const goal: BudgetGoalResponse | null = res.data;
+    const price = goal?.price;
     return Number.isFinite(price) ? Math.max(0, price) : 0;
   } catch {
     return 0;
   }
 }
 
+// ===== 메인 훅 =====
 export function useReport() {
   const [overList, setOverList]   = useState<Transaction[]>([]);
   const [fixedList, setFixedList] = useState<Transaction[]>([]);

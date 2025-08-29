@@ -9,7 +9,8 @@ import { useReport } from '@/features/reports/hooks/useReport';
 type MenuItem =
   | { type: 'link'; label: string; to: string }
   | { type: 'external'; label: string; href: string }
-  | { type: 'action'; label: string; onClick: () => void };
+  | { type: 'action'; label: string; onClick: () => void }
+  | { type: 'link', label: '목표 초과지출 설정/수정', to: '/reports/budget-goal' };
 
 export default function MorePage() {
   const [user, setUser] = useState<CurrentUser | null>(null);

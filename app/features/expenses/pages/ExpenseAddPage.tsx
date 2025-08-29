@@ -16,6 +16,7 @@ export function ExpenseAddPage() {
   const navigate = useNavigate();
   const { createExpense } = useExpenses();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const handleFormSubmit = async (formData: ExpenseFormData) => {
     setIsLoading(true);
@@ -52,7 +53,7 @@ export function ExpenseAddPage() {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
-      className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+      className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-6">
@@ -69,28 +70,35 @@ export function ExpenseAddPage() {
       </div>
 
       {/* Form */}
-      <ExpenseForm
-        onSubmit={handleFormSubmit}
-        defaultValues={{
-          price: 0,
-          title: '',
-          userUid: MOCK_USER_UID,
-          selectedDate: new Date(),
-          dutchPayCount: 0,
-          app: '',
-          type: EXPENSE_TYPES.OVER_EXPENSE,
-          category: undefined, // 카테고리는 나중에 추가 예정
-        }}
-      />
+      <div className="flex-1">
+        <ExpenseForm
+          onSubmit={handleFormSubmit}
+          onValidationChange={setIsFormValid}
+          defaultValues={{
+            price: 0,
+            title: '',
+            userUid: MOCK_USER_UID,
+            selectedDate: new Date(),
+            dutchPayCount: 0,
+            app: '',
+            type: EXPENSE_TYPES.OVER_EXPENSE,
+            category: undefined, // 카테고리는 나중에 추가 예정
+          }}
+        />
+      </div>
 
       {/* Action Buttons */}
-      <div className="fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
+      <div className="px-4 sm:px-6 py-4 mt-auto mb-16">
         <div className="flex">
           <Button
             form="expense-form"
             type="submit"
-            disabled={isLoading}
-            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50"
+            disabled={isLoading || !isFormValid}
+            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors ${
+              isFormValid && !isLoading
+                ? 'bg-[#002b5b]'
+                : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
+            }`}
           >
             {isLoading ? '저장 중...' : '저장'}
           </Button>

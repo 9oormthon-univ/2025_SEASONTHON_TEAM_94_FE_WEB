@@ -1,6 +1,32 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* CSS 레이어로 우선순위 관리 */
+@layer base, components, utilities, shadcn-override;
+
+/* 기존 전역 스타일을 components 레이어로 이동 */
+@layer components {
+  button:not([data-slot]):not([data-slot] *):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
+    font-size: 1rem;
+    font-weight: 600;
+    min-height: 52px;
+    min-width: 52px;
+    border-radius: 1rem;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* 다른 전역 스타일들도 여기로 이동... */
+}
+
+/* shadcn/ui 컴포넌트는 최고 우선순위로 */
+@layer shadcn-override {
+  [data-slot] {
+    /* Tailwind 유틸리티가 우선 적용되도록 */
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -54,17 +80,6 @@ body {
 
   /* 오버플로우 숨김 */
   overflow-x: hidden;
-}
-
-button:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
-  font-size: 1rem;
-  font-weight: 600;
-  min-height: 52px;
-  min-width: 52px;
-  border-radius: 1rem;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
 }
 
 /* 모바일 WebView 전용 스타일 */
@@ -226,7 +241,7 @@ img {
   @apply block mb-4 text-lg font-bold text-foreground;
 }
 
-.action-group button:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
+.action-group button:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button):not([data-slot="button"]) {
   @apply mr-3 mb-3 px-6 py-4 bg-primary text-primary-foreground text-base font-semibold rounded-2xl transition-all duration-200;
   /* 터치 친화적 크기 */
   @apply min-h-[52px] min-w-[52px];
@@ -243,7 +258,7 @@ img {
 }
 
 /* 뒤로가기 버튼 특별 스타일 */
-button:first-child:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
+button:first-child:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button):not([data-slot="button"]) {
   @apply mb-6 px-5 py-4 bg-secondary text-secondary-foreground text-base font-semibold rounded-2xl min-h-[52px] transition-all duration-200;
   @apply active:bg-secondary/80 active:scale-95;
   @apply shadow-md hover:shadow-lg;

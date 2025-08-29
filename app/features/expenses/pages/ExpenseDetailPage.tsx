@@ -18,6 +18,7 @@ export function ExpenseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const userUid = MOCK_USER_UID; // 실제로는 사용자 인증에서 가져옴
 
@@ -185,7 +186,7 @@ export function ExpenseDetailPage() {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
-      className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+      className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-6">
@@ -202,26 +203,32 @@ export function ExpenseDetailPage() {
       </div>
 
       {/* Form */}
-      <ExpenseForm
-        onSubmit={handleFormSubmit}
-        defaultValues={getDefaultValues()}
-      />
+      <div className="flex-1">
+        <ExpenseForm
+          onSubmit={handleFormSubmit}
+          onValidationChange={setIsFormValid}
+          defaultValues={getDefaultValues()}
+        />
+      </div>
 
       {/* Action Buttons */}
-      <div className="fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
+      <div className="px-4 sm:px-6 py-4 mt-auto mb-16">
         <div className="flex gap-3">
           <Button
             onClick={handleDelete}
-            variant="outline"
-            className="flex-1 h-[45px] border-red-500 text-red-500 text-[15px] font-medium rounded-[10px] hover:bg-red-50"
+            className="flex-1 h-[45px] bg-[#EDEDED] text-[#6E6E6E] text-[15px] font-medium rounded-[10px]"
           >
             삭제
           </Button>
           <Button
             form="expense-form"
             type="submit"
-            disabled={isUpdating}
-            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50"
+            disabled={isUpdating || !isFormValid}
+            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors ${
+              isFormValid && !isUpdating
+                ? 'bg-[#002b5b]'
+                : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
+            }`}
           >
             {isUpdating ? '수정 중...' : '수정'}
           </Button>

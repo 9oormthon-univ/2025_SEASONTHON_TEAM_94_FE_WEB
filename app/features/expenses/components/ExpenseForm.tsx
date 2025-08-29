@@ -1,9 +1,10 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect } from 'react';
 import {
-  ChevronDown,
-  Pencil,
+  ChevronRight,
 } from 'lucide-react';
+import Edit from '@/assets/edit.svg?react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -20,12 +21,16 @@ import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/compon
 interface ExpenseFormProps extends ExpenseHookFormProps {
   onSubmit: (data: ExpenseFormData) => void;
   defaultValues?: Partial<ExpenseFormData>;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
 export function ExpenseForm({
   onSubmit,
   defaultValues,
+  onValidationChange,
 }: ExpenseFormProps) {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
   const {
     control,
     handleSubmit,
@@ -50,7 +55,15 @@ export function ExpenseForm({
   });
 
   const watchedValues = watch();
-  const { selectedDate, dutchPayCount, price, type } = watchedValues;
+  const { selectedDate, dutchPayCount, price, type, title } = watchedValues;
+
+  // 필수 필드 검증
+  const isFormValid = price > 0 && title.trim().length > 0;
+
+  // 유효성 상태 변경 시 부모 컴포넌트에 알림
+  useEffect(() => {
+    onValidationChange?.(isFormValid);
+  }, [isFormValid, onValidationChange]);
 
   const formatDate = (date: Date) => {
     const year = date.getFullYear().toString().slice(-2);
@@ -154,7 +167,7 @@ export function ExpenseForm({
               <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
             )}
           </div>
-          <Pencil className="w-4 h-4 text-gray-400" />
+          <Edit className="w-4 h-4 text-gray-400" />
         </div>
       </div>
 
@@ -213,14 +226,14 @@ export function ExpenseForm({
             name="selectedDate"
             control={control}
             render={({ field }) => (
-              <Popover>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
                     className="text-base text-[#3d3d3d] text-right tracking-[-0.176px] p-0 h-auto font-normal"
                   >
                     {formatDate(field.value)}
-                    <ChevronDown className="w-3 h-3 ml-2" />
+                    <ChevronRight className="w-3 h-3 ml-2" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
@@ -241,6 +254,8 @@ export function ExpenseForm({
                         newDate.setMonth(date.getMonth());
                         newDate.setDate(date.getDate());
                         field.onChange(newDate);
+                        // 날짜 선택 후 캘린더 닫기
+                        setIsCalendarOpen(false);
                       }
                     }}
                     captionLayout="dropdown"
@@ -269,21 +284,12 @@ export function ExpenseForm({
                   type="number"
                   inputMode="numeric"
                   min="1"
-                  value={field.value?.toString() || '1'}
+                  value={field.value || 1}
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (value === '') {
-                      field.onChange(1);
-                      return;
-                    }
-                    const numericValue = parseInt(value, 10);
-                    if (!isNaN(numericValue) && numericValue >= 1) {
-                      field.onChange(numericValue);
-                    }
-                  }}
-                  onFocus={(e) => {
-                    // 포커스시 전체 선택하여 덮어쓰기 가능하게 함
-                    e.target.select();
+                    const numericValue = value.replace(/[^0-9]/g, '');
+                    const parsedValue = numericValue === '' ? 1 : Math.max(1, parseInt(numericValue, 10));
+                    field.onChange(parsedValue);
                   }}
                   placeholder="1"
                   className="!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"

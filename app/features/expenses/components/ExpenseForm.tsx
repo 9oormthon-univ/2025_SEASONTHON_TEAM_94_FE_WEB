@@ -52,7 +52,6 @@ export function ExpenseForm({
     });
   };
   
-  // 기본 날짜 값을 메모이제이션하여 리렌더링 시에도 동일한 시간 유지
   const defaultSelectedDate = useMemo(() => {
     return defaultValues?.selectedDate || new Date();
   }, [defaultValues?.selectedDate]);
@@ -71,12 +70,9 @@ export function ExpenseForm({
       userUid: '',
       app: '',
       category: undefined,
-      // type이 항상 정의되도록 보장
       type: EXPENSE_TYPES.OVER_EXPENSE,
-      // dutchPayCount가 항상 정의되도록 보장
       dutchPayCount: 1,
       ...defaultValues,
-      // 수정 시 기존 시간 유지, 생성 시에만 현재 시간 사용
       selectedDate: defaultSelectedDate,
     },
   });
@@ -94,11 +90,11 @@ export function ExpenseForm({
     const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return; 
     ctx.font = font;
 
     const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-    const extra = 0; // 여유 공간을 더 늘려서 다른 컴포넌트와 길이 맞춤
+    const extra = 0;
     const w = ctx.measureText(valueStr).width + paddingX + extra;
     setPriceInputPx(w);
   };
@@ -113,10 +109,8 @@ export function ExpenseForm({
     });
   }, []);
 
-  // 필수 필드 검증
   const isFormValid = price > 0 && title.trim().length > 0;
 
-  // 유효성 상태 변경 시 부모 컴포넌트에 알림
   useEffect(() => {
     onValidationChange?.(isFormValid);
   }, [isFormValid, onValidationChange]);
@@ -141,7 +135,6 @@ export function ExpenseForm({
 
   return (
     <form id="expense-form" onSubmit={handleSubmit(onSubmit as any)}>
-      {/* Expense Type Selector */}
       <div className="px-4 sm:px-6 pb-4">
         <Controller
           name="type"
@@ -164,7 +157,6 @@ export function ExpenseForm({
                   justifyContent: 'center'
                 }}
               >
-                {/* 슬라이딩 배경 */}
                 <div
                   className={cn(
                     'absolute top-1 left-1 h-[37px] bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm',
@@ -173,7 +165,7 @@ export function ExpenseForm({
                       : 'translate-x-0'
                   )}
                   style={{
-                    width: 'calc(50% - 2px)', // 패딩 고려해서 조금 작게
+                    width: 'calc(50% - 2px)',
                   }}
                 />
                 
@@ -228,7 +220,7 @@ export function ExpenseForm({
 
       {/* Amount Input */}
       <div className="px-4 pb-8">
-        <div className="relative group">
+        <div className="relative group flex items-center">
           <Controller
             name="price"
             control={control}
@@ -255,11 +247,11 @@ export function ExpenseForm({
                   appearance: 'none',
                 }}
                 className={`
-                  w-full bg-transparent
+                  bg-transparent
                   outline-none ring-0 focus:ring-0
                   border-none
                   !text-2xl font-bold text-black
-                  placeholder:text-[#B9B9B9] pb-2
+                  placeholder:text-[#B9B9B9]
                   ${priceInputFocused ? 'pr-9' : ''} 
                 `}
                 placeholder={`${PRICE_PREFIX}0${PRICE_SUFFIX}`}
@@ -279,8 +271,7 @@ export function ExpenseForm({
               variant="ghost"
               size="icon"
               aria-label="편집"
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 p-0 hover:bg-black/5 active:bg-black/10"
-              style={{ left: (priceInputRef.current ? (priceInputRef.current.offsetLeft + (priceInputPx || 0)) : 0) }}
+              className="w-14 h-14 p-0 hover:bg-black/5 active:bg-black/10 flex items-center justify-center ml-1"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => { 
                 priceInputRef.current?.focus(); 
@@ -297,7 +288,7 @@ export function ExpenseForm({
               variant="ghost"
               size="icon"
               aria-label="지우기"
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 p-0 hover:bg-black/5 active:bg-black/10"
+              className="w-14 h-14 p-0 hover:bg-black/5 active:bg-black/10 flex items-center justify-center ml-auto"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => { 
                 setValue('price', 0); 
@@ -310,7 +301,7 @@ export function ExpenseForm({
           )}
 
           {/* 밑줄 애니메이션 */}
-          <div className="pointer-events-none absolute left-0 right-0 -bottom-[3px] h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" />
+          <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" />
 
           {errors.price && (
             <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>

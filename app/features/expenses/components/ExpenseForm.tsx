@@ -39,12 +39,13 @@ export function ExpenseForm({
       title: '',
       userUid: '',
       selectedDate: new Date(),
-      dutchPayCount: 1,
       app: '',
       category: undefined,
       ...defaultValues,
       // type이 항상 정의되도록 보장
       type: defaultValues?.type ?? EXPENSE_TYPES.OVER_EXPENSE,
+      // dutchPayCount가 항상 정의되도록 보장
+      dutchPayCount: defaultValues?.dutchPayCount ?? 1,
     },
   });
 
@@ -71,19 +72,14 @@ export function ExpenseForm({
     return numericValue;
   };
 
-  // 디버깅용: type 값 변경 시 로그 출력
-  console.log('🔍 [ExpenseForm] 현재 type 값:', type);
-
   const handleFormSubmit = (data: ExpenseFormData) => {
-    console.log('🔍 [ExpenseForm] 폼 제출 시 type 값:', data.type);
-    console.log('🔍 [ExpenseForm] 전체 폼 데이터:', data);
     onSubmit(data);
   };
 
   return (
     <form id="expense-form" onSubmit={handleSubmit(onSubmit as any)}>
       {/* Expense Type Selector */}
-      <div className="px-4 sm:px-6 pt-6 pb-4">
+      <div className="px-4 sm:px-6 pb-4">
         <Controller
           name="type"
           control={control}
@@ -104,7 +100,7 @@ export function ExpenseForm({
                 type="button"
                 onClick={() => field.onChange(EXPENSE_TYPES.OVER_EXPENSE)}
                 className={cn(
-                  'relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center text-[16px] font-bold transition-colors duration-300',
+                  'relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center self-center text-[16px] font-bold transition-colors duration-300',
                   field.value === EXPENSE_TYPES.OVER_EXPENSE
                     ? 'text-white'
                     : 'text-gray-600'
@@ -116,7 +112,7 @@ export function ExpenseForm({
                 type="button"
                 onClick={() => field.onChange(EXPENSE_TYPES.FIXED_EXPENSE)}
                 className={cn(
-                  'relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center text-[16px] font-bold transition-colors duration-300',
+                  'relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center self-center text-[16px] font-bold transition-colors duration-300',
                   field.value === EXPENSE_TYPES.FIXED_EXPENSE
                     ? 'text-white'
                     : 'text-gray-600'
@@ -249,33 +245,6 @@ export function ExpenseForm({
                     }}
                     captionLayout="dropdown"
                     className="rounded-md border shadow-lg text-sm"
-                    classNames={{
-                      months:
-                        'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
-                      month: 'space-y-4',
-                      caption: 'flex justify-center pt-1 relative items-center',
-                      caption_label: 'text-sm font-medium',
-                      nav: 'space-x-1 flex items-center',
-                      nav_button:
-                        'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                      nav_button_previous: 'absolute left-1',
-                      nav_button_next: 'absolute right-1',
-                      table: 'w-full border-collapse space-y-1',
-                      head_row: 'flex',
-                      head_cell:
-                        'text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]',
-                      row: 'flex w-full mt-2',
-                      cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                      day: 'h-7 w-7 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground',
-                      day_selected:
-                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
-                      day_today: 'bg-accent text-accent-foreground',
-                      day_outside: 'text-muted-foreground opacity-50',
-                      day_disabled: 'text-muted-foreground opacity-50',
-                      day_range_middle:
-                        'aria-selected:bg-accent aria-selected:text-accent-foreground',
-                      day_hidden: 'invisible',
-                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -300,12 +269,21 @@ export function ExpenseForm({
                   type="number"
                   inputMode="numeric"
                   min="1"
-                  value={field.value || 1}
+                  value={field.value?.toString() || '1'}
                   onChange={(e) => {
                     const value = e.target.value;
-                    const numericValue = value.replace(/[^0-9]/g, '');
-                    const parsedValue = numericValue === '' ? 1 : Math.max(1, parseInt(numericValue, 10));
-                    field.onChange(parsedValue);
+                    if (value === '') {
+                      field.onChange(1);
+                      return;
+                    }
+                    const numericValue = parseInt(value, 10);
+                    if (!isNaN(numericValue) && numericValue >= 1) {
+                      field.onChange(numericValue);
+                    }
+                  }}
+                  onFocus={(e) => {
+                    // 포커스시 전체 선택하여 덮어쓰기 가능하게 함
+                    e.target.select();
                   }}
                   placeholder="1"
                   className="!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"

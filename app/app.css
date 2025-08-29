@@ -56,6 +56,17 @@ body {
   overflow-x: hidden;
 }
 
+button {
+  font-size: 1rem;
+  font-weight: 600;
+  min-height: 52px;
+  min-width: 52px;
+  border-radius: 1rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
 /* 모바일 WebView 전용 스타일 */
 * {
   /* 터치 스크롤 부드럽게 */
@@ -206,11 +217,9 @@ img {
   /* 모바일에서 더 나은 간격 */
   @apply mx-0;
   /* 그라데이션 효과 */
-  background: linear-gradient(
-    135deg,
-    var(--color-muted) 0%,
-    var(--color-accent) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--color-muted) 0%,
+      var(--color-accent) 100%);
 }
 
 .action-group strong {
@@ -262,8 +271,10 @@ p {
 input:not([data-slot="calendar"] input):not(.rdp-day input),
 textarea:not([data-slot="calendar"] textarea),
 select:not([data-slot="calendar"] select) {
-  @apply text-base; /* iOS 줌 방지 */
-  @apply min-h-[52px]; /* 터치 영역 확보 */
+  @apply text-base;
+  /* iOS 줌 방지 */
+  @apply min-h-[52px];
+  /* 터치 영역 확보 */
   @apply rounded-2xl border border-border px-4 py-3;
   @apply focus:ring-2 focus:ring-primary focus:border-transparent;
   @apply transition-all duration-200;
@@ -322,6 +333,7 @@ select:not([data-slot="calendar"] select) {
     opacity: 0;
     transform: translateY(-1rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -330,6 +342,7 @@ select:not([data-slot="calendar"] select) {
 
 /* 웹뷰 전용 스타일 */
 @media screen and (max-width: 768px) {
+
   /* 더블탭 줌 방지 */
   * {
     touch-action: manipulation;
@@ -464,6 +477,7 @@ select:not([data-slot="calendar"] select) {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -492,14 +506,14 @@ select:not([data-slot="calendar"] select) {
 .page-unboxed select:focus,
 .page-unboxed textarea:focus {
   /* 원하면 포커스 때만 밑줄 표시 */
-  border-bottom: 1px solid
-    color-mix(in oklab, var(--color-foreground) 30%, transparent) !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-foreground) 30%, transparent) !important;
 }
 
 /* 숫자 인풋 스핀버튼 숨김(크롬/사파리) */
 .page-unboxed input[type='number'] {
   appearance: textfield;
 }
+
 .page-unboxed input[type='number']::-webkit-outer-spin-button,
 .page-unboxed input[type='number']::-webkit-inner-spin-button {
   appearance: none;
@@ -507,6 +521,12 @@ select:not([data-slot="calendar"] select) {
 }
 
 /* 하단바 숨김 모드 */
-body.hide-nav nav { display: none !important; }
-body.hide-nav .content { padding-bottom: 0 !important; } /* 내용 하단여백 회수 */
+body.hide-nav nav {
+  display: none !important;
+}
 
+body.hide-nav .content {
+  padding-bottom: 0 !important;
+}
+
+/* 내용 하단여백 회수 */

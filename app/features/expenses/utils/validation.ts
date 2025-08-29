@@ -106,11 +106,10 @@ export const expenseFormSchema = z.object({
   selectedDate: z.date({ message: '날짜를 선택해주세요.' }),
   
   dutchPayCount: z
-    .number()
+    .number({ message: '더치페이 인원을 입력해주세요.' })
     .min(0, '더치페이 인원은 1명 이상이어야 합니다.')
     .max(20, '더치페이 인원은 20명 이하로 설정해주세요.')
-    .int('더치페이 인원은 정수여야 합니다.')
-    .default(1),
+    .int('더치페이 인원은 정수여야 합니다.'),
   
   app: z.string(),
 });

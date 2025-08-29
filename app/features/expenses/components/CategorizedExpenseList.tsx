@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router';
 import type { Transaction } from '@/shared/types/expense';
 import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
 import { EXPENSE_TYPES } from '@/shared/types/expense';
@@ -21,6 +22,7 @@ export function CategorizedExpenseList({
 }: CategorizedExpenseListProps) {
   const [isOverExpenseExpanded, setIsOverExpenseExpanded] = useState(false);
   const [isFixedExpenseExpanded, setIsFixedExpenseExpanded] = useState(false);
+  const navigate = useNavigate();
 
   if (expenses.length === 0 && emptyState) {
     return (
@@ -80,6 +82,7 @@ export function CategorizedExpenseList({
                 key={expense.id}
                 expense={expense}
                 onUpdate={onExpenseUpdate}
+                onClick={() => navigate(`/expenses/${expense.id}`)}
               />
             ))}
 
@@ -103,6 +106,7 @@ export function CategorizedExpenseList({
                       <CategorizedExpenseItem
                         expense={expense}
                         onUpdate={onExpenseUpdate}
+                        onClick={() => navigate(`/expenses/${expense.id}`)}
                       />
                     </div>
                   </motion.div>
@@ -140,6 +144,7 @@ export function CategorizedExpenseList({
                 key={expense.id}
                 expense={expense}
                 onUpdate={onExpenseUpdate}
+                onClick={() => navigate(`/expenses/${expense.id}`)}
               />
             ))}
 
@@ -163,6 +168,7 @@ export function CategorizedExpenseList({
                       <CategorizedExpenseItem
                         expense={expense}
                         onUpdate={onExpenseUpdate}
+                        onClick={() => navigate(`/expenses/${expense.id}`)}
                       />
                     </div>
                   </motion.div>
@@ -232,11 +238,13 @@ function ExpenseSectionHeader({
 interface CategorizedExpenseItemProps {
   expense: Transaction;
   onUpdate?: () => void;
+  onClick?: () => void;
 }
 
 function CategorizedExpenseItem({
   expense,
   onUpdate,
+  onClick,
 }: CategorizedExpenseItemProps) {
   // 은행명 추출 (title에서 첫 번째 단어 또는 기본값)
   const bankName = expense.title.split(' ')[0] || '은행';
@@ -244,7 +252,10 @@ function CategorizedExpenseItem({
   return (
     <div className="flex flex-col gap-1">
       {/* Main Card */}
-      <div className="bg-white rounded-[10px] p-4 flex flex-col">
+      <div 
+        className="bg-white rounded-[10px] p-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={onClick}
+      >
         <div className="text-[12px] text-[#101010] mb-1 font-medium">
           {formatExpenseDate(expense.startedAt)}
         </div>

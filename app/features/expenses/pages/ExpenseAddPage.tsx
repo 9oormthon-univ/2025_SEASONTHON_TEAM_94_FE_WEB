@@ -20,9 +20,6 @@ export function ExpenseAddPage() {
   const handleFormSubmit = async (formData: ExpenseFormData) => {
     setIsLoading(true);
     try {
-      console.log('🔍 [ExpenseAddPage] 받은 폼 데이터:', formData);
-      console.log('🔍 [ExpenseAddPage] 받은 폼 데이터의 type:', formData.type);
-
       // 더치페이 적용된 실제 금액 계산
       const finalAmount =
         formData.dutchPayCount > 1
@@ -38,17 +35,11 @@ export function ExpenseAddPage() {
         category: formData.category, // 폼에서 선택된 카테고리 (있다면)
       };
 
-      console.log('🔍 [ExpenseAddPage] API 전송 데이터:', transactionData);
-      console.log('🔍 [ExpenseAddPage] API 전송 데이터의 type:', transactionData.type);
-
       await createExpense(transactionData);
-
-      console.log('🔍 [ExpenseAddPage] createExpense 성공');
 
       // 성공 시 지출 목록으로 이동
       navigate('/expenses');
     } catch (error) {
-      console.error('❌ [ExpenseAddPage] 지출 저장 실패:', error);
       alert('지출 저장에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
@@ -64,10 +55,10 @@ export function ExpenseAddPage() {
       className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4">
+      <div className="flex items-center justify-between px-4 py-6">
         <div
           onClick={() => navigate('/expenses')}
-          className="p-0 cursor-pointer"
+          className="cursor-pointer"
         >
           <ChevronLeft className="w-6 h-6" />
         </div>

@@ -4,23 +4,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { PassThrough } from "node:stream";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import { ServerRouter, UNSAFE_withComponentProps, useLocation, Outlet, Link, UNSAFE_withErrorBoundaryProps, isRouteErrorResponse, Meta, Links, ScrollRestoration, Scripts, redirect, useSearchParams, useParams, useNavigate } from "react-router";
+import { ServerRouter, UNSAFE_withComponentProps, useLocation, Outlet, Link, UNSAFE_withErrorBoundaryProps, isRouteErrorResponse, Meta, Links, ScrollRestoration, Scripts, redirect, useNavigate, useSearchParams, useParams } from "react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import * as React from "react";
-import { createContext, useState, useCallback, useEffect, useContext } from "react";
+import { createContext, useState, useCallback, useEffect, useContext, useRef, useMemo } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion as motion$1, AnimatePresence as AnimatePresence$1 } from "framer-motion";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeft, Pencil, ChevronRight } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, Pencil, ChevronDown, ChevronLeft, Trash2 } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { getDefaultClassNames, DayPicker } from "react-day-picker";
-import { useNavigate as useNavigate$1, Link as Link$1 } from "react-router-dom";
+import { useNavigate as useNavigate$1, Link as Link$1, useLocation as useLocation$1 } from "react-router-dom";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 const streamTimeout = 5e3;
 function handleRequest(request, responseStatusCode, responseHeaders, routerContext, loadContext) {
@@ -654,7 +655,6 @@ function UncategorizedExpenseList({
           }, ANIMATION_DELAY_MS);
         }
       } catch (error) {
-        console.error("Transaction update failed:", error);
         setRemovingIds((prev) => {
           const newSet = new Set(prev);
           newSet.delete(expenseId);
@@ -763,6 +763,7 @@ function CategorizedExpenseList({
 }) {
   const [isOverExpenseExpanded, setIsOverExpenseExpanded] = useState(false);
   const [isFixedExpenseExpanded, setIsFixedExpenseExpanded] = useState(false);
+  const navigate = useNavigate();
   if (expenses.length === 0 && emptyState) {
     return /* @__PURE__ */ jsxs("div", { className: "py-12 text-center", children: [
       /* @__PURE__ */ jsx("div", { className: "text-4xl mb-4", children: emptyState.icon }),
@@ -807,7 +808,8 @@ function CategorizedExpenseList({
           CategorizedExpenseItem,
           {
             expense,
-            onUpdate: onExpenseUpdate
+            onUpdate: onExpenseUpdate,
+            onClick: () => navigate(`/expenses/${expense.id}`)
           },
           expense.id
         )),
@@ -828,7 +830,8 @@ function CategorizedExpenseList({
               CategorizedExpenseItem,
               {
                 expense,
-                onUpdate: onExpenseUpdate
+                onUpdate: onExpenseUpdate,
+                onClick: () => navigate(`/expenses/${expense.id}`)
               }
             ) })
           },
@@ -861,7 +864,8 @@ function CategorizedExpenseList({
           CategorizedExpenseItem,
           {
             expense,
-            onUpdate: onExpenseUpdate
+            onUpdate: onExpenseUpdate,
+            onClick: () => navigate(`/expenses/${expense.id}`)
           },
           expense.id
         )),
@@ -882,7 +886,8 @@ function CategorizedExpenseList({
               CategorizedExpenseItem,
               {
                 expense,
-                onUpdate: onExpenseUpdate
+                onUpdate: onExpenseUpdate,
+                onClick: () => navigate(`/expenses/${expense.id}`)
               }
             ) })
           },
@@ -931,21 +936,29 @@ function ExpenseSectionHeader({
 }
 function CategorizedExpenseItem({
   expense,
-  onUpdate
+  onUpdate,
+  onClick
 }) {
   const bankName = expense.title.split(" ")[0] || "은행";
-  return /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-1", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-[10px] p-4 flex flex-col", children: [
-    /* @__PURE__ */ jsx("div", { className: "text-[12px] text-[#101010] mb-1 font-medium", children: formatExpenseDate(expense.startedAt) }),
-    /* @__PURE__ */ jsxs("div", { className: "text-base text-[#101010] mb-3 font-medium", children: [
-      /* @__PURE__ */ jsx("span", { className: "text-black", children: bankName }),
-      /* @__PURE__ */ jsx("span", { className: "text-[#bfbfbf] ml-1", children: "에서 온 알림" })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: `text-2xl font-medium 'text-black'}`, children: [
-      "- ",
-      expense.price.toLocaleString(),
-      "원"
-    ] })
-  ] }) });
+  return /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-1", children: /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: "bg-white rounded-[10px] p-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors",
+      onClick,
+      children: [
+        /* @__PURE__ */ jsx("div", { className: "text-[12px] text-[#101010] mb-1 font-medium", children: formatExpenseDate(expense.startedAt) }),
+        /* @__PURE__ */ jsxs("div", { className: "text-base text-[#101010] mb-3 font-medium", children: [
+          /* @__PURE__ */ jsx("span", { className: "text-black", children: bankName }),
+          /* @__PURE__ */ jsx("span", { className: "text-[#bfbfbf] ml-1", children: "에서 온 알림" })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: `text-2xl font-medium 'text-black'}`, children: [
+          "- ",
+          expense.price.toLocaleString(),
+          "원"
+        ] })
+      ]
+    }
+  ) });
 }
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -991,64 +1004,6 @@ function Button({
       ...props
     }
   );
-}
-function ExpenseDetail({
-  expense,
-  onSave,
-  onCancel,
-  onDelete
-}) {
-  if (!expense) {
-    return /* @__PURE__ */ jsx("div", { className: "p-6 text-center text-muted-foreground", children: "항목을 찾을 수 없습니다." });
-  }
-  return /* @__PURE__ */ jsx("div", { className: "max-w-xl mx-auto px-4 py-3 space-y-6", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-lg border border-gray-200 p-6", children: [
-    /* @__PURE__ */ jsx("h2", { className: "text-xl font-bold mb-4", children: "지출 상세" }),
-    /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "text-sm text-gray-600", children: "제목" }),
-        /* @__PURE__ */ jsx("p", { className: "font-semibold", children: expense.title })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "text-sm text-gray-600", children: "금액" }),
-        /* @__PURE__ */ jsxs("p", { className: "font-semibold text-lg", children: [
-          expense.price.toLocaleString(),
-          "원"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "text-sm text-gray-600", children: "날짜" }),
-        /* @__PURE__ */ jsx("p", { children: new Date(expense.startedAt).toLocaleDateString("ko-KR") })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "text-sm text-gray-600", children: "타입" }),
-        /* @__PURE__ */ jsx("p", { children: expense.type === "FIXED_EXPENSE" ? "고정지출" : expense.type === "OVER_EXPENSE" ? "초과지출" : "미분류" })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "text-sm text-gray-600", children: "카테고리" }),
-        /* @__PURE__ */ jsx("p", { children: expense.category })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center mt-6", children: [
-      onDelete && /* @__PURE__ */ jsx(
-        Button,
-        {
-          variant: "outline",
-          size: "sm",
-          onClick: onDelete,
-          className: "text-red-600 border-red-600 hover:bg-red-50",
-          children: "삭제"
-        }
-      ),
-      /* @__PURE__ */ jsxs("div", { className: "flex gap-2 ml-auto", children: [
-        /* @__PURE__ */ jsx(Button, { variant: "outline", size: "sm", onClick: onCancel, children: "취소" }),
-        /* @__PURE__ */ jsx(Button, { size: "sm", onClick: () => onSave(expense), children: "확인" })
-      ] })
-    ] })
-  ] }) });
-}
-const logoSvg = "data:image/svg+xml,%3csvg%20width='69'%20height='25'%20viewBox='0%200%2069%2025'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_7_1522)'%3e%3cpath%20d='M22.6125%2022.218H0V18.8928H22.6125V22.218ZM19.9816%205.41042C19.9816%207.78771%2019.9303%209.83967%2019.8304%2011.5612C19.7305%2013.2852%2019.4871%2015.2936%2019.1054%2017.5915L15.0553%2017.2277C15.437%2015.1322%2015.6753%2013.2263%2015.7649%2011.515C15.8546%209.80124%2015.9007%207.77747%2015.9007%205.4386H2.32862V2.20312H19.9816V5.40786V5.41042Z'%20fill='%23FF6200'/%3e%3cpath%20d='M36.2153%2014.42H24.1546V1.99561H36.2153V14.42ZM44.1054%2025H27.0571V16.6872H30.9868V21.7953H44.1054V25ZM28.1125%2011.2153H32.283V5.22853H28.1125V11.2153ZM43.2882%207.19594H46.5237V10.5518H43.2882V18.5035H39.3278V0.0307617H43.2882V7.19594Z'%20fill='%23FF6200'/%3e%3cpath%20d='M68.1397%2020.5554H65.0835L64.5712%2011.8506H61.7891V8.31284H64.5712V0H68.652L68.1397%2020.5554Z'%20fill='%23FF6200'/%3e%3cpath%20d='M64.5712%208.31284V0H68.652L68.1397%2021.3239H65.0835L64.5712%2011.8506H61.7891V8.31284H64.5712Z'%20fill='%23FF6200'/%3e%3cpath%20d='M53.6069%209.76282C53.8093%2011.1846%2054.2013%2012.4885%2054.7853%2013.6772C55.3694%2012.509%2055.7562%2011.2128%2055.9484%209.79356C56.1405%208.37179%2056.2353%206.74509%2056.2353%204.91089V1.13232H60.0753V4.91089C60.0753%207.59047%2060.2982%209.86273%2060.7414%2011.7277C61.1846%2013.5926%2062.1324%2015.1194%2063.5823%2016.3081L61.1641%2019.2412C59.732%2018.0731%2058.7048%2016.349%2058.0797%2014.0717C57.3932%2016.4694%2056.2968%2018.255%2054.7853%2019.4231C53.3149%2018.2755%2052.2262%2016.5412%2051.5217%2014.2228C50.8966%2016.3183%2049.9488%2017.9117%2048.6807%2018.9979L46.0498%2016.3081C47.0566%2015.4627%2047.8174%2014.438%2048.3323%2013.2391C48.8472%2012.0402%2049.1777%2010.785%2049.3288%209.4759C49.48%208.16686%2049.5543%206.64518%2049.5543%204.91089V1.13232H53.3021V4.91089C53.3021%206.7246%2053.402%208.34106%2053.6044%209.76282H53.6069Z'%20fill='%23FF6200'/%3e%3cpath%20d='M68.1294%2021.8567H65.1732V24.8129H68.1294V21.8567Z'%20fill='%23FF6200'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_7_1522'%3e%3crect%20width='68.652'%20height='25'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
-function ExpenseHeader() {
-  return /* @__PURE__ */ jsx("div", { className: "bg-white", children: /* @__PURE__ */ jsx("div", { className: "flex justify-center px-6 pt-6 pb-6", children: /* @__PURE__ */ jsx("img", { src: logoSvg, alt: "그만써", className: "h-[25px]" }) }) });
 }
 function Input({ className, type, ...props }) {
   return /* @__PURE__ */ jsx(
@@ -1278,7 +1233,7 @@ z.object({
   title: z.string({ message: "제목을 입력해주세요." }).min(1, "제목을 입력해주세요.").max(200, "제목은 200자 이하로 입력해주세요."),
   userUid: z.string({ message: "사용자 정보가 필요합니다." }).min(1, "사용자 정보가 필요합니다."),
   startAt: z.string().datetime("올바른 날짜 형식이 아닙니다.").optional(),
-  type: z.enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE]).optional(),
+  type: z.enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE]).default(EXPENSE_TYPES.OVER_EXPENSE),
   category: z.enum([
     EXPENSE_CATEGORIES.FOOD,
     EXPENSE_CATEGORIES.GROCERIES,
@@ -1302,13 +1257,13 @@ z.object({
     EXPENSE_CATEGORIES.OTHER
   ]).optional()
 });
-z.object({
+const expenseFormSchema = z.object({
   // API 필드들
-  price: z.number({ message: "올바른 금액을 입력해주세요." }).min(0, "금액은 0 이상이어야 합니다.").int("금액은 정수여야 합니다."),
+  price: z.number({ message: "올바른 금액을 입력해주세요." }).min(1, "금액은 0 이상이어야 합니다.").int("금액은 정수여야 합니다."),
   title: z.string({ message: "제목을 입력해주세요." }).min(1, "제목을 입력해주세요.").max(200, "제목은 200자 이하로 입력해주세요."),
   userUid: z.string({ message: "사용자 정보가 필요합니다." }).min(1, "사용자 정보가 필요합니다."),
   startAt: z.string().datetime("올바른 날짜 형식이 아닙니다.").optional(),
-  type: z.enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE]).optional(),
+  type: z.enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE]),
   category: z.enum([
     EXPENSE_CATEGORIES.FOOD,
     EXPENSE_CATEGORIES.GROCERIES,
@@ -1333,9 +1288,378 @@ z.object({
   ]).optional(),
   // UI 전용 필드들
   selectedDate: z.date({ message: "날짜를 선택해주세요." }),
-  dutchPayCount: z.number().min(1, "더치페이 인원은 1명 이상이어야 합니다.").max(20, "더치페이 인원은 20명 이하로 설정해주세요.").int("더치페이 인원은 정수여야 합니다."),
+  dutchPayCount: z.number({ message: "더치페이 인원을 입력해주세요." }).min(0, "더치페이 인원은 1명 이상이어야 합니다.").max(20, "더치페이 인원은 20명 이하로 설정해주세요.").int("더치페이 인원은 정수여야 합니다."),
   app: z.string()
 });
+function ExpenseForm({
+  onSubmit,
+  defaultValues
+}) {
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting }
+  } = useForm({
+    resolver: zodResolver(expenseFormSchema),
+    defaultValues: {
+      price: 0,
+      title: "",
+      userUid: "",
+      selectedDate: /* @__PURE__ */ new Date(),
+      app: "",
+      category: void 0,
+      ...defaultValues,
+      // type이 항상 정의되도록 보장
+      type: (defaultValues == null ? void 0 : defaultValues.type) ?? EXPENSE_TYPES.OVER_EXPENSE,
+      // dutchPayCount가 항상 정의되도록 보장
+      dutchPayCount: (defaultValues == null ? void 0 : defaultValues.dutchPayCount) ?? 1
+    }
+  });
+  const watchedValues = watch();
+  const { selectedDate, dutchPayCount, price, type } = watchedValues;
+  const formatDate = (date) => {
+    const year = date.getFullYear().toString().slice(-2);
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}년 ${month}월 ${day}일 | ${hours}:${minutes}`;
+  };
+  const calculateDutchPayAmount = () => {
+    if (dutchPayCount <= 1 || !price) return price.toLocaleString();
+    return Math.floor(price / dutchPayCount).toLocaleString();
+  };
+  return /* @__PURE__ */ jsxs("form", { id: "expense-form", onSubmit: handleSubmit(onSubmit), children: [
+    /* @__PURE__ */ jsxs("div", { className: "px-4 sm:px-6 pt-6 pb-4", children: [
+      /* @__PURE__ */ jsx(
+        Controller,
+        {
+          name: "type",
+          control,
+          render: ({ field }) => /* @__PURE__ */ jsxs("div", { className: "bg-[#e6e6e6] rounded-[10px] h-[45px] flex p-1 relative", children: [
+            /* @__PURE__ */ jsx(
+              "div",
+              {
+                className: cn(
+                  "absolute top-1 h-[37px] w-1/2 bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm",
+                  field.value === EXPENSE_TYPES.FIXED_EXPENSE ? "translate-x-full" : "translate-x-0"
+                )
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => field.onChange(EXPENSE_TYPES.OVER_EXPENSE),
+                className: cn(
+                  "relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center text-[16px] font-bold transition-colors duration-300",
+                  field.value === EXPENSE_TYPES.OVER_EXPENSE ? "text-white" : "text-gray-600"
+                ),
+                children: "초과지출"
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => field.onChange(EXPENSE_TYPES.FIXED_EXPENSE),
+                className: cn(
+                  "relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center text-[16px] font-bold transition-colors duration-300",
+                  field.value === EXPENSE_TYPES.FIXED_EXPENSE ? "text-white" : "text-gray-600"
+                ),
+                children: "고정지출"
+              }
+            )
+          ] })
+        }
+      ),
+      errors.type && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-xs mt-2 text-center", children: errors.type.message })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "px-4 sm:px-6 pb-8", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
+        /* @__PURE__ */ jsx(
+          Controller,
+          {
+            name: "price",
+            control,
+            render: ({ field }) => /* @__PURE__ */ jsx(
+              Input,
+              {
+                type: "text",
+                value: field.value ? `-${field.value.toLocaleString()}원` : "",
+                onChange: (e) => {
+                  const value = e.target.value.replace(/[-원,]/g, "");
+                  const numericValue = parseInt(value) || 0;
+                  field.onChange(numericValue);
+                },
+                placeholder: "금액을 입력하세요",
+                className: "!text-2xl !font-bold !text-black !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto",
+                style: { fontSize: "1.5rem" }
+              }
+            )
+          }
+        ),
+        errors.price && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-sm mt-1", children: errors.price.message })
+      ] }),
+      /* @__PURE__ */ jsx(Pencil, { className: "w-4 h-4 text-gray-400" })
+    ] }) }),
+    /* @__PURE__ */ jsxs("div", { className: "px-4 sm:px-6 space-y-6", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]", children: [
+        /* @__PURE__ */ jsx("label", { className: "text-[16px] text-[#757575] tracking-[-0.176px] flex-shrink-0", children: "거래처" }),
+        /* @__PURE__ */ jsx(
+          Controller,
+          {
+            name: "title",
+            control,
+            render: ({ field }) => /* @__PURE__ */ jsx(
+              Input,
+              {
+                type: "text",
+                ...field,
+                placeholder: "거래처를 입력하세요.",
+                className: "!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
+              }
+            )
+          }
+        ),
+        errors.title && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-xs mt-1 text-right", children: errors.title.message })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]", children: [
+        /* @__PURE__ */ jsx("label", { className: "text-base text-[#757575] tracking-[-0.176px] flex-shrink-0", children: "앱" }),
+        /* @__PURE__ */ jsx(
+          Controller,
+          {
+            name: "app",
+            control,
+            render: ({ field }) => /* @__PURE__ */ jsx(
+              Input,
+              {
+                type: "text",
+                ...field,
+                placeholder: "앱을 입력하세요. (선택사항)",
+                className: "!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
+              }
+            )
+          }
+        ),
+        errors.app && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-xs mt-1 text-right", children: errors.app.message })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]", children: [
+        /* @__PURE__ */ jsx("label", { className: "text-base text-[#757575] tracking-[-0.176px]", children: "날짜" }),
+        /* @__PURE__ */ jsx(
+          Controller,
+          {
+            name: "selectedDate",
+            control,
+            render: ({ field }) => /* @__PURE__ */ jsxs(Popover, { children: [
+              /* @__PURE__ */ jsx(PopoverTrigger, { asChild: true, children: /* @__PURE__ */ jsxs(
+                Button,
+                {
+                  variant: "ghost",
+                  className: "text-base text-[#3d3d3d] text-right tracking-[-0.176px] p-0 h-auto font-normal",
+                  children: [
+                    formatDate(field.value),
+                    /* @__PURE__ */ jsx(ChevronDown, { className: "w-3 h-3 ml-2" })
+                  ]
+                }
+              ) }),
+              /* @__PURE__ */ jsx(
+                PopoverContent,
+                {
+                  className: "w-auto overflow-hidden p-0 max-w-[260px] sm:max-w-[300px]",
+                  align: "center",
+                  side: "top",
+                  sideOffset: 8,
+                  avoidCollisions: true,
+                  children: /* @__PURE__ */ jsx(
+                    Calendar,
+                    {
+                      mode: "single",
+                      selected: field.value,
+                      onSelect: (date) => {
+                        if (date) {
+                          const newDate = new Date(field.value || /* @__PURE__ */ new Date());
+                          newDate.setFullYear(date.getFullYear());
+                          newDate.setMonth(date.getMonth());
+                          newDate.setDate(date.getDate());
+                          field.onChange(newDate);
+                        }
+                      },
+                      captionLayout: "dropdown",
+                      className: "rounded-md border shadow-lg text-sm",
+                      classNames: {
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption: "flex justify-center pt-1 relative items-center",
+                        caption_label: "text-sm font-medium",
+                        nav: "space-x-1 flex items-center",
+                        nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse space-y-1",
+                        head_row: "flex",
+                        head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+                        row: "flex w-full mt-2",
+                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                        day: "h-7 w-7 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
+                        day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        day_today: "bg-accent text-accent-foreground",
+                        day_outside: "text-muted-foreground opacity-50",
+                        day_disabled: "text-muted-foreground opacity-50",
+                        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        day_hidden: "invisible"
+                      }
+                    }
+                  )
+                }
+              )
+            ] })
+          }
+        ),
+        errors.selectedDate && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-xs mt-1 text-right", children: errors.selectedDate.message })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]", children: [
+        /* @__PURE__ */ jsx("label", { className: "text-[16px] text-[#757575] tracking-[-0.176px] flex-shrink-0", children: "더치페이" }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(
+            Controller,
+            {
+              name: "dutchPayCount",
+              control,
+              render: ({ field }) => {
+                var _a;
+                return /* @__PURE__ */ jsx(
+                  Input,
+                  {
+                    type: "number",
+                    inputMode: "numeric",
+                    min: "1",
+                    value: ((_a = field.value) == null ? void 0 : _a.toString()) || "1",
+                    onChange: (e) => {
+                      const value = e.target.value;
+                      if (value === "") {
+                        field.onChange(1);
+                        return;
+                      }
+                      const numericValue = parseInt(value, 10);
+                      if (!isNaN(numericValue) && numericValue >= 1) {
+                        field.onChange(numericValue);
+                      }
+                    },
+                    onFocus: (e) => {
+                      e.target.select();
+                    },
+                    placeholder: "1",
+                    className: "!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"
+                  }
+                );
+              }
+            }
+          ),
+          dutchPayCount > 1 && price && /* @__PURE__ */ jsxs("div", { className: "text-sm text-[#757575]", children: [
+            "(1인당: ",
+            calculateDutchPayAmount(),
+            "원)"
+          ] })
+        ] }),
+        errors.dutchPayCount && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-xs mt-1 text-right", children: errors.dutchPayCount.message })
+      ] })
+    ] })
+  ] });
+}
+function ExpenseDetail({
+  expense,
+  onSave,
+  onCancel,
+  onDelete,
+  isLoading = false
+}) {
+  if (!expense) {
+    return /* @__PURE__ */ jsx("div", { className: "bg-white min-h-screen max-w-md mx-2 relative pb-20", children: /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center min-h-screen", children: /* @__PURE__ */ jsxs("div", { className: "text-center text-gray-500", children: [
+      /* @__PURE__ */ jsx("div", { className: "text-4xl mb-4", children: "💸" }),
+      /* @__PURE__ */ jsx("p", { children: "지출 정보를 찾을 수 없습니다." })
+    ] }) }) });
+  }
+  const getDefaultValues = () => {
+    return {
+      price: expense.price,
+      title: expense.title,
+      userUid: expense.userUid,
+      selectedDate: new Date(expense.startedAt),
+      type: expense.type,
+      category: expense.category,
+      dutchPayCount: 1,
+      // 기본값
+      app: ""
+      // 기본값 (Transaction에 app 필드가 없으므로)
+    };
+  };
+  return /* @__PURE__ */ jsxs(
+    motion.div,
+    {
+      initial: { opacity: 0, x: 20 },
+      animate: { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -20 },
+      transition: { duration: 0.3 },
+      className: "bg-white min-h-screen max-w-md mx-2 relative pb-20",
+      children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-4 sm:px-6 py-4", children: [
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              onClick: onCancel,
+              className: "p-0 cursor-pointer",
+              children: /* @__PURE__ */ jsx(ChevronLeft, { className: "w-6 h-6" })
+            }
+          ),
+          /* @__PURE__ */ jsx("h1", { className: "text-[15px] font-medium text-black tracking-[-0.165px]", children: "지출 수정" }),
+          /* @__PURE__ */ jsx("div", { className: "w-6 flex justify-end", children: onDelete && /* @__PURE__ */ jsx(
+            "div",
+            {
+              onClick: onDelete,
+              className: "p-0 cursor-pointer",
+              children: /* @__PURE__ */ jsx(Trash2, { className: "w-5 h-5 text-red-500" })
+            }
+          ) })
+        ] }),
+        /* @__PURE__ */ jsx(
+          ExpenseForm,
+          {
+            onSubmit: onSave,
+            defaultValues: getDefaultValues()
+          }
+        ),
+        /* @__PURE__ */ jsx("div", { className: "fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto", children: /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              onClick: onCancel,
+              variant: "outline",
+              className: "flex-1 h-[45px] border-[#002b5b] text-[#002b5b] text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/5",
+              children: "취소"
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              form: "expense-form",
+              type: "submit",
+              disabled: isLoading,
+              className: "flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50",
+              children: isLoading ? "수정 중..." : "수정"
+            }
+          )
+        ] }) })
+      ]
+    }
+  );
+}
+const logoSvg = "data:image/svg+xml,%3csvg%20width='69'%20height='25'%20viewBox='0%200%2069%2025'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_7_1522)'%3e%3cpath%20d='M22.6125%2022.218H0V18.8928H22.6125V22.218ZM19.9816%205.41042C19.9816%207.78771%2019.9303%209.83967%2019.8304%2011.5612C19.7305%2013.2852%2019.4871%2015.2936%2019.1054%2017.5915L15.0553%2017.2277C15.437%2015.1322%2015.6753%2013.2263%2015.7649%2011.515C15.8546%209.80124%2015.9007%207.77747%2015.9007%205.4386H2.32862V2.20312H19.9816V5.40786V5.41042Z'%20fill='%23FF6200'/%3e%3cpath%20d='M36.2153%2014.42H24.1546V1.99561H36.2153V14.42ZM44.1054%2025H27.0571V16.6872H30.9868V21.7953H44.1054V25ZM28.1125%2011.2153H32.283V5.22853H28.1125V11.2153ZM43.2882%207.19594H46.5237V10.5518H43.2882V18.5035H39.3278V0.0307617H43.2882V7.19594Z'%20fill='%23FF6200'/%3e%3cpath%20d='M68.1397%2020.5554H65.0835L64.5712%2011.8506H61.7891V8.31284H64.5712V0H68.652L68.1397%2020.5554Z'%20fill='%23FF6200'/%3e%3cpath%20d='M64.5712%208.31284V0H68.652L68.1397%2021.3239H65.0835L64.5712%2011.8506H61.7891V8.31284H64.5712Z'%20fill='%23FF6200'/%3e%3cpath%20d='M53.6069%209.76282C53.8093%2011.1846%2054.2013%2012.4885%2054.7853%2013.6772C55.3694%2012.509%2055.7562%2011.2128%2055.9484%209.79356C56.1405%208.37179%2056.2353%206.74509%2056.2353%204.91089V1.13232H60.0753V4.91089C60.0753%207.59047%2060.2982%209.86273%2060.7414%2011.7277C61.1846%2013.5926%2062.1324%2015.1194%2063.5823%2016.3081L61.1641%2019.2412C59.732%2018.0731%2058.7048%2016.349%2058.0797%2014.0717C57.3932%2016.4694%2056.2968%2018.255%2054.7853%2019.4231C53.3149%2018.2755%2052.2262%2016.5412%2051.5217%2014.2228C50.8966%2016.3183%2049.9488%2017.9117%2048.6807%2018.9979L46.0498%2016.3081C47.0566%2015.4627%2047.8174%2014.438%2048.3323%2013.2391C48.8472%2012.0402%2049.1777%2010.785%2049.3288%209.4759C49.48%208.16686%2049.5543%206.64518%2049.5543%204.91089V1.13232H53.3021V4.91089C53.3021%206.7246%2053.402%208.34106%2053.6044%209.76282H53.6069Z'%20fill='%23FF6200'/%3e%3cpath%20d='M68.1294%2021.8567H65.1732V24.8129H68.1294V21.8567Z'%20fill='%23FF6200'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_7_1522'%3e%3crect%20width='68.652'%20height='25'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+function ExpenseHeader() {
+  return /* @__PURE__ */ jsx("div", { className: "bg-white", children: /* @__PURE__ */ jsx("div", { className: "flex justify-center px-6 pt-6 pb-6", children: /* @__PURE__ */ jsx("img", { src: logoSvg, alt: "그만써", className: "h-[25px]" }) }) });
+}
 const SvgKeyboardArrowDown = (props) => /* @__PURE__ */ React.createElement("svg", { width: 11, height: 7, viewBox: "0 0 11 7", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("path", { d: "M5.5 7L0 1.32432L1.28333 0L5.5 4.35135L9.71667 0L11 1.32432L5.5 7Z", fill: "#757575" }));
 const SvgPlus = (props) => /* @__PURE__ */ React.createElement("svg", { width: 35, height: 35, viewBox: "0 0 35 35", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("rect", { x: 0.5, y: 0.5, width: 34, height: 34, rx: 17, fill: "white", stroke: "#002B5B" }), /* @__PURE__ */ React.createElement("path", { d: "M10 18.608V17.104H16.56V10H18.192V17.104H24.72V18.608H18.192V25.712H16.56V18.608H10Z", fill: "#002B5B" }));
 function ExpensesPage() {
@@ -1507,6 +1831,7 @@ function ExpenseDetailPage() {
   const { updateExpense, deleteExpense } = useExpenses();
   const [expense, setExpense] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
   const userUid = MOCK_USER_UID;
   useEffect(() => {
@@ -1530,20 +1855,26 @@ function ExpenseDetailPage() {
     };
     loadExpense();
   }, [expenseId, userUid]);
-  const handleSave = async (updatedExpense) => {
+  const handleFormSubmit = async (formData) => {
+    if (!expense) return;
+    setIsUpdating(true);
     try {
-      await updateExpense(userUid, updatedExpense.id, {
-        title: updatedExpense.title,
-        price: updatedExpense.price,
-        type: updatedExpense.type,
-        category: updatedExpense.category,
-        startAt: updatedExpense.startedAt
-      });
-      const nextTab = updatedExpense.type === EXPENSE_TYPES.NONE ? "unclassified" : "classified";
+      const finalAmount = formData.dutchPayCount > 1 ? Math.floor(formData.price / formData.dutchPayCount) : formData.price;
+      const updateData = {
+        price: finalAmount,
+        title: formData.title,
+        type: formData.type,
+        category: formData.category,
+        startAt: formData.selectedDate.toISOString()
+      };
+      await updateExpense(userUid, expense.id, updateData);
+      const nextTab = formData.type === EXPENSE_TYPES.NONE ? "unclassified" : "classified";
       navigate(`/expenses?tab=${nextTab}`);
-    } catch (e) {
-      console.error("updateExpense error:", e);
-      alert("지출 수정에 실패했습니다.");
+    } catch (error2) {
+      console.error("updateExpense error:", error2);
+      alert("지출 수정에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsUpdating(false);
     }
   };
   const handleDelete = async () => {
@@ -1563,10 +1894,10 @@ function ExpenseDetailPage() {
     navigate(`/expenses?tab=${nextTab}`);
   };
   if (loading) {
-    return /* @__PURE__ */ jsx("div", { className: "flex justify-center items-center min-h-screen", children: /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" }) });
+    return /* @__PURE__ */ jsx("div", { className: "bg-white min-h-screen max-w-md mx-2 relative", children: /* @__PURE__ */ jsx("div", { className: "flex justify-center items-center min-h-screen", children: /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" }) }) });
   }
   if (error) {
-    return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center min-h-screen", children: /* @__PURE__ */ jsx("div", { className: "bg-white rounded-lg border border-red-200 p-6 max-w-md", children: /* @__PURE__ */ jsxs("div", { className: "text-red-600 text-center", children: [
+    return /* @__PURE__ */ jsx("div", { className: "bg-white min-h-screen max-w-md mx-2 relative", children: /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center min-h-screen", children: /* @__PURE__ */ jsx("div", { className: "bg-white rounded-lg border border-red-200 p-6 max-w-md", children: /* @__PURE__ */ jsxs("div", { className: "text-red-600 text-center", children: [
       /* @__PURE__ */ jsx("div", { className: "text-4xl mb-4", children: "⚠️" }),
       /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold mb-2", children: "오류가 발생했습니다" }),
       /* @__PURE__ */ jsx("p", { className: "text-sm mb-4", children: error }),
@@ -1578,15 +1909,95 @@ function ExpenseDetailPage() {
           children: "목록으로 돌아가기"
         }
       )
-    ] }) }) });
+    ] }) }) }) });
   }
   return /* @__PURE__ */ jsx(
     ExpenseDetail,
     {
       expense,
-      onSave: handleSave,
+      onSave: handleFormSubmit,
       onCancel: handleCancel,
-      onDelete: handleDelete
+      onDelete: handleDelete,
+      isLoading: isUpdating
+    }
+  );
+}
+function ExpenseAddPage() {
+  const navigate = useNavigate();
+  const { createExpense } = useExpenses();
+  const [isLoading, setIsLoading] = useState(false);
+  const handleFormSubmit = async (formData) => {
+    setIsLoading(true);
+    try {
+      const finalAmount = formData.dutchPayCount > 1 ? Math.floor(formData.price / formData.dutchPayCount) : formData.price;
+      const transactionData = {
+        price: finalAmount,
+        startAt: formData.selectedDate.toISOString(),
+        title: formData.title,
+        userUid: formData.userUid,
+        type: formData.type,
+        // 폼에서 선택된 지출 유형 사용
+        category: formData.category
+        // 폼에서 선택된 카테고리 (있다면)
+      };
+      await createExpense(transactionData);
+      navigate("/expenses");
+    } catch (error) {
+      alert("지출 저장에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsxs(
+    motion.div,
+    {
+      initial: { opacity: 0, x: 20 },
+      animate: { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -20 },
+      transition: { duration: 0.3 },
+      className: "bg-white min-h-screen max-w-md mx-2 relative pb-20",
+      children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-4 sm:px-6 py-4", children: [
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              onClick: () => navigate("/expenses"),
+              className: "p-0 cursor-pointer",
+              children: /* @__PURE__ */ jsx(ChevronLeft, { className: "w-6 h-6" })
+            }
+          ),
+          /* @__PURE__ */ jsx("h1", { className: "text-[15px] font-medium text-black tracking-[-0.165px]", children: "지출 추가" }),
+          /* @__PURE__ */ jsx("div", { className: "w-6" }),
+          " "
+        ] }),
+        /* @__PURE__ */ jsx(
+          ExpenseForm,
+          {
+            onSubmit: handleFormSubmit,
+            defaultValues: {
+              price: 0,
+              title: "",
+              userUid: MOCK_USER_UID,
+              selectedDate: /* @__PURE__ */ new Date(),
+              dutchPayCount: 0,
+              app: "",
+              type: EXPENSE_TYPES.OVER_EXPENSE,
+              category: void 0
+              // 카테고리는 나중에 추가 예정
+            }
+          }
+        ),
+        /* @__PURE__ */ jsx("div", { className: "fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto", children: /* @__PURE__ */ jsx("div", { className: "flex", children: /* @__PURE__ */ jsx(
+          Button,
+          {
+            form: "expense-form",
+            type: "submit",
+            disabled: isLoading,
+            className: "flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50",
+            children: isLoading ? "저장 중..." : "저장"
+          }
+        ) }) })
+      ]
     }
   );
 }
@@ -1605,237 +2016,7 @@ const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   default: expenses_$expenseId
 }, Symbol.toStringTag, { value: "Module" }));
 const expenses_add = UNSAFE_withComponentProps(function AddExpensePage() {
-  const navigate = useNavigate();
-  const [expenseType, setExpenseType] = useState(EXPENSE_TYPES.OVER_EXPENSE);
-  const [amount, setAmount] = useState("");
-  const [merchant, setMerchant] = useState("");
-  const [app, setApp] = useState("");
-  const [selectedDate, setSelectedDate] = useState(/* @__PURE__ */ new Date());
-  const [dutchPayCount, setDutchPayCount] = useState(0);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const formatDate = (date2) => {
-    const year = date2.getFullYear().toString().slice(-2);
-    const month = String(date2.getMonth() + 1).padStart(2, "0");
-    const day = String(date2.getDate()).padStart(2, "0");
-    const hours = String(date2.getHours()).padStart(2, "0");
-    const minutes = String(date2.getMinutes()).padStart(2, "0");
-    return `${year}년 ${month}월 ${day}일 | ${hours}:${minutes}`;
-  };
-  const calculateDutchPayAmount = () => {
-    if (dutchPayCount <= 1 || !amount) return amount;
-    const totalAmount = parseInt(amount.replace(/[^0-9]/g, "")) || 0;
-    return Math.floor(totalAmount / dutchPayCount).toLocaleString();
-  };
-  const handleAmountChange = (value) => {
-    const numericValue = value.replace(/[^0-9]/g, "");
-    if (numericValue) {
-      const formattedValue = parseInt(numericValue).toLocaleString();
-      setAmount(formattedValue);
-    } else {
-      setAmount("");
-    }
-  };
-  const handleSave = async () => {
-    if (!amount || !merchant) {
-      alert("금액과 거래처를 입력해주세요.");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const numericAmount = parseInt(amount.replace(/[^0-9]/g, "")) || 0;
-      const finalAmount = dutchPayCount > 1 ? Math.floor(numericAmount / dutchPayCount) : numericAmount;
-      const transactionData = {
-        price: finalAmount,
-        startAt: selectedDate.toISOString(),
-        title: merchant,
-        userUid: MOCK_USER_UID
-      };
-      await createTransaction(transactionData);
-      navigate("/expenses");
-    } catch (error) {
-      console.error("지출 저장 실패:", error);
-      alert("지출 저장에 실패했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState(void 0);
-  return /* @__PURE__ */ jsxs(motion.div, {
-    initial: {
-      opacity: 0,
-      x: 20
-    },
-    animate: {
-      opacity: 1,
-      x: 0
-    },
-    exit: {
-      opacity: 0,
-      x: -20
-    },
-    transition: {
-      duration: 0.3
-    },
-    className: "bg-white min-h-screen max-w-md mx-2 relative pb-20",
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "flex items-center justify-between px-4 sm:px-6 py-4",
-      children: [/* @__PURE__ */ jsx("div", {
-        onClick: () => navigate("/expenses"),
-        className: "p-0 cursor-pointer",
-        children: /* @__PURE__ */ jsx(ChevronLeft, {
-          className: "w-6 h-6"
-        })
-      }), /* @__PURE__ */ jsx("h1", {
-        className: "text-[15px] font-medium text-black tracking-[-0.165px]",
-        children: "지출 추가"
-      }), /* @__PURE__ */ jsx("div", {
-        className: "w-6"
-      }), " "]
-    }), /* @__PURE__ */ jsx("div", {
-      className: "px-4 sm:px-6 pt-2 pb-4",
-      children: /* @__PURE__ */ jsxs("div", {
-        className: "bg-[#e6e6e6] rounded-[10px] h-[45px] flex p-1 relative",
-        children: [/* @__PURE__ */ jsx("div", {
-          className: cn("absolute top-1 h-[37px] w-1/2 bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm", expenseType === EXPENSE_TYPES.FIXED_EXPENSE ? "translate-x-full" : "translate-x-0")
-        }), /* @__PURE__ */ jsx("button", {
-          onClick: () => setExpenseType(EXPENSE_TYPES.OVER_EXPENSE),
-          className: cn("relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center text-[16px] font-bold transition-colors duration-300", expenseType === EXPENSE_TYPES.OVER_EXPENSE ? "text-white" : "text-gray-600"),
-          children: "초과지출"
-        }), /* @__PURE__ */ jsx("button", {
-          onClick: () => setExpenseType(EXPENSE_TYPES.FIXED_EXPENSE),
-          className: cn("relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center text-[16px] font-bold transition-colors duration-300", expenseType === EXPENSE_TYPES.FIXED_EXPENSE ? "text-white" : "text-gray-600"),
-          children: "고정지출"
-        })]
-      })
-    }), /* @__PURE__ */ jsx("div", {
-      className: "px-4 sm:px-6 pb-8",
-      children: /* @__PURE__ */ jsxs("div", {
-        className: "flex items-center gap-3",
-        children: [/* @__PURE__ */ jsx("div", {
-          className: "flex-1",
-          children: /* @__PURE__ */ jsx(Input, {
-            type: "text",
-            value: amount ? `-${amount}원` : "",
-            onChange: (e) => {
-              const value = e.target.value.replace(/[-원]/g, "");
-              handleAmountChange(value);
-            },
-            placeholder: "금액을 입력하세요",
-            className: "!text-2xl !font-bold !text-black !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto",
-            style: {
-              fontSize: "1.5rem"
-            }
-          })
-        }), /* @__PURE__ */ jsx(Pencil, {
-          className: "w-4 h-4 text-gray-400"
-        })]
-      })
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "px-4 sm:px-6 space-y-6",
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]",
-        children: [/* @__PURE__ */ jsx("label", {
-          className: "text-[16px] text-[#757575] tracking-[-0.176px] flex-shrink-0",
-          children: "거래처"
-        }), /* @__PURE__ */ jsx(Input, {
-          type: "text",
-          value: merchant,
-          onChange: (e) => setMerchant(e.target.value),
-          placeholder: "거래처를 입력하세요.",
-          className: "!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]",
-        children: [/* @__PURE__ */ jsx("label", {
-          className: "text-base text-[#757575] tracking-[-0.176px] flex-shrink-0",
-          children: "앱"
-        }), /* @__PURE__ */ jsx(Input, {
-          type: "text",
-          value: app,
-          onChange: (e) => setApp(e.target.value),
-          placeholder: "앱을 선택하세요",
-          className: "!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none flex-1 ml-4 !p-0 !h-auto"
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]",
-        children: [/* @__PURE__ */ jsx("label", {
-          className: "text-base text-[#757575] tracking-[-0.176px]",
-          children: "날짜"
-        }), /* @__PURE__ */ jsxs(Popover, {
-          open: isDatePickerOpen,
-          onOpenChange: setIsDatePickerOpen,
-          children: [/* @__PURE__ */ jsx(PopoverTrigger, {
-            asChild: true,
-            children: /* @__PURE__ */ jsxs(Button, {
-              variant: "ghost",
-              className: "text-base text-[#3d3d3d] text-right tracking-[-0.176px] p-0 h-auto font-normal",
-              children: [formatDate(selectedDate), /* @__PURE__ */ jsx(ChevronRight, {
-                className: "w-3 h-3"
-              })]
-            })
-          }), /* @__PURE__ */ jsx(PopoverContent, {
-            className: "w-auto p-3",
-            align: "center",
-            side: "top",
-            sideOffset: 8,
-            avoidCollisions: true,
-            children: /* @__PURE__ */ jsx(Calendar, {
-              mode: "single",
-              selected: selectedDate,
-              onSelect: (date2) => {
-                if (date2) {
-                  setSelectedDate(date2);
-                  setIsDatePickerOpen(false);
-                }
-              },
-              className: "rounded-md"
-            })
-          })]
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "flex items-center justify-between py-4 border-b border-gray-200 min-h-[52px]",
-        children: [/* @__PURE__ */ jsx("label", {
-          className: "text-[16px] text-[#757575] tracking-[-0.176px] flex-shrink-0",
-          children: "더치페이"
-        }), /* @__PURE__ */ jsxs("div", {
-          className: "flex items-center gap-2",
-          children: [/* @__PURE__ */ jsx(Input, {
-            type: "text",
-            value: dutchPayCount || "",
-            onChange: (e) => {
-              const value = e.target.value;
-              const numericValue = value.replace(/[^0-9]/g, "");
-              const parsedValue = numericValue === "" ? 0 : parseInt(numericValue, 10);
-              setDutchPayCount(parsedValue);
-            },
-            placeholder: "0",
-            className: "!w-[55px] !h-[35px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"
-          }), dutchPayCount > 1 && amount && /* @__PURE__ */ jsxs("div", {
-            className: "text-sm text-[#757575]",
-            children: ["(1인당: ", calculateDutchPayAmount(), "원)"]
-          })]
-        })]
-      })]
-    }), /* @__PURE__ */ jsx("div", {
-      className: "fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto",
-      children: /* @__PURE__ */ jsx("div", {
-        className: "flex",
-        children: /* @__PURE__ */ jsx(Button, {
-          onClick: handleSave,
-          disabled: isLoading,
-          variant: "outline",
-          style: {
-            backgroundColor: isLoading ? "#002b5b" : "#002b5b",
-            color: "#fff"
-          },
-          className: "flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50",
-          children: isLoading ? "저장 중..." : "저장"
-        })
-      })
-    })]
-  });
+  return /* @__PURE__ */ jsx(ExpenseAddPage, {});
 });
 const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
@@ -1872,7 +2053,7 @@ function ProgressBar({
   const edgeAdjustPx = isEnd ? -EDGE_INSET_PX : isStart ? EDGE_INSET_PX : 0;
   const labelTx = isStart ? "50%" : isEnd ? "-50%" : "0%";
   return /* @__PURE__ */ jsxs("div", { className: "relative pt-7", children: [
-    /* @__PURE__ */ jsx(Progress, { value: pct, className: "h-10 rounded-md" }),
+    /* @__PURE__ */ jsx(Progress, { value: pct, className: "h-10 rounded-md [&>div]:bg-[#002B5B]" }),
     /* @__PURE__ */ jsx(
       "div",
       {
@@ -2081,19 +2262,31 @@ async function fetchOverAndFixed(opts) {
   }
   return { over, fixed };
 }
-function getBudgetGoalById(id, params) {
+function createBudgetGoal(body) {
+  return httpClient.post(
+    API_ENDPOINTS.BUDGET_GOALS,
+    body
+  );
+}
+function getBudgetGoalByDate(params) {
   return httpClient.get(
-    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
+    API_ENDPOINTS.BUDGET_GOALS,
     params
-    // ✅ 전달
+  );
+}
+function updateBudgetGoal(id, params, body) {
+  return httpClient.put(
+    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
+    body,
+    { params }
   );
 }
 const USER_UID = "a";
 async function fetchMonthlyGoal() {
-  var _a;
   try {
-    const res = await getBudgetGoalById(1, { userUid: USER_UID });
-    const price = (_a = res == null ? void 0 : res.data) == null ? void 0 : _a.price;
+    const res = await getBudgetGoalByDate({ userUid: USER_UID });
+    const goal = res.data;
+    const price = goal == null ? void 0 : goal.price;
     return Number.isFinite(price) ? Math.max(0, price) : 0;
   } catch {
     return 0;
@@ -2242,11 +2435,11 @@ function ReportPage() {
         ] })
       ] }),
       /* @__PURE__ */ jsx("div", { className: "pt-2", children: /* @__PURE__ */ jsx(
-        "button",
+        Button,
         {
           type: "button",
-          onClick: () => navigate("/"),
-          className: "\r\n              mx-auto                 /* 가운데 정렬 */\r\n              !w-[364px] max-w-full   /* 고정폭(364px), 부모보다 크면 줄이기 */\r\n              !h-[45px]               /* 높이 고정 */\r\n              !rounded-[8px]          /* 모서리 8px */\r\n              !px-[10px] !py-[10px]    /* 패딩 10px */\r\n              !flex items-center !justify-center gap-[10px] /* 아이콘/텍스트 간격 10px */\r\n              !font-light !text-white text-center\r\n              shadow-md active:shadow-sm\r\n              appearance-none\r\n              !bg-[#FF6200] hover:opacity-90 disabled:opacity-100\r\n            ",
+          onClick: () => navigate("/reports/budget-goal"),
+          className: "\r\n            mx-auto\r\n            w-[364px] max-w-full\r\n            h-[45px]\r\n            !rounded-[8px]\r\n            px-[10px] \r\n            flex items-center justify-center\r\n            !font-light !text-white text-center\r\n            shadow-md active:shadow-sm\r\n            !bg-[#FF6200] hover:opacity-90 disabled:opacity-100\r\n          ",
           children: monthlyGoal > 0 ? "목표 지출 설정하기" : "목표 지출 설정하기"
         }
       ) })
@@ -2285,7 +2478,7 @@ function MiniReport({
   barLabel,
   monthlyGoal,
   className,
-  setGoalTo = "/report"
+  setGoalTo = "/reports/budget-goal"
 }) {
   return /* @__PURE__ */ jsx(Card, { className: `mx-4 mt-4 rounded-lg border-0 shadow-none ${className ?? ""}`, children: /* @__PURE__ */ jsxs(CardContent, { className: "p-4 h-full", children: [
     /* @__PURE__ */ jsx("div", { className: "text-center text-[15px] font-semibold text-[#002B5B]", children: title }),
@@ -2297,9 +2490,16 @@ function MiniReport({
         barLabel
       }
     ) }),
-    /* @__PURE__ */ jsxs("div", { className: "mt-2 flex items-center justify-between text-[11px] text-[#757575]", children: [
-      /* @__PURE__ */ jsx(Link$1, { to: setGoalTo, className: "mx-auto text-[#BDBDBD] hover:underline underline-offset-2", children: "목표 초과지출 설정" }),
-      /* @__PURE__ */ jsx(Money, { children: monthlyGoal > 0 ? `- ${monthlyGoal.toLocaleString()}원` : "0원" })
+    /* @__PURE__ */ jsxs("div", { className: "mt-2 text-[11px]", children: [
+      /* @__PURE__ */ jsx("div", { className: "mt-1 flex justify-end text-[#757575]", children: /* @__PURE__ */ jsx(Money, { children: monthlyGoal > 0 ? `- ${monthlyGoal.toLocaleString()}원` : "0원" }) }),
+      /* @__PURE__ */ jsx("div", { className: "flex justify-center", children: /* @__PURE__ */ jsx(
+        Link$1,
+        {
+          to: setGoalTo,
+          className: "text-[#757575] underline underline-offset-4 decoration-[#BDBDBD] hover:decoration-[#757575]",
+          children: "목표 초과지출 설정"
+        }
+      ) })
     ] })
   ] }) });
 }
@@ -2401,7 +2601,280 @@ const route6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: MorePage
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DFMVeL8j.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/index-C3C7g39L.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-BhJgDS2F.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/index-C3C7g39L.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/httpClient-CWcscfoA.js"], "css": ["/assets/root-DYEmgneT.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_index-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses._index": { "id": "routes/expenses._index", "parentId": "root", "path": "expenses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._index-CkEbfvZs.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/validation-toliqgmx.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/proxy-C3LYbkDo.js", "/assets/expense-CkU4x5BU.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.$expenseId": { "id": "routes/expenses.$expenseId", "parentId": "root", "path": "expenses/:expenseId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._expenseId-DmBTVYdf.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/validation-toliqgmx.js", "/assets/button-vWu2_4Yx.js", "/assets/expense-CkU4x5BU.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/utils-C0GuhilF.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.add": { "id": "routes/expenses.add", "parentId": "root", "path": "expenses/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses.add-CNz9fSdL.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/button-vWu2_4Yx.js", "/assets/utils-C0GuhilF.js", "/assets/index-CdkfFI4V.js", "/assets/index-C3C7g39L.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/expense-CkU4x5BU.js", "/assets/httpClient-CWcscfoA.js", "/assets/proxy-C3LYbkDo.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/report": { "id": "routes/report", "parentId": "root", "path": "report", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/report-CnSdrdBq.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/useReport-DyALt6uu.js", "/assets/index-CdkfFI4V.js", "/assets/index-C3C7g39L.js", "/assets/utils-C0GuhilF.js", "/assets/httpClient-CWcscfoA.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "features/more/pages/MorePage": { "id": "features/more/pages/MorePage", "parentId": "root", "path": "more", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/MorePage-CcQpDs-r.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/useReport-DyALt6uu.js", "/assets/httpClient-CWcscfoA.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/index-CdkfFI4V.js", "/assets/index-C3C7g39L.js", "/assets/utils-C0GuhilF.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-a0fadbf7.js", "version": "a0fadbf7", "sri": void 0 };
+const editIconUrl = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%2014H3.4L11.2%206.225L9.775%204.8L2%2012.6V14ZM0%2016V11.75L11.2%200.575C11.3833%200.391667%2011.5958%200.25%2011.8375%200.15C12.0792%200.05%2012.3333%200%2012.6%200C12.8667%200%2013.125%200.05%2013.375%200.15C13.625%200.25%2013.85%200.4%2014.05%200.6L15.425%202C15.625%202.18333%2015.7708%202.4%2015.8625%202.65C15.9542%202.9%2016%203.15833%2016%203.425C16%203.675%2015.9542%203.92083%2015.8625%204.1625C15.7708%204.40417%2015.625%204.625%2015.425%204.825L4.25%2016H0Z'%20fill='%231C1B1F'/%3e%3c/svg%3e";
+const xIconUrl = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_7_876)'%3e%3cpath%20d='M16%208C16%2010.1217%2015.1571%2012.1566%2013.6569%2013.6569C12.1566%2015.1571%2010.1217%2016%208%2016C5.87827%2016%203.84344%2015.1571%202.34315%2013.6569C0.842855%2012.1566%200%2010.1217%200%208C0%205.87827%200.842855%203.84344%202.34315%202.34315C3.84344%200.842855%205.87827%200%208%200C10.1217%200%2012.1566%200.842855%2013.6569%202.34315C15.1571%203.84344%2016%205.87827%2016%208ZM5.354%204.646C5.26011%204.55211%205.13278%204.49937%205%204.49937C4.86722%204.49937%204.73989%204.55211%204.646%204.646C4.55211%204.73989%204.49937%204.86722%204.49937%205C4.49937%205.13278%204.55211%205.26011%204.646%205.354L7.293%208L4.646%2010.646C4.59951%2010.6925%204.56264%2010.7477%204.53748%2010.8084C4.51232%2010.8692%204.49937%2010.9343%204.49937%2011C4.49937%2011.0657%204.51232%2011.1308%204.53748%2011.1916C4.56264%2011.2523%204.59951%2011.3075%204.646%2011.354C4.73989%2011.4479%204.86722%2011.5006%205%2011.5006C5.06574%2011.5006%205.13084%2011.4877%205.19158%2011.4625C5.25232%2011.4374%205.30751%2011.4005%205.354%2011.354L8%208.707L10.646%2011.354C10.6925%2011.4005%2010.7477%2011.4374%2010.8084%2011.4625C10.8692%2011.4877%2010.9343%2011.5006%2011%2011.5006C11.0657%2011.5006%2011.1308%2011.4877%2011.1916%2011.4625C11.2523%2011.4374%2011.3075%2011.4005%2011.354%2011.354C11.4005%2011.3075%2011.4374%2011.2523%2011.4625%2011.1916C11.4877%2011.1308%2011.5006%2011.0657%2011.5006%2011C11.5006%2010.9343%2011.4877%2010.8692%2011.4625%2010.8084C11.4374%2010.7477%2011.4005%2010.6925%2011.354%2010.646L8.707%208L11.354%205.354C11.4005%205.30751%2011.4374%205.25232%2011.4625%205.19158C11.4877%205.13084%2011.5006%205.06574%2011.5006%205C11.5006%204.93426%2011.4877%204.86916%2011.4625%204.80842C11.4374%204.74768%2011.4005%204.69249%2011.354%204.646C11.3075%204.59951%2011.2523%204.56264%2011.1916%204.53748C11.1308%204.51232%2011.0657%204.49937%2011%204.49937C10.9343%204.49937%2010.8692%204.51232%2010.8084%204.53748C10.7477%204.56264%2010.6925%204.59951%2010.646%204.646L8%207.293L5.354%204.646Z'%20fill='%23757575'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_7_876'%3e%3crect%20width='16'%20height='16'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+const SUFFIX = "원";
+const PREFIX = "- ";
+function toDigits(v) {
+  return v.replace(/[^\d]/g, "");
+}
+function formatDisplay(n) {
+  return n ? `${PREFIX}${n.toLocaleString()}${SUFFIX}` : "";
+}
+function BudgetGoalForm({
+  value,
+  onChange,
+  loading,
+  saving,
+  changed,
+  onSubmit
+}) {
+  const inputRef = useRef(null);
+  const [focused, setFocused] = useState(false);
+  const [inputPx, setInputPx] = useState(0);
+  const caretBeforeSuffix = (n) => {
+    const before = n ? `${PREFIX}${n.toLocaleString()}`.length : 0;
+    requestAnimationFrame(() => {
+      const el = inputRef.current;
+      if (!el) return;
+      try {
+        el.setSelectionRange(before, before);
+      } catch {
+      }
+    });
+  };
+  const measureWidth = () => {
+    const el = inputRef.current;
+    if (!el) return;
+    const valueStr = formatDisplay(value) || `${PREFIX}0${SUFFIX}`;
+    const cs = getComputedStyle(el);
+    const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.font = font;
+    const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const extra = 2;
+    const w = ctx.measureText(valueStr).width + paddingX + extra;
+    setInputPx(w);
+  };
+  useEffect(() => {
+    if (!focused) measureWidth();
+  }, [value, focused]);
+  useEffect(() => {
+    var _a, _b;
+    (_b = (_a = document.fonts) == null ? void 0 : _a.ready) == null ? void 0 : _b.then(() => {
+      if (!focused) measureWidth();
+    });
+  }, []);
+  const disabled = !!loading || !!saving || !changed;
+  return /* @__PURE__ */ jsxs("div", { className: "px-5 mt-25", children: [
+    /* @__PURE__ */ jsxs("h2", { className: "top-5 text-2xl font-extrabold !text-[#002B5B]", children: [
+      "이번 달에 얼마까지",
+      /* @__PURE__ */ jsx("br", {}),
+      " 지출할 건가요?"
+    ] }),
+    /* @__PURE__ */ jsx("p", { className: "mt-1 text-sm !text-[#757575]", children: "이 금액은 온전히 통제해보세요." }),
+    /* @__PURE__ */ jsxs("div", { className: "mt-8 relative group", children: [
+      /* @__PURE__ */ jsx(
+        "input",
+        {
+          ref: inputRef,
+          type: "text",
+          inputMode: "numeric",
+          pattern: "[0-9]*",
+          autoComplete: "off",
+          autoCorrect: "off",
+          spellCheck: false,
+          autoFocus: true,
+          onFocus: () => {
+            setFocused(true);
+            caretBeforeSuffix(value);
+          },
+          onBlur: () => setFocused(false),
+          style: {
+            width: focused ? void 0 : inputPx || void 0,
+            border: "0",
+            borderRadius: 0,
+            outline: "none",
+            boxShadow: "none",
+            WebkitAppearance: "none",
+            appearance: "none"
+          },
+          className: `
+            w-full bg-transparent
+            outline-none ring-0 focus:ring-0
+            border-none
+            !text-xl font-bold text-[#333]
+            placeholder:text-[#B9B9B9] pb-2
+            ${focused ? "pr-9" : ""} 
+          `,
+          placeholder: `${PREFIX}0${SUFFIX}`,
+          value: formatDisplay(value),
+          onChange: (e) => {
+            const next = Number(toDigits(e.target.value) || "0");
+            onChange(next);
+            caretBeforeSuffix(next);
+          }
+        }
+      ),
+      !focused && /* @__PURE__ */ jsx(
+        "button",
+        {
+          type: "button",
+          "aria-label": "편집",
+          className: "absolute top-1/2 -translate-y-1/2 rounded hover:bg-black/5 active:bg-black/10",
+          style: { left: inputRef.current ? inputRef.current.offsetLeft + (inputPx || 0) : 0 },
+          onMouseDown: (e) => e.preventDefault(),
+          onClick: () => {
+            var _a;
+            (_a = inputRef.current) == null ? void 0 : _a.focus();
+            caretBeforeSuffix(value);
+          },
+          children: /* @__PURE__ */ jsx("img", { src: editIconUrl, alt: "편집", className: "w-4 h-4 opacity-70" })
+        }
+      ),
+      focused && /* @__PURE__ */ jsx(
+        "button",
+        {
+          type: "button",
+          "aria-label": "지우기",
+          className: "absolute right-0 top-1/2 -translate-y-1/2 p-7 rounded hover:bg-black/5 active:bg-black/10",
+          onMouseDown: (e) => e.preventDefault(),
+          onClick: () => {
+            var _a;
+            onChange(0);
+            caretBeforeSuffix(0);
+            (_a = inputRef.current) == null ? void 0 : _a.focus();
+          },
+          children: /* @__PURE__ */ jsx("img", { src: xIconUrl, alt: "지우기", className: "w-4 h-4 opacity-70" })
+        }
+      ),
+      /* @__PURE__ */ jsx("div", { className: "pointer-events-none absolute left-0 right-6 -bottom-[3px] h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "fixed left-0 right-0 bottom-0 bg-white/90 backdrop-blur px-4 py-3", children: /* @__PURE__ */ jsx(
+      Button,
+      {
+        className: `w-full !h-[20px] !rounded-[6px] !font-normal ${disabled ? "!bg-white !text-[#757575] border !border-[#002B5B]" : "!bg-[#002B5B] !text-white"}`,
+        disabled,
+        onClick: () => void onSubmit(),
+        children: "저장"
+      }
+    ) })
+  ] });
+}
+function useBudgetGoal(opts = {}) {
+  const userUid = MOCK_USER_UID;
+  const { date, idFromRoute } = opts;
+  const [loading, setLoading] = useState(true);
+  const [goal, setGoal] = useState(null);
+  const [price, setPrice] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const hasExisting = useMemo(() => !!(goal == null ? void 0 : goal.id) || !!idFromRoute, [goal, idFromRoute]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await getBudgetGoalByDate({ userUid, date });
+        const g = res.data;
+        setGoal(g);
+        setPrice((g == null ? void 0 : g.price) ?? 0);
+      } catch {
+        setGoal(null);
+        setPrice(0);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [userUid, date]);
+  async function save() {
+    if (!Number.isFinite(price) || price < 0) return;
+    try {
+      setSaving(true);
+      if (hasExisting) {
+        const id = (goal == null ? void 0 : goal.id) ?? idFromRoute;
+        const res = await updateBudgetGoal(id, { userUid }, { price });
+        setGoal(res.data);
+      } else {
+        const res = await createBudgetGoal({ userUid, price });
+        setGoal(res.data);
+      }
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+  return {
+    loading,
+    goal,
+    price,
+    setPrice,
+    saving,
+    hasExisting,
+    // true면 "수정", false면 "저장"
+    save
+  };
+}
+function useHideNav() {
+  useEffect(() => {
+    document.body.classList.add("hide-nav");
+    return () => {
+      document.body.classList.remove("hide-nav");
+    };
+  }, []);
+}
+function useQuery() {
+  const {
+    search
+  } = useLocation$1();
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+const BudgetGoalPage = UNSAFE_withComponentProps(function BudgetGoalPage2() {
+  useHideNav();
+  const q = useQuery();
+  const navigate = useNavigate$1();
+  const id = q.get("id");
+  const date = q.get("date") || void 0;
+  const {
+    loading,
+    goal,
+    price,
+    setPrice,
+    saving,
+    save
+  } = useBudgetGoal({
+    date,
+    idFromRoute: id ? Number(id) : void 0
+  });
+  const title = "목표 초과지출 설정";
+  const original = (goal == null ? void 0 : goal.price) ?? 0;
+  const changed = price !== original && price > 0;
+  return /* @__PURE__ */ jsxs("div", {
+    className: "min-h-screen bg-white relative max-w-md mx-auto pb-24",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "relative top-10 px-4 pt-4 pb-2",
+      children: [/* @__PURE__ */ jsx("div", {
+        onClick: () => navigate(-1),
+        className: " absolute left-4 top-1/2 -translate-y-1 p-1 -m-1 rounded hover:bg-black/5 active:bg-black/10",
+        "aria-label": "뒤로",
+        children: /* @__PURE__ */ jsx(ChevronLeft, {
+          className: "w-6 h-6"
+        })
+      }), /* @__PURE__ */ jsx("h1", {
+        className: "text-center text-[15px] font-medium text-black tracking-[-0.165px]",
+        children: title
+      })]
+    }), /* @__PURE__ */ jsx(BudgetGoalForm, {
+      value: price,
+      onChange: setPrice,
+      loading,
+      saving,
+      changed,
+      onSubmit: async () => {
+        if (!changed) return;
+        const ok = await save();
+        if (ok) navigate(-1);
+      }
+    })]
+  });
+});
+const route7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: BudgetGoalPage
+}, Symbol.toStringTag, { value: "Module" }));
+const serverManifest = { "entry": { "module": "/assets/entry.client-BWKv3yVZ.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/index-BwfGNBry.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-C-A1sB_O.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/index-BwfGNBry.js", "/assets/useExpenses-Dxl0xnuN.js", "/assets/httpClient-CWcscfoA.js"], "css": ["/assets/root-Cw5jdj1b.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_index-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses._index": { "id": "routes/expenses._index", "parentId": "root", "path": "expenses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._index-LsnvymJm.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-Dxl0xnuN.js", "/assets/validation-T1eA4q4R.js", "/assets/ExpenseHeader-ep4VulXu.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.$expenseId": { "id": "routes/expenses.$expenseId", "parentId": "root", "path": "expenses/:expenseId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._expenseId-CUbE-mdb.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-Dxl0xnuN.js", "/assets/validation-T1eA4q4R.js", "/assets/button-CGFRpoYb.js", "/assets/ExpenseForm-K30aNWCr.js", "/assets/chevron-left-DxCiGoPs.js", "/assets/utils-BSBzSZF9.js", "/assets/index-Eg3m6z1F.js", "/assets/index-BwfGNBry.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.add": { "id": "routes/expenses.add", "parentId": "root", "path": "expenses/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses.add-CUgtEhTn.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-Dxl0xnuN.js", "/assets/validation-T1eA4q4R.js", "/assets/button-CGFRpoYb.js", "/assets/ExpenseForm-K30aNWCr.js", "/assets/chevron-left-DxCiGoPs.js", "/assets/utils-BSBzSZF9.js", "/assets/index-Eg3m6z1F.js", "/assets/index-BwfGNBry.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/report": { "id": "routes/report", "parentId": "root", "path": "report", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/report-GHgC3REh.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/ExpenseHeader-ep4VulXu.js", "/assets/useReport-BIMVAucy.js", "/assets/button-CGFRpoYb.js", "/assets/index-Eg3m6z1F.js", "/assets/index-BwfGNBry.js", "/assets/utils-BSBzSZF9.js", "/assets/httpClient-CWcscfoA.js", "/assets/budgetGoals-BZ_8I3Ji.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "features/more/pages/MorePage": { "id": "features/more/pages/MorePage", "parentId": "root", "path": "more", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/MorePage-BZ_SMeIL.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/useReport-BIMVAucy.js", "/assets/httpClient-CWcscfoA.js", "/assets/ExpenseHeader-ep4VulXu.js", "/assets/index-Eg3m6z1F.js", "/assets/index-BwfGNBry.js", "/assets/utils-BSBzSZF9.js", "/assets/budgetGoals-BZ_8I3Ji.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "features/reports/pages/BudgetGoalPage": { "id": "features/reports/pages/BudgetGoalPage", "parentId": "root", "path": "reports/budget-goal", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/BudgetGoalPage-B-bL70rq.js", "imports": ["/assets/chunk-PVWAREVJ-BMVZt4t6.js", "/assets/button-CGFRpoYb.js", "/assets/budgetGoals-BZ_8I3Ji.js", "/assets/httpClient-CWcscfoA.js", "/assets/chevron-left-DxCiGoPs.js", "/assets/utils-BSBzSZF9.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-9b63b919.js", "version": "9b63b919", "sri": void 0 };
 const assetsBuildDirectory = "build\\client";
 const basename = "/";
 const future = { "unstable_middleware": false, "unstable_optimizeDeps": false, "unstable_splitRouteModules": false, "unstable_subResourceIntegrity": false, "unstable_viteEnvironmentApi": false };
@@ -2467,6 +2940,14 @@ const routes = {
     index: void 0,
     caseSensitive: void 0,
     module: route6
+  },
+  "features/reports/pages/BudgetGoalPage": {
+    id: "features/reports/pages/BudgetGoalPage",
+    parentId: "root",
+    path: "reports/budget-goal",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route7
   }
 };
 export {

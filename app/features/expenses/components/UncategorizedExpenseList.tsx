@@ -44,7 +44,6 @@ export function UncategorizedExpenseList({
           }, ANIMATION_DELAY_MS);
         }
       } catch (error) {
-        console.error('Transaction update failed:', error);
         // 실패 시 removing 상태 제거
         setRemovingIds(prev => {
           const newSet = new Set(prev);

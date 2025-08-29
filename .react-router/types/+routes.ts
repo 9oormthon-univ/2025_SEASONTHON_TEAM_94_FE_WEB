@@ -24,12 +24,15 @@ type Pages = {
   "/report": {
     params: {};
   };
+  "/more": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/expenses" | "/expenses/:expenseId" | "/report";
+    page: "/" | "/expenses" | "/expenses/:expenseId" | "/report" | "/more";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -46,5 +49,9 @@ type RouteFiles = {
   "routes/report.tsx": {
     id: "routes/report";
     page: "/report";
+  };
+  "features/more/pages/MorePage.tsx": {
+    id: "features/more/pages/MorePage";
+    page: "/more";
   };
 };

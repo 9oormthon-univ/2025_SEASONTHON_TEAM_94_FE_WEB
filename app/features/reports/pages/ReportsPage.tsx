@@ -12,7 +12,7 @@ export default function ReportPage() {
   const {
     ym, today, monthStart, monthEnd,
     monthOver, monthFixed, overSum, fixedSum, total,
-    monthlyGoal, barPercent, percentCenterLeft, barLabel, markerLeft, labelTransform, isOver,
+    monthlyGoal, barPercent, percentCenterLeft, barLabel, labelTransform, isOver,
   } = useReport();
 
   return (
@@ -64,12 +64,11 @@ export default function ReportPage() {
             barPercent={barPercent}
             percentCenterLeft={percentCenterLeft}
             barLabel={barLabel}
-            markerLeft={markerLeft}
-            labelTransform={labelTransform}
+            // labelTransform는 선택 prop이면 생략 가능
           />
         }
       />
-    </section>
+      </section>
 
       <div className="bg-white px-4 pt-4 pb-24 space-y-6">
         <div>
@@ -79,8 +78,9 @@ export default function ReportPage() {
               {`${dateK(monthStart)} - ${dateK(monthEnd)}`}
             </div>
           </div>
+          {/* ✅ 고정: API price 그대로 */}
           <div className="mt-2 text-xl font-medium text-[#FF6200]">
-            {monthlyGoal > 0 ? (isOver ? `+ ${fmt(total - monthlyGoal)}` : `- 0원`) : '- 0원'}
+            - {fmt(monthlyGoal)}
           </div>
         </div>
 

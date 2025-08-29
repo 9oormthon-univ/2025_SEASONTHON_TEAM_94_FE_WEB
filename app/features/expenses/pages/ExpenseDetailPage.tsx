@@ -1,10 +1,13 @@
 import { useNavigate, useParams } from 'react-router';
+import { ChevronLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { Button } from '@/shared/components/ui/button';
 import { useExpenses } from '@/features/expenses/hooks/useExpenses';
-import { ExpenseDetail } from '@/features/expenses/components/ExpenseDetail';
 import { EXPENSE_TYPES, type Transaction, type TransactionUpdateRequest } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import { useState, useEffect } from 'react';
 import { fetchTransactionById } from '@/features/expenses/api/expenseApi';
+import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
 import type { ExpenseFormData } from '@/features/expenses/utils/validation';
 
 export function ExpenseDetailPage() {
@@ -97,19 +100,47 @@ export function ExpenseDetailPage() {
     navigate(`/expenses?tab=${nextTab}`);
   };
 
+  // Transaction을 ExpenseFormData로 변환
+  const getDefaultValues = (): Partial<ExpenseFormData> => {
+    if (!expense) return {};
+    
+    return {
+      price: expense.price,
+      title: expense.title,
+      userUid: expense.userUid,
+      selectedDate: new Date(expense.startedAt),
+      type: expense.type,
+      category: expense.category,
+      dutchPayCount: 1, // 기본값
+      app: '', // 기본값 (Transaction에 app 필드가 없으므로)
+    };
+  };
+
   if (loading) {
     return (
-      <div className="bg-white min-h-screen max-w-md mx-2 relative">
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white min-h-screen max-w-md mx-2 relative"
+      >
         <div className="flex justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white min-h-screen max-w-md mx-2 relative">
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white min-h-screen max-w-md mx-2 relative"
+      >
         <div className="flex items-center justify-center min-h-screen">
           <div className="bg-white rounded-lg border border-red-200 p-6 max-w-md">
             <div className="text-red-600 text-center">
@@ -125,17 +156,77 @@ export function ExpenseDetailPage() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
+    );
+  }
+
+  if (!expense) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+      >
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center text-gray-500">
+            <div className="text-4xl mb-4">💸</div>
+            <p>지출 정보를 찾을 수 없습니다.</p>
+          </div>
+        </div>
+      </motion.div>
     );
   }
 
   return (
-    <ExpenseDetail
-      expense={expense}
-      onSave={handleFormSubmit}
-      onCancel={handleCancel}
-      onDelete={handleDelete}
-      isLoading={isUpdating}
-    />
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-6">
+        <div
+          onClick={handleCancel}
+          className="cursor-pointer"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </div>
+        <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
+          지출 수정
+        </h1>
+        <div className="w-6" /> {/* Spacer */}
+      </div>
+
+      {/* Form */}
+      <ExpenseForm
+        onSubmit={handleFormSubmit}
+        defaultValues={getDefaultValues()}
+      />
+
+      {/* Action Buttons */}
+      <div className="fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
+        <div className="flex gap-3">
+          <Button
+            onClick={handleDelete}
+            variant="outline"
+            className="flex-1 h-[45px] border-red-500 text-red-500 text-[15px] font-medium rounded-[10px] hover:bg-red-50"
+          >
+            삭제
+          </Button>
+          <Button
+            form="expense-form"
+            type="submit"
+            disabled={isUpdating}
+            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50"
+          >
+            {isUpdating ? '수정 중...' : '수정'}
+          </Button>
+        </div>
+      </div>
+    </motion.div>
   );
 }

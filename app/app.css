@@ -56,7 +56,7 @@ body {
   overflow-x: hidden;
 }
 
-button {
+button:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
   font-size: 1rem;
   font-weight: 600;
   min-height: 52px;
@@ -226,7 +226,7 @@ img {
   @apply block mb-4 text-lg font-bold text-foreground;
 }
 
-.action-group button:not([data-slot="calendar"] button):not(.rdp-day button) {
+.action-group button:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
   @apply mr-3 mb-3 px-6 py-4 bg-primary text-primary-foreground text-base font-semibold rounded-2xl transition-all duration-200;
   /* 터치 친화적 크기 */
   @apply min-h-[52px] min-w-[52px];
@@ -243,7 +243,7 @@ img {
 }
 
 /* 뒤로가기 버튼 특별 스타일 */
-button:first-child:not([data-slot="calendar"] button):not(.rdp-day button) {
+button:first-child:not([data-slot="calendar"] button):not(.rdp-day):not(.rdp-nav_button):not(.rdp-button) {
   @apply mb-6 px-5 py-4 bg-secondary text-secondary-foreground text-base font-semibold rounded-2xl min-h-[52px] transition-all duration-200;
   @apply active:bg-secondary/80 active:scale-95;
   @apply shadow-md hover:shadow-lg;

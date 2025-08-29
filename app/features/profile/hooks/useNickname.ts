@@ -1,25 +1,47 @@
 // features/profile/hooks/useNickname.ts
 import { useEffect, useMemo, useState } from 'react';
-import { updateNickname as putNickname } from '../api/user';
+import { getMe, updateNickname as putNickname } from '../api/user';
 
-const USER_UID = 'a'; // 실제 userUid로 교체
+const USER_UID = 'a'; 
 
 export function useNickname() {
-  const [loading, setLoading] = useState(false);   
-  const [saving, setSaving]   = useState(false);
-  const [original, setOriginal] = useState('');    
-  const [name, setName]         = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saving,  setSaving]  = useState(false);
+  const [original, setOriginal] = useState('');
+  const [name, setName] = useState('');
 
-  useEffect(() => { /* noop */ }, []);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const me = await getMe(USER_UID);
+        const initial = (me.nickname?.trim() || me.username?.trim() || '');
+        setOriginal(initial);
+        setName(initial);
+      } catch {
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
-  const changed = useMemo(() => name.trim() !== original.trim(), [name, original]);
+  const changed = useMemo(
+    () => name.trim() !== original.trim(),
+    [name, original]
+  );
 
   const save = async () => {
     if (!changed || saving) return false;
     setSaving(true);
     try {
-      await putNickname(USER_UID, name.trim());
-      setOriginal(name.trim());
+      const updated = await putNickname(USER_UID, name.trim());
+      const finalName = updated.nickname?.trim() || updated.username?.trim() || '';
+      setOriginal(finalName);
+      setName(finalName);
+
+      window.dispatchEvent(
+        new CustomEvent('nickname:changed', { detail: { nickname: finalName } })
+      );
       return true;
     } catch {
       return false;

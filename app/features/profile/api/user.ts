@@ -1,24 +1,29 @@
-// features/profile/api/user.ts  
+// features/profile/api/user.ts
 import { httpService } from '@/shared/utils/httpClient';
+import type { ApiResponse } from '@/shared/types/api';
+
 
 export interface UserResponse {
-  id: string;
-  username: string;
-  nickname: string;
+  id: string;         
+  username: string;    
+  nickname: string;   
   role: 'ROLE_USER' | string;
 }
-export interface ApiResponse<T> { success: boolean; status: number; code: string; message: string; data: T; }
 
-export async function updateNickname(
-  userUid: string,
-  nickname: string,
-  signal?: AbortSignal
-): Promise<UserResponse> {
-  const endpoint = `/api/v1/users?userUid=${encodeURIComponent(userUid)}`;
+export async function getMe(userUid: string, signal?: AbortSignal) {
+  const res = await httpService.get<ApiResponse<UserResponse>>(
+    '/api/v1/users/me',
+    { userUid },
+    { ...(signal ? { signal } as any : {}) }
+  );
+  return res.data;
+}
+
+export async function updateNickname(userUid: string, nickname: string, signal?: AbortSignal) {
   const res = await httpService.put<ApiResponse<UserResponse>>(
-    endpoint,
+    `/api/v1/users?userUid=${encodeURIComponent(userUid)}`,
     { nickname },
-    { headers: { 'Content-Type': 'application/json' }, timeout: 10000, ...(signal ? { signal } as any : {}) }
+    { ...(signal ? { signal } as any : {}) }
   );
   return res.data;
 }

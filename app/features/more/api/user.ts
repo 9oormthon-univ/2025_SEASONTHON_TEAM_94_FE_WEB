@@ -3,26 +3,36 @@ import { httpClient } from '@/shared/utils/httpClient';
 import { API_ENDPOINTS, MOCK_USER_UID } from '@/shared/config/api';
 import type { ApiResponse } from '@/shared/types/api';
 
+type CurrentUserApi = {
+  id: string;        
+  role: string;
+  username: string;
+  nickname: string;
+};
+
 export type CurrentUser = {
-  name: string;
-  email: string;
+  name: string;      
+  email: string;    
   userUid?: string;
 };
 
-// 실제 API 호출 (실패 시 퍼블리싱용 목업으로 fallback)
-export async function fetchCurrentUser(): Promise<CurrentUser> {
+export async function fetchCurrentUser(userUid = MOCK_USER_UID): Promise<CurrentUser> {
   try {
-    const res = await httpClient.get<ApiResponse<CurrentUser>>(
-      API_ENDPOINTS.USERS_ME
+    const res = await httpClient.get<ApiResponse<CurrentUserApi>>(
+      `${API_ENDPOINTS.USERS_ME}?userUid=${encodeURIComponent(userUid)}`
     );
-    return res.data;
+    const u = res.data;
+    return {
+      name: (u.nickname?.trim() || u.username?.trim() || '사용자'),
+      email: '',              // 백엔드 응답에 없으니 비워둠
+      userUid: u.id,
+    };
   } catch {
     // 퍼블리싱 단계: 목업
-    return { name: '여울', email: 'yunsooga@gmail.com', userUid: MOCK_USER_UID };
+    return { name: '여울', email: 'yunsooga@gmail.com', userUid };
   }
 }
 
 export async function logout(): Promise<void> {
-  // 응답 래퍼가 없을 수도 있어 unknown으로 받아만 줌
   await httpClient.post<unknown>(API_ENDPOINTS.AUTH_LOGOUT);
 }

@@ -1,17 +1,11 @@
+// features/more/pages/MorePage.tsx
 import { useEffect, useState } from 'react';
 import ProfileCard from '../components/ProfileCard';
 import MiniReport from '../components/MiniReport';
 import { fetchCurrentUser, type CurrentUser, logout } from '@/features/more/api/user';
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useReport } from '@/features/reports/hooks/useReport';
-import { useNavigate } from 'react-router-dom';
-
-type MenuItem =
-  | { type: 'link'; label: string; to: string }
-  | { type: 'external'; label: string; href: string }
-  | { type: 'action'; label: string; onClick: () => void }
-  | { type: 'link', label: '목표 초과지출 설정/수정', to: '/reports/budget-goal' };
 
 export default function MorePage() {
   const navigate = useNavigate();
@@ -20,16 +14,26 @@ export default function MorePage() {
 
   useEffect(() => {
     (async () => {
-      const me = await fetchCurrentUser();
+      const me = await fetchCurrentUser('a'); // 현재 테스트용
       setUser(me);
     })();
   }, []);
 
-  const menuItems: MenuItem[] = [
-    { type: 'link', label: '서비스 이용약관', to: '/terms' },
-    { type: 'external', label: '개발자 링크', href: 'https://example.com' },
-    { type: 'link', label: '리뷰쓰기', to: '/reviews/new' },
-    { type: 'action', label: '로그아웃', onClick: async () => { await logout(); } },
+  useEffect(() => {
+    const onChanged = (e: Event) => {
+      const { nickname } = (e as CustomEvent).detail || {};
+      if (!nickname) return;
+      setUser((prev) => (prev ? { ...prev, name: nickname } : prev));
+    };
+    window.addEventListener('nickname:changed', onChanged as EventListener);
+    return () => window.removeEventListener('nickname:changed', onChanged as EventListener);
+  }, []);
+
+  const menuItems = [
+    { type: 'link', label: '서비스 이용약관', to: '/terms' } as const,
+    { type: 'external', label: '개발자 링크', href: 'https://example.com' } as const,
+    { type: 'link', label: '리뷰쓰기', to: '/reviews/new' } as const,
+    { type: 'action', label: '로그아웃', onClick: async () => { await logout(); } } as const,
   ];
 
   return (
@@ -40,7 +44,7 @@ export default function MorePage() {
         <ProfileCard
           name={user?.name ?? '사용자'}
           email={user?.email ?? ''}
-          onEdit={() => navigate('/profile/nickname')} 
+          onEdit={() => navigate('/profile/nickname')}
         />
 
         <div className="flex-1 flex flex-col min-h-[80vh]">
@@ -58,23 +62,29 @@ export default function MorePage() {
           <div className="flex-[3] bg-white ">
             <p><br /><br /></p>
             <nav className="px-6 space-y-10 tracking-wide leading-5">
-              {menuItems.map((m) =>
-                'to' in m ? (
-                  <Link key={m.label} to={m.to} className="block text-[14px] text-[#8F8F8F] no-underline font-light">
-                    {m.label}
-                  </Link>
-                ) : 'href' in m ? (
-                  <a key={m.label} href={m.href} target="_blank" rel="noreferrer"
-                     className="block text-[14px] text-[#8F8F8F] no-underline font-light">
-                    {m.label}
-                  </a>
-                ) : (
+              {menuItems.map((m) => {
+                if (m.type === 'link') {
+                  return (
+                    <Link key={m.label} to={m.to} className="block text-[14px] text-[#8F8F8F] no-underline font-light">
+                      {m.label}
+                    </Link>
+                  );
+                }
+                if (m.type === 'external') {
+                  return (
+                    <a key={m.label} href={m.href} target="_blank" rel="noreferrer"
+                      className="block text-[14px] text-[#8F8F8F] no-underline font-light">
+                      {m.label}
+                    </a>
+                  );
+                }
+                return (
                   <button key={m.label} onClick={m.onClick}
                           className="block w-full text-left text-[14px] text-[#8F8F8F] font-light">
                     {m.label}
                   </button>
-                )
-              )}
+                );
+              })}
             </nav>
           </div>
         </div>

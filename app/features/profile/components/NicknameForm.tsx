@@ -7,7 +7,7 @@ type NicknameFormProps = {
   onChange: (v: string) => void;
   loading?: boolean;
   saving?: boolean;
-  changed: boolean;           
+  changed: boolean;
   onSubmit: () => void | Promise<void>;
 };
 
@@ -25,7 +25,7 @@ export default function NicknameForm({
       <div className="mt-8">
         <input
           type="text"
-          maxLength={20}
+          maxLength={7}               
           autoFocus
           autoCapitalize="off"
           autoCorrect="off"
@@ -47,8 +47,8 @@ export default function NicknameForm({
         <Button
           className={`w-full h-[45px] !rounded-[8px] !font-normal ${
             disabled
-              ? '!bg-white !text-[#757575] !border-2 !border-[#002B5B]' 
-              : '!bg-[#002B5B] !text-white'                        
+              ? '!bg-white !text-[#757575] !border-2 !border-[#002B5B]'
+              : '!bg-[#002B5B] !text-white'
           }`}
           disabled={disabled}
           onClick={async () => { await onSubmit(); }}

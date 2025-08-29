@@ -1,10 +1,10 @@
 import { useSearchParams, Link } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchTransactions } from '../api/expenseApi';
-import { ExpenseHeader } from '../components/ExpenseHeader';
-import { UncategorizedExpenseList } from '../components/UncategorizedExpenseList';
-import { CategorizedExpenseList } from '../components/CategorizedExpenseList';
+import { fetchTransactions } from '@/features/expenses/api/expenseApi';
+import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { UncategorizedExpenseList } from '@/features/expenses/components/UncategorizedExpenseList';
+import { CategorizedExpenseList } from '@/features/expenses/components/CategorizedExpenseList';
 import { EXPENSE_TYPES, type Transaction } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
 import ArrowDownIcon from '@/assets/keyboard_arrow_down.svg?react';

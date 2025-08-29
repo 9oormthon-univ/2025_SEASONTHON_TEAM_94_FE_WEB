@@ -1,15 +1,15 @@
 // Types
-export * from './types/expense';
-export * from './types/api';
+export * from '@/shared/types/expense';
+export * from '@/shared/types/api';
 
 // Utils
-export * from './utils/httpClient';
-export * from './utils/nativeBridge';
-export * from './utils/utils';
+export * from '@/shared/utils/httpClient';
+export * from '@/shared/utils/nativeBridge';
+export * from '@/shared/utils/utils';
 
 // Components - UI 컴포넌트들
-export * from './components/ui/button';
-export * from './components/ui/card';
-export * from './components/ui/badge';
-export * from './components/ui/progress';
-export * from './components/ui/tabs';
+export * from '@/shared/components/ui/button';
+export * from '@/shared/components/ui/card';
+export * from '@/shared/components/ui/badge';
+export * from '@/shared/components/ui/progress';
+export * from '@/shared/components/ui/tabs';

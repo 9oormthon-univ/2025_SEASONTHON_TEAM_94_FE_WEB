@@ -1,10 +1,6 @@
 import { cn } from '@/shared/utils/utils';
-import { EXPENSE_TYPES, type ExpenseType } from '@/shared/types/expense';
-
-interface ExpenseTypeSelectorProps {
-  expenseType: ExpenseType;
-  onTypeChange: (type: ExpenseType) => void;
-}
+import { EXPENSE_TYPES } from '@/shared/types/expense';
+import type { ExpenseTypeSelectorProps } from '@/features/expenses/_lib/types/components';
 
 export function ExpenseTypeSelector({
   expenseType,

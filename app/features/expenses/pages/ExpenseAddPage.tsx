@@ -8,17 +8,10 @@ import {
   type ExpenseType,
 } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import { ExpenseTypeSelector } from '../components/ExpenseTypeSelector';
-import { ExpenseForm } from '../components/ExpenseForm';
-import { useExpenses } from '../hooks/useExpenses';
-
-interface ExpenseFormData {
-  amount: string;
-  merchant: string;
-  app: string;
-  selectedDate: Date;
-  dutchPayCount: number;
-}
+import { ExpenseTypeSelector } from '@/features/expenses/components/ExpenseTypeSelector';
+import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
+import { useExpenses } from '@/features/expenses/hooks/useExpenses';
+import type { ExpenseFormData } from '@/features/expenses/_lib/types/components';
 
 export function ExpenseAddPage() {
   const navigate = useNavigate();

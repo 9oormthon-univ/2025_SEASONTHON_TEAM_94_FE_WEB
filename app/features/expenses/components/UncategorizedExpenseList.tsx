@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
-import { formatExpenseDate } from '../utils/expenseUtils';
-import { updateTransaction } from '../api/expenseApi';
+import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
+import { updateTransaction } from '@/features/expenses/api/expenseApi';
 
 const ANIMATION_DELAY_MS = 300;
 

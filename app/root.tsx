@@ -158,7 +158,7 @@ export default function App() {
             <HomeIcon
               className={`w-6 h-6 mb-1 ${
                 location.pathname.startsWith('/expenses')
-                  ? 'text-black'
+                  ? 'text-black fill-current'
                   : 'text-gray-500'
               }`}
             />
@@ -175,7 +175,7 @@ export default function App() {
             <ReportIcon
               className={`w-6 h-6 mb-1 ${
                 location.pathname.startsWith('/report')
-                  ? 'text-black'
+                  ? 'text-black fill-current'
                   : 'text-gray-500'
               }`}
             />
@@ -192,7 +192,7 @@ export default function App() {
             <MoreIcon
               className={`w-6 h-6 mb-1 ${
                 location.pathname.startsWith('/more')
-                  ? 'text-black'
+                  ? 'text-black fill-current'
                   : 'text-gray-500'
               }`}
             />

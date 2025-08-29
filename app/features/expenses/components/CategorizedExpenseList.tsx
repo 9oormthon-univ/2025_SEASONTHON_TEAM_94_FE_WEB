@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Transaction } from '@/shared/types/expense';
-import { formatExpenseDate } from '../utils/expenseUtils';
+import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
 import { EXPENSE_TYPES } from '@/shared/types/expense';
 
 interface CategorizedExpenseListProps {

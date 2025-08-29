@@ -1,10 +1,10 @@
 import { useNavigate, useParams } from 'react-router';
-import { useExpenses } from '../hooks/useExpenses';
-import { ExpenseDetail } from '../components/ExpenseDetail';
+import { useExpenses } from '@/features/expenses/hooks/useExpenses';
+import { ExpenseDetail } from '@/features/expenses/components/ExpenseDetail';
 import { EXPENSE_TYPES, type Transaction } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
 import { useState, useEffect } from 'react';
-import { fetchTransactionById } from '../api/expenseApi';
+import { fetchTransactionById } from '@/features/expenses/api/expenseApi';
 
 export function ExpenseDetailPage() {
   const { expenseId } = useParams();

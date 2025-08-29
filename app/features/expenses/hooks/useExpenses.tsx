@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useState,
   useContext,
@@ -19,20 +19,10 @@ import type {
   ExpenseType,
   TransactionFilter,
 } from '@/shared/types/expense';
-
-interface ExpenseContextType {
-  expenses: Transaction[];
-  loading: boolean;
-  error: string | null;
-  refreshExpenses: (filter?: Partial<TransactionFilter>) => Promise<void>;
-  updateExpense: (
-    userUid: string,
-    id: number,
-    updatedExpense: TransactionUpdateRequest
-  ) => Promise<void>;
-  createExpense: (newExpense: TransactionCreateRequest) => Promise<void>;
-  deleteExpense: (userUid: string, id: number) => Promise<void>;
-}
+import type {
+  ExpenseContextType,
+  ExpenseProviderProps,
+} from '@/features/expenses/_lib/types/hooks';
 
 const ExpenseContext = createContext<ExpenseContextType | null>(null);
 
@@ -41,12 +31,7 @@ export function ExpenseProvider({
   initialExpenses,
   userUid = MOCK_USER_UID, // 실제로는 사용자 인증에서 가져옴
   defaultType = 'NONE' as ExpenseType, // 기본 타입 추가
-}: {
-  children: React.ReactNode;
-  initialExpenses?: Transaction[];
-  userUid?: string;
-  defaultType?: ExpenseType;
-}) {
+}: ExpenseProviderProps) {
   const [expenses, setExpenses] = useState<Transaction[]>(
     initialExpenses || []
   );

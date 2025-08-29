@@ -3,6 +3,17 @@ import { ChevronLeft } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/shared/components/ui/alert-dialog';
 import { useExpenses } from '@/features/expenses/hooks/useExpenses';
 import { EXPENSE_TYPES, type Transaction, type TransactionUpdateRequest } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
@@ -85,14 +96,12 @@ export function ExpenseDetailPage() {
   const handleDelete = async () => {
     if (!expense) return;
 
-    if (confirm('정말로 이 지출을 삭제하시겠습니까?')) {
-      try {
-        await deleteExpense(userUid, expense.id);
-        navigate('/expenses');
-      } catch (e) {
-        console.error('deleteExpense error:', e);
-        alert('지출 삭제에 실패했습니다.');
-      }
+    try {
+      await deleteExpense(userUid, expense.id);
+      navigate('/expenses');
+    } catch (e) {
+      console.error('deleteExpense error:', e);
+      alert('지출 삭제에 실패했습니다.');
     }
   };
 
@@ -215,12 +224,34 @@ export function ExpenseDetailPage() {
       {/* Action Buttons */}
       <div className="px-4 sm:px-6 py-4 mt-auto mb-16">
         <div className="flex gap-3">
-          <Button
-            onClick={handleDelete}
-            className="flex-1 h-[45px] bg-[#EDEDED] text-[#6E6E6E] text-[15px] font-medium rounded-[10px]"
-          >
-            삭제
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                className="flex-1 h-[45px] bg-[#EDEDED] text-[#6E6E6E] text-[15px] font-medium rounded-[10px]"
+              >
+                삭제
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>지출 삭제</AlertDialogTitle>
+                <AlertDialogDescription>
+                  지출을 삭제 하시겠어요?<br  />삭제 시 다시 복구가 불가능해요
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex-row gap-3">
+                <AlertDialogCancel className="flex-1 h-[45px] text-[15px] font-medium rounded-[10px]">
+                  취소
+                </AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  className="flex-1 h-[45px] bg-red-600 hover:bg-red-700 text-white text-[15px] font-medium rounded-[10px]"
+                >
+                  삭제
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button
             form="expense-form"
             type="submit"

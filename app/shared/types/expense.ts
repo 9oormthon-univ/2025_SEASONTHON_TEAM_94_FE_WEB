@@ -58,6 +58,7 @@ export interface TransactionCreateRequest {
   startAt?: string; // optional
   title: string;
   userUid: string; // userId -> userUid로 변경
+  type?: ExpenseType; // 지출 유형 추가
   category?: ExpenseCategory; // 카테고리 추가
 }
 

@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router';
 import {
-  ChevronDown,
+  ChevronRight,
   Calendar as CalendarIcon,
   ChevronLeft,
   Pencil,
 } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -31,7 +32,7 @@ export default function AddExpensePage() {
   );
   const [amount, setAmount] = useState<string>('');
   const [merchant, setMerchant] = useState<string>('');
-  const [app, setApp] = useState<string>('신한은행 신용카드');
+  const [app, setApp] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [dutchPayCount, setDutchPayCount] = useState<number>(0);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -97,10 +98,19 @@ export default function AddExpensePage() {
     }
   };
 
+  const [open, setOpen] = useState(false)
+  const [date, setDate] = useState<Date | undefined>(undefined)
+
   return (
-    <div className="bg-white min-h-screen max-w-md mx-2 relative">
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4">
         <div
           onClick={() => navigate('/expenses')}
           className="p-0 cursor-pointer"
@@ -114,7 +124,7 @@ export default function AddExpensePage() {
       </div>
 
       {/* Type Selection with Custom Tabs */}
-      <div className="px-4 sm:px-6 pt-6 pb-4">
+      <div className="px-4 sm:px-6 pt-2 pb-4">
         <div className="bg-[#e6e6e6] rounded-[10px] h-[45px] flex p-1 relative">
           {/* Active Tab Background */}
           <div
@@ -214,11 +224,11 @@ export default function AddExpensePage() {
                 className="text-base text-[#3d3d3d] text-right tracking-[-0.176px] p-0 h-auto font-normal"
               >
                 {formatDate(selectedDate)}
-                <ChevronDown className="w-3 h-3 ml-2" />
+                <ChevronRight className="w-3 h-3" />
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-auto overflow-hidden p-0 max-w-[260px] sm:max-w-[300px]"
+              className="w-auto p-3"
               align="center"
               side="top"
               sideOffset={8}
@@ -233,35 +243,7 @@ export default function AddExpensePage() {
                     setIsDatePickerOpen(false);
                   }
                 }}
-                captionLayout="dropdown"
-                className="rounded-md border shadow-lg text-sm"
-                classNames={{
-                  months:
-                    'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
-                  month: 'space-y-4',
-                  caption: 'flex justify-center pt-1 relative items-center',
-                  caption_label: 'text-sm font-medium',
-                  nav: 'space-x-1 flex items-center',
-                  nav_button:
-                    'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                  nav_button_previous: 'absolute left-1',
-                  nav_button_next: 'absolute right-1',
-                  table: 'w-full border-collapse space-y-1',
-                  head_row: 'flex',
-                  head_cell:
-                    'text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]',
-                  row: 'flex w-full mt-2',
-                  cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                  day: 'h-7 w-7 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground',
-                  day_selected:
-                    'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
-                  day_today: 'bg-accent text-accent-foreground',
-                  day_outside: 'text-muted-foreground opacity-50',
-                  day_disabled: 'text-muted-foreground opacity-50',
-                  day_range_middle:
-                    'aria-selected:bg-accent aria-selected:text-accent-foreground',
-                  day_hidden: 'invisible',
-                }}
+                className="rounded-md"
               />
             </PopoverContent>
           </Popover>
@@ -285,7 +267,7 @@ export default function AddExpensePage() {
                 setDutchPayCount(parsedValue);
               }}
               placeholder="0"
-              className="!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"
+              className="!w-[55px] !h-[35px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"
             />
             {dutchPayCount > 1 && amount && (
               <div className="text-sm text-[#757575]">
@@ -297,17 +279,19 @@ export default function AddExpensePage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="fixed bottom-4 sm:bottom-8 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
+      <div className="fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
         <div className="flex">
           <Button
             onClick={handleSave}
             disabled={isLoading}
+            variant="outline"
+            style={{ backgroundColor: isLoading ? '#002b5b' : '#002b5b', color: '#fff' }}
             className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50"
           >
             {isLoading ? '저장 중...' : '저장'}
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

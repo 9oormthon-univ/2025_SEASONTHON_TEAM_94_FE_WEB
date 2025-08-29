@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import {
   EXPENSE_TYPES,
@@ -49,10 +50,13 @@ export function ExpenseAddPage() {
 
       await createExpense(transactionData);
 
+      // 성공 토스트 표시
+      toast.success('지출이 성공적으로 저장되었습니다!');
+
       // 성공 시 지출 목록으로 이동
       navigate('/expenses');
     } catch (error) {
-      alert('지출 저장에 실패했습니다. 다시 시도해주세요.');
+      toast.error('지출 저장에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
     }

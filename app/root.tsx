@@ -11,6 +11,7 @@ import { Link, useLocation } from 'react-router';
 import type { Route } from './+types/root';
 import '@/app.css';
 import { ExpenseProvider } from '@/features/expenses/hooks/useExpenses';
+import { Toaster } from '@/shared/components/ui/sonner';
 
 import HomeIcon from '@/assets/home.svg?react';
 import ReportIcon from '@/assets/report.svg?react';
@@ -199,6 +200,7 @@ export default function App() {
             <span className="text-xs">더보기</span>
           </Link>
         </nav>
+        <Toaster richColors position="top-center" />
       </div>
     </ExpenseProvider>
   );

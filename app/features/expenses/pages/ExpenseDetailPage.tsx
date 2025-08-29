@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { 
   AlertDialog,
@@ -79,6 +80,9 @@ export function ExpenseDetailPage() {
 
       await updateExpense(userUid, expense.id, updateData);
 
+      // 성공 토스트 표시
+      toast.success('지출이 성공적으로 수정되었습니다!');
+
       // 성공 시 지출 목록으로 이동
       const nextTab =
         formData.type === EXPENSE_TYPES.NONE
@@ -87,7 +91,7 @@ export function ExpenseDetailPage() {
       navigate(`/expenses?tab=${nextTab}`);
     } catch (error) {
       console.error('updateExpense error:', error);
-      alert('지출 수정에 실패했습니다. 다시 시도해주세요.');
+      toast.error('지출 수정에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsUpdating(false);
     }
@@ -98,10 +102,14 @@ export function ExpenseDetailPage() {
 
     try {
       await deleteExpense(userUid, expense.id);
+      
+      // 성공 토스트 표시
+      toast.success('지출이 성공적으로 삭제되었습니다!');
+      
       navigate('/expenses');
     } catch (e) {
       console.error('deleteExpense error:', e);
-      alert('지출 삭제에 실패했습니다.');
+      toast.error('지출 삭제에 실패했습니다.');
     }
   };
 

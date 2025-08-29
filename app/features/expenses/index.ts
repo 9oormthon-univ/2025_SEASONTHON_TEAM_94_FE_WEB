@@ -1,24 +1,24 @@
 // API
-export * from './api/expenseApi';
+export * from '@/features/expenses/api/expenseApi';
 
 // Hooks
-export * from './hooks/useExpenses';
+export * from '@/features/expenses/hooks/useExpenses';
 
 // Components
-export * from './components/UncategorizedExpenseList';
-export * from './components/CategorizedExpenseList';
-export * from './components/ExpenseDetail';
-export * from './components/ExpenseHeader';
-export * from './components/ExpenseForm';
-export * from './components/ExpenseTypeSelector';
+export * from '@/features/expenses/components/UncategorizedExpenseList';
+export * from '@/features/expenses/components/CategorizedExpenseList';
+export * from '@/features/expenses/components/ExpenseDetail';
+export * from '@/features/expenses/components/ExpenseHeader';
+export * from '@/features/expenses/components/ExpenseForm';
 
 // Pages
-export * from './pages/ExpensesPage';
-export * from './pages/ExpenseDetailPage';
-export * from './pages/ExpenseAddPage';
+export * from '@/features/expenses/pages/ExpensesPage';
+export * from '@/features/expenses/pages/ExpenseDetailPage';
+export * from '@/features/expenses/pages/ExpenseAddPage';
 
 // Utils
-export * from './utils/expenseUtils';
+export * from '@/features/expenses/utils/expenseUtils';
+export * from '@/features/expenses/utils/validation';
 
 // Types
-export * from './_lib/types';
+export * from '@/features/expenses/_lib/types';

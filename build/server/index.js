@@ -13,24 +13,27 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import "@hookform/resolvers/zod";
+import { z } from "zod";
 import { motion as motion$1, AnimatePresence as AnimatePresence$1 } from "framer-motion";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeft, Pencil, ChevronRight } from "lucide-react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { getDefaultClassNames, DayPicker } from "react-day-picker";
 import { useNavigate as useNavigate$1, Link as Link$1 } from "react-router-dom";
+import * as ProgressPrimitive from "@radix-ui/react-progress";
 const streamTimeout = 5e3;
-function handleRequest(request2, responseStatusCode, responseHeaders, routerContext, loadContext) {
+function handleRequest(request, responseStatusCode, responseHeaders, routerContext, loadContext) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
-    let userAgent = request2.headers.get("user-agent");
+    let userAgent = request.headers.get("user-agent");
     let readyOption = userAgent && isbot(userAgent) || routerContext.isSpaMode ? "onAllReady" : "onShellReady";
     let timeoutId = setTimeout(
       () => abort(),
       streamTimeout + 1e3
     );
     const { pipe, abort } = renderToPipeableStream(
-      /* @__PURE__ */ jsx(ServerRouter, { context: routerContext, url: request2.url }),
+      /* @__PURE__ */ jsx(ServerRouter, { context: routerContext, url: request.url }),
       {
         [readyOption]() {
           shellRendered = true;
@@ -315,6 +318,28 @@ const EXPENSE_TYPES = {
   FIXED_EXPENSE: "FIXED_EXPENSE",
   NONE: "NONE"
 };
+const EXPENSE_CATEGORIES = {
+  FOOD: "FOOD",
+  GROCERIES: "GROCERIES",
+  TRANSPORT: "TRANSPORT",
+  CAR: "CAR",
+  HOUSING: "HOUSING",
+  UTILITIES: "UTILITIES",
+  TELECOM: "TELECOM",
+  SUBSCRIPTIONS: "SUBSCRIPTIONS",
+  SHOPPING: "SHOPPING",
+  BEAUTY: "BEAUTY",
+  HEALTHCARE: "HEALTHCARE",
+  EDUCATION: "EDUCATION",
+  ENTERTAINMENT: "ENTERTAINMENT",
+  TRAVEL: "TRAVEL",
+  PETS: "PETS",
+  GIFTS_OCCASIONS: "GIFTS_OCCASIONS",
+  INSURANCE: "INSURANCE",
+  TAXES_FEES: "TAXES_FEES",
+  DONATION: "DONATION",
+  OTHER: "OTHER"
+};
 async function fetchTransactions(filter) {
   const response = await httpClient.get(
     API_ENDPOINTS.TRANSACTIONS,
@@ -450,9 +475,9 @@ const useExpenses = () => {
   }
   return context;
 };
-const SvgHome = (props) => /* @__PURE__ */ React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("mask", { id: "mask0_7_1016", style: {
+const SvgHome = (props) => /* @__PURE__ */ React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("mask", { id: "mask0_185_84", style: {
   maskType: "alpha"
-}, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 24, height: 24 }, /* @__PURE__ */ React.createElement("rect", { width: 24, height: 24, fill: "#D9D9D9" })), /* @__PURE__ */ React.createElement("g", { mask: "url(#mask0_7_1016)" }, /* @__PURE__ */ React.createElement("path", { d: "M4 21V9L12 3L20 9V21H14V14H10V21H4Z", fill: "#1C1B1F" })));
+}, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 24, height: 24 }, /* @__PURE__ */ React.createElement("rect", { width: 24, height: 24, fill: "#D9D9D9" })), /* @__PURE__ */ React.createElement("g", { mask: "url(#mask0_185_84)" }, /* @__PURE__ */ React.createElement("path", { d: "M19.5 9.25V20.5H14.5V13.5H9.5V20.5H4.5V9.25L12 3.625L19.5 9.25Z", stroke: "black" })));
 const SvgReport = (props) => /* @__PURE__ */ React.createElement("svg", { width: 18, height: 21, viewBox: "0 0 18 21", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("path", { d: "M7.75601 11.2055L10.2438 11.2055L10.2438 20L7.75601 20L7.75601 11.2055Z", stroke: "black", strokeLinejoin: "round" }), /* @__PURE__ */ React.createElement("path", { d: "M0.499999 2.41211L2.98781 2.41211L2.98781 20L0.5 20L0.499999 2.41211Z", stroke: "black", strokeLinejoin: "round" }), /* @__PURE__ */ React.createElement("path", { d: "M15.0122 2.41211L17.5 2.41211L17.5 20L15.0122 20L15.0122 2.41211Z", stroke: "black", strokeLinejoin: "round" }));
 const SvgMore = (props) => /* @__PURE__ */ React.createElement("svg", { width: 20, height: 6, viewBox: "0 0 20 6", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("path", { d: "M2.5 1C3.05384 1 3.51555 1.19133 3.91211 1.58789C4.30867 1.98445 4.5 2.44616 4.5 3C4.5 3.55384 4.30867 4.01555 3.91211 4.41211C3.51555 4.80867 3.05384 5 2.5 5C1.94616 5 1.48445 4.80867 1.08789 4.41211C0.691327 4.01555 0.5 3.55384 0.5 3C0.5 2.44616 0.691327 1.98445 1.08789 1.58789C1.48445 1.19133 1.94616 1 2.5 1ZM10 1C10.5538 1 11.0155 1.19133 11.4121 1.58789C11.8087 1.98445 12 2.44616 12 3C12 3.55384 11.8087 4.01555 11.4121 4.41211C11.0155 4.80867 10.5538 5 10 5C9.44616 5 8.98445 4.80867 8.58789 4.41211C8.19133 4.01555 8 3.55384 8 3C8 2.44616 8.19133 1.98445 8.58789 1.58789C8.98445 1.19133 9.44616 1 10 1ZM17.5 1C18.0538 1 18.5155 1.19133 18.9121 1.58789C19.3087 1.98445 19.5 2.44616 19.5 3C19.5 3.55384 19.3087 4.01555 18.9121 4.41211C18.5155 4.80867 18.0538 5 17.5 5C16.9462 5 16.4845 4.80867 16.0879 4.41211C15.6913 4.01555 15.5 3.55384 15.5 3C15.5 2.44616 15.6913 1.98445 16.0879 1.58789C16.4845 1.19133 16.9462 1 17.5 1Z", stroke: "black" }));
 const links = () => [{
@@ -521,7 +546,7 @@ const root = UNSAFE_withComponentProps(function App() {
           to: "/expenses",
           className: `flex flex-col items-center py-1 px-4 ${location.pathname.startsWith("/expenses") ? "text-black" : "text-gray-500"}`,
           children: [/* @__PURE__ */ jsx(SvgHome, {
-            className: `w-6 h-6 mb-1 ${location.pathname.startsWith("/expenses") ? "text-black" : "text-gray-500"}`
+            className: `w-6 h-6 mb-1 ${location.pathname.startsWith("/expenses") ? "text-black fill-current" : "text-gray-500"}`
           }), /* @__PURE__ */ jsx("span", {
             className: "text-xs",
             children: "홈"
@@ -530,7 +555,7 @@ const root = UNSAFE_withComponentProps(function App() {
           to: "/report",
           className: `flex flex-col items-center py-1 px-4 ${location.pathname.startsWith("/report") ? "text-black" : "text-gray-500"}`,
           children: [/* @__PURE__ */ jsx(SvgReport, {
-            className: `w-6 h-6 mb-1 ${location.pathname.startsWith("/report") ? "text-black" : "text-gray-500"}`
+            className: `w-6 h-6 mb-1 ${location.pathname.startsWith("/report") ? "text-black fill-current" : "text-gray-500"}`
           }), /* @__PURE__ */ jsx("span", {
             className: "text-xs",
             children: "리포트"
@@ -539,7 +564,7 @@ const root = UNSAFE_withComponentProps(function App() {
           to: "/more",
           className: `flex flex-col items-center py-1 px-4 ${location.pathname.startsWith("/more") ? "text-black" : "text-gray-500"}`,
           children: [/* @__PURE__ */ jsx(SvgMore, {
-            className: `w-6 h-6 mb-1 ${location.pathname.startsWith("/more") ? "text-black" : "text-gray-500"}`
+            className: `w-6 h-6 mb-1 ${location.pathname.startsWith("/more") ? "text-black fill-current" : "text-gray-500"}`
           }), /* @__PURE__ */ jsx("span", {
             className: "text-xs",
             children: "더보기"
@@ -1025,6 +1050,292 @@ const logoSvg = "data:image/svg+xml,%3csvg%20width='69'%20height='25'%20viewBox=
 function ExpenseHeader() {
   return /* @__PURE__ */ jsx("div", { className: "bg-white", children: /* @__PURE__ */ jsx("div", { className: "flex justify-center px-6 pt-6 pb-6", children: /* @__PURE__ */ jsx("img", { src: logoSvg, alt: "그만써", className: "h-[25px]" }) }) });
 }
+function Input({ className, type, ...props }) {
+  return /* @__PURE__ */ jsx(
+    "input",
+    {
+      type,
+      "data-slot": "input",
+      className: cn(
+        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function Popover({
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(PopoverPrimitive.Root, { "data-slot": "popover", ...props });
+}
+function PopoverTrigger({
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(PopoverPrimitive.Trigger, { "data-slot": "popover-trigger", ...props });
+}
+function PopoverContent({
+  className,
+  align = "center",
+  sideOffset = 4,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(PopoverPrimitive.Portal, { children: /* @__PURE__ */ jsx(
+    PopoverPrimitive.Content,
+    {
+      "data-slot": "popover-content",
+      align,
+      sideOffset,
+      className: cn(
+        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden",
+        className
+      ),
+      ...props
+    }
+  ) });
+}
+function Calendar({
+  className,
+  classNames,
+  showOutsideDays = true,
+  captionLayout = "label",
+  buttonVariant = "ghost",
+  formatters,
+  components,
+  ...props
+}) {
+  const defaultClassNames = getDefaultClassNames();
+  return /* @__PURE__ */ jsx(
+    DayPicker,
+    {
+      showOutsideDays,
+      className: cn(
+        "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
+        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
+        className
+      ),
+      captionLayout,
+      formatters: {
+        formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }),
+        ...formatters
+      },
+      classNames: {
+        root: cn("w-fit", defaultClassNames.root),
+        months: cn(
+          "flex gap-4 flex-col md:flex-row relative",
+          defaultClassNames.months
+        ),
+        month: cn("flex flex-col w-full gap-4", defaultClassNames.month),
+        nav: cn(
+          "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between",
+          defaultClassNames.nav
+        ),
+        button_previous: cn(
+          buttonVariants({ variant: buttonVariant }),
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
+          defaultClassNames.button_previous
+        ),
+        button_next: cn(
+          buttonVariants({ variant: buttonVariant }),
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
+          defaultClassNames.button_next
+        ),
+        month_caption: cn(
+          "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)",
+          defaultClassNames.month_caption
+        ),
+        dropdowns: cn(
+          "w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5",
+          defaultClassNames.dropdowns
+        ),
+        dropdown_root: cn(
+          "relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md",
+          defaultClassNames.dropdown_root
+        ),
+        dropdown: cn(
+          "absolute bg-popover inset-0 opacity-0",
+          defaultClassNames.dropdown
+        ),
+        caption_label: cn(
+          "select-none font-medium",
+          captionLayout === "label" ? "text-sm" : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
+          defaultClassNames.caption_label
+        ),
+        table: "w-full border-collapse",
+        weekdays: cn("flex", defaultClassNames.weekdays),
+        weekday: cn(
+          "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none",
+          defaultClassNames.weekday
+        ),
+        week: cn("flex w-full mt-2", defaultClassNames.week),
+        week_number_header: cn(
+          "select-none w-(--cell-size)",
+          defaultClassNames.week_number_header
+        ),
+        week_number: cn(
+          "text-[0.8rem] select-none text-muted-foreground",
+          defaultClassNames.week_number
+        ),
+        day: cn(
+          "relative w-full h-full p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md group/day aspect-square select-none",
+          defaultClassNames.day
+        ),
+        range_start: cn(
+          "rounded-l-md bg-accent",
+          defaultClassNames.range_start
+        ),
+        range_middle: cn("rounded-none", defaultClassNames.range_middle),
+        range_end: cn("rounded-r-md bg-accent", defaultClassNames.range_end),
+        today: cn(
+          "bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none",
+          defaultClassNames.today
+        ),
+        outside: cn(
+          "text-muted-foreground aria-selected:text-muted-foreground",
+          defaultClassNames.outside
+        ),
+        disabled: cn(
+          "text-muted-foreground opacity-50",
+          defaultClassNames.disabled
+        ),
+        hidden: cn("invisible", defaultClassNames.hidden),
+        ...classNames
+      },
+      components: {
+        Root: ({ className: className2, rootRef, ...props2 }) => {
+          return /* @__PURE__ */ jsx(
+            "div",
+            {
+              "data-slot": "calendar",
+              ref: rootRef,
+              className: cn(className2),
+              ...props2
+            }
+          );
+        },
+        Chevron: ({ className: className2, orientation, ...props2 }) => {
+          if (orientation === "left") {
+            return /* @__PURE__ */ jsx(ChevronLeftIcon, { className: cn("size-4", className2), ...props2 });
+          }
+          if (orientation === "right") {
+            return /* @__PURE__ */ jsx(
+              ChevronRightIcon,
+              {
+                className: cn("size-4", className2),
+                ...props2
+              }
+            );
+          }
+          return /* @__PURE__ */ jsx(ChevronDownIcon, { className: cn("size-4", className2), ...props2 });
+        },
+        DayButton: CalendarDayButton,
+        WeekNumber: ({ children, ...props2 }) => {
+          return /* @__PURE__ */ jsx("td", { ...props2, children: /* @__PURE__ */ jsx("div", { className: "flex size-(--cell-size) items-center justify-center text-center", children }) });
+        },
+        ...components
+      },
+      ...props
+    }
+  );
+}
+function CalendarDayButton({
+  className,
+  day,
+  modifiers,
+  ...props
+}) {
+  const defaultClassNames = getDefaultClassNames();
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    var _a;
+    if (modifiers.focused) (_a = ref.current) == null ? void 0 : _a.focus();
+  }, [modifiers.focused]);
+  return /* @__PURE__ */ jsx(
+    Button,
+    {
+      ref,
+      variant: "ghost",
+      size: "icon",
+      "data-day": day.date.toLocaleDateString(),
+      "data-selected-single": modifiers.selected && !modifiers.range_start && !modifiers.range_end && !modifiers.range_middle,
+      "data-range-start": modifiers.range_start,
+      "data-range-end": modifiers.range_end,
+      "data-range-middle": modifiers.range_middle,
+      className: cn(
+        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
+        defaultClassNames.day,
+        className
+      ),
+      ...props
+    }
+  );
+}
+z.object({
+  price: z.number({ message: "올바른 금액을 입력해주세요." }).min(0, "금액은 0 이상이어야 합니다.").int("금액은 정수여야 합니다."),
+  title: z.string({ message: "제목을 입력해주세요." }).min(1, "제목을 입력해주세요.").max(200, "제목은 200자 이하로 입력해주세요."),
+  userUid: z.string({ message: "사용자 정보가 필요합니다." }).min(1, "사용자 정보가 필요합니다."),
+  startAt: z.string().datetime("올바른 날짜 형식이 아닙니다.").optional(),
+  type: z.enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE]).optional(),
+  category: z.enum([
+    EXPENSE_CATEGORIES.FOOD,
+    EXPENSE_CATEGORIES.GROCERIES,
+    EXPENSE_CATEGORIES.TRANSPORT,
+    EXPENSE_CATEGORIES.CAR,
+    EXPENSE_CATEGORIES.HOUSING,
+    EXPENSE_CATEGORIES.UTILITIES,
+    EXPENSE_CATEGORIES.TELECOM,
+    EXPENSE_CATEGORIES.SUBSCRIPTIONS,
+    EXPENSE_CATEGORIES.SHOPPING,
+    EXPENSE_CATEGORIES.BEAUTY,
+    EXPENSE_CATEGORIES.HEALTHCARE,
+    EXPENSE_CATEGORIES.EDUCATION,
+    EXPENSE_CATEGORIES.ENTERTAINMENT,
+    EXPENSE_CATEGORIES.TRAVEL,
+    EXPENSE_CATEGORIES.PETS,
+    EXPENSE_CATEGORIES.GIFTS_OCCASIONS,
+    EXPENSE_CATEGORIES.INSURANCE,
+    EXPENSE_CATEGORIES.TAXES_FEES,
+    EXPENSE_CATEGORIES.DONATION,
+    EXPENSE_CATEGORIES.OTHER
+  ]).optional()
+});
+z.object({
+  // API 필드들
+  price: z.number({ message: "올바른 금액을 입력해주세요." }).min(0, "금액은 0 이상이어야 합니다.").int("금액은 정수여야 합니다."),
+  title: z.string({ message: "제목을 입력해주세요." }).min(1, "제목을 입력해주세요.").max(200, "제목은 200자 이하로 입력해주세요."),
+  userUid: z.string({ message: "사용자 정보가 필요합니다." }).min(1, "사용자 정보가 필요합니다."),
+  startAt: z.string().datetime("올바른 날짜 형식이 아닙니다.").optional(),
+  type: z.enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE]).optional(),
+  category: z.enum([
+    EXPENSE_CATEGORIES.FOOD,
+    EXPENSE_CATEGORIES.GROCERIES,
+    EXPENSE_CATEGORIES.TRANSPORT,
+    EXPENSE_CATEGORIES.CAR,
+    EXPENSE_CATEGORIES.HOUSING,
+    EXPENSE_CATEGORIES.UTILITIES,
+    EXPENSE_CATEGORIES.TELECOM,
+    EXPENSE_CATEGORIES.SUBSCRIPTIONS,
+    EXPENSE_CATEGORIES.SHOPPING,
+    EXPENSE_CATEGORIES.BEAUTY,
+    EXPENSE_CATEGORIES.HEALTHCARE,
+    EXPENSE_CATEGORIES.EDUCATION,
+    EXPENSE_CATEGORIES.ENTERTAINMENT,
+    EXPENSE_CATEGORIES.TRAVEL,
+    EXPENSE_CATEGORIES.PETS,
+    EXPENSE_CATEGORIES.GIFTS_OCCASIONS,
+    EXPENSE_CATEGORIES.INSURANCE,
+    EXPENSE_CATEGORIES.TAXES_FEES,
+    EXPENSE_CATEGORIES.DONATION,
+    EXPENSE_CATEGORIES.OTHER
+  ]).optional(),
+  // UI 전용 필드들
+  selectedDate: z.date({ message: "날짜를 선택해주세요." }),
+  dutchPayCount: z.number().min(1, "더치페이 인원은 1명 이상이어야 합니다.").max(20, "더치페이 인원은 20명 이하로 설정해주세요.").int("더치페이 인원은 정수여야 합니다."),
+  app: z.string()
+});
 const SvgKeyboardArrowDown = (props) => /* @__PURE__ */ React.createElement("svg", { width: 11, height: 7, viewBox: "0 0 11 7", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("path", { d: "M5.5 7L0 1.32432L1.28333 0L5.5 4.35135L9.71667 0L11 1.32432L5.5 7Z", fill: "#757575" }));
 const SvgPlus = (props) => /* @__PURE__ */ React.createElement("svg", { width: 35, height: 35, viewBox: "0 0 35 35", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ React.createElement("rect", { x: 0.5, y: 0.5, width: 34, height: 34, rx: 17, fill: "white", stroke: "#002B5B" }), /* @__PURE__ */ React.createElement("path", { d: "M10 18.608V17.104H16.56V10H18.192V17.104H24.72V18.608H18.192V25.712H16.56V18.608H10Z", fill: "#002B5B" }));
 function ExpensesPage() {
@@ -1293,229 +1604,6 @@ const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: expenses_$expenseId
 }, Symbol.toStringTag, { value: "Module" }));
-function Input({ className, type, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "input",
-    {
-      type,
-      "data-slot": "input",
-      className: cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function Popover({
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(PopoverPrimitive.Root, { "data-slot": "popover", ...props });
-}
-function PopoverTrigger({
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(PopoverPrimitive.Trigger, { "data-slot": "popover-trigger", ...props });
-}
-function PopoverContent({
-  className,
-  align = "center",
-  sideOffset = 4,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(PopoverPrimitive.Portal, { children: /* @__PURE__ */ jsx(
-    PopoverPrimitive.Content,
-    {
-      "data-slot": "popover-content",
-      align,
-      sideOffset,
-      className: cn(
-        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden",
-        className
-      ),
-      ...props
-    }
-  ) });
-}
-function Calendar({
-  className,
-  classNames,
-  showOutsideDays = true,
-  captionLayout = "label",
-  buttonVariant = "ghost",
-  formatters,
-  components,
-  ...props
-}) {
-  const defaultClassNames = getDefaultClassNames();
-  return /* @__PURE__ */ jsx(
-    DayPicker,
-    {
-      showOutsideDays,
-      className: cn(
-        "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
-        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
-        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
-        className
-      ),
-      captionLayout,
-      formatters: {
-        formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }),
-        ...formatters
-      },
-      classNames: {
-        root: cn("w-fit", defaultClassNames.root),
-        months: cn(
-          "flex gap-4 flex-col md:flex-row relative",
-          defaultClassNames.months
-        ),
-        month: cn("flex flex-col w-full gap-4", defaultClassNames.month),
-        nav: cn(
-          "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between",
-          defaultClassNames.nav
-        ),
-        button_previous: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
-          defaultClassNames.button_previous
-        ),
-        button_next: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
-          defaultClassNames.button_next
-        ),
-        month_caption: cn(
-          "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)",
-          defaultClassNames.month_caption
-        ),
-        dropdowns: cn(
-          "w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5",
-          defaultClassNames.dropdowns
-        ),
-        dropdown_root: cn(
-          "relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md",
-          defaultClassNames.dropdown_root
-        ),
-        dropdown: cn(
-          "absolute bg-popover inset-0 opacity-0",
-          defaultClassNames.dropdown
-        ),
-        caption_label: cn(
-          "select-none font-medium",
-          captionLayout === "label" ? "text-sm" : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
-          defaultClassNames.caption_label
-        ),
-        table: "w-full border-collapse",
-        weekdays: cn("flex", defaultClassNames.weekdays),
-        weekday: cn(
-          "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none",
-          defaultClassNames.weekday
-        ),
-        week: cn("flex w-full mt-2", defaultClassNames.week),
-        week_number_header: cn(
-          "select-none w-(--cell-size)",
-          defaultClassNames.week_number_header
-        ),
-        week_number: cn(
-          "text-[0.8rem] select-none text-muted-foreground",
-          defaultClassNames.week_number
-        ),
-        day: cn(
-          "relative w-full h-full p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md group/day aspect-square select-none",
-          defaultClassNames.day
-        ),
-        range_start: cn(
-          "rounded-l-md bg-accent",
-          defaultClassNames.range_start
-        ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
-        range_end: cn("rounded-r-md bg-accent", defaultClassNames.range_end),
-        today: cn(
-          "bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none",
-          defaultClassNames.today
-        ),
-        outside: cn(
-          "text-muted-foreground aria-selected:text-muted-foreground",
-          defaultClassNames.outside
-        ),
-        disabled: cn(
-          "text-muted-foreground opacity-50",
-          defaultClassNames.disabled
-        ),
-        hidden: cn("invisible", defaultClassNames.hidden),
-        ...classNames
-      },
-      components: {
-        Root: ({ className: className2, rootRef, ...props2 }) => {
-          return /* @__PURE__ */ jsx(
-            "div",
-            {
-              "data-slot": "calendar",
-              ref: rootRef,
-              className: cn(className2),
-              ...props2
-            }
-          );
-        },
-        Chevron: ({ className: className2, orientation, ...props2 }) => {
-          if (orientation === "left") {
-            return /* @__PURE__ */ jsx(ChevronLeftIcon, { className: cn("size-4", className2), ...props2 });
-          }
-          if (orientation === "right") {
-            return /* @__PURE__ */ jsx(
-              ChevronRightIcon,
-              {
-                className: cn("size-4", className2),
-                ...props2
-              }
-            );
-          }
-          return /* @__PURE__ */ jsx(ChevronDownIcon, { className: cn("size-4", className2), ...props2 });
-        },
-        DayButton: CalendarDayButton,
-        WeekNumber: ({ children, ...props2 }) => {
-          return /* @__PURE__ */ jsx("td", { ...props2, children: /* @__PURE__ */ jsx("div", { className: "flex size-(--cell-size) items-center justify-center text-center", children }) });
-        },
-        ...components
-      },
-      ...props
-    }
-  );
-}
-function CalendarDayButton({
-  className,
-  day,
-  modifiers,
-  ...props
-}) {
-  const defaultClassNames = getDefaultClassNames();
-  const ref = React.useRef(null);
-  React.useEffect(() => {
-    var _a;
-    if (modifiers.focused) (_a = ref.current) == null ? void 0 : _a.focus();
-  }, [modifiers.focused]);
-  return /* @__PURE__ */ jsx(
-    Button,
-    {
-      ref,
-      variant: "ghost",
-      size: "icon",
-      "data-day": day.date.toLocaleDateString(),
-      "data-selected-single": modifiers.selected && !modifiers.range_start && !modifiers.range_end && !modifiers.range_middle,
-      "data-range-start": modifiers.range_start,
-      "data-range-end": modifiers.range_end,
-      "data-range-middle": modifiers.range_middle,
-      className: cn(
-        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
-        defaultClassNames.day,
-        className
-      ),
-      ...props
-    }
-  );
-}
 const expenses_add = UNSAFE_withComponentProps(function AddExpensePage() {
   const navigate = useNavigate();
   const [expenseType, setExpenseType] = useState(EXPENSE_TYPES.OVER_EXPENSE);
@@ -1753,6 +1841,25 @@ const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: expenses_add
 }, Symbol.toStringTag, { value: "Module" }));
+const Progress = React.forwardRef(({ className, value, ...props }, ref) => /* @__PURE__ */ jsx(
+  ProgressPrimitive.Root,
+  {
+    ref,
+    className: cn(
+      "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
+      className
+    ),
+    ...props,
+    children: /* @__PURE__ */ jsx(
+      ProgressPrimitive.Indicator,
+      {
+        className: "h-full w-full flex-1 bg-primary transition-all",
+        style: { transform: `translateX(-${100 - (value || 0)}%)` }
+      }
+    )
+  }
+));
+Progress.displayName = ProgressPrimitive.Root.displayName;
 function ProgressBar({
   barPercent,
   percentCenterLeft,
@@ -1760,25 +1867,17 @@ function ProgressBar({
 }) {
   const pct = Math.max(0, Math.min(100, barPercent));
   const EDGE_INSET_PX = 6;
-  const START_EPS = 0.5;
-  const END_EPS = 99.5;
-  const isStart = pct <= START_EPS;
-  const isEnd = pct >= END_EPS;
+  const isStart = pct <= 0.5;
+  const isEnd = pct >= 99.5;
   const edgeAdjustPx = isEnd ? -EDGE_INSET_PX : isStart ? EDGE_INSET_PX : 0;
   const labelTx = isStart ? "50%" : isEnd ? "-50%" : "0%";
-  return /* @__PURE__ */ jsx("div", { className: "relative pt-7", children: /* @__PURE__ */ jsxs("div", { className: "relative h-10 w-full rounded-lg border border-[#BFBFBF] bg-[#F4F6F8] overflow-visible", children: [
+  return /* @__PURE__ */ jsxs("div", { className: "relative pt-7", children: [
+    /* @__PURE__ */ jsx(Progress, { value: pct, className: "h-10 rounded-md" }),
     /* @__PURE__ */ jsx(
       "div",
       {
-        className: `h-full ${pct >= 100 ? "rounded-lg" : "rounded-l-lg"}`,
-        style: { width: `${pct}%`, background: "#002B5B" }
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      "div",
-      {
-        className: "absolute top-1/2 -translate-y-1/2 text-white text-xs font-normal",
-        style: { left: `calc(${percentCenterLeft}% )`, transform: "translate(-50%,-20%)" },
+        className: "absolute top-1/2 -translate-y-1/2 text-[11px] font-medium text-white",
+        style: { left: `calc(${percentCenterLeft}% )`, transform: "translate(-50%,+70%)" },
         children: pct === 0 || pct === 100 ? `${pct}%` : `${pct.toFixed(2)}%`
       }
     ),
@@ -1789,9 +1888,7 @@ function ProgressBar({
         style: {
           left: `calc(${pct}% + ${edgeAdjustPx}px)`,
           bottom: "100%",
-          // 바 윗변 기준
-          transform: "translate(-50%, 1px)"
-          // X: 가운데, Y: 1px 내려 바에 닿게
+          transform: "translate(-50%, 30px)"
         },
         children: [
           /* @__PURE__ */ jsx(
@@ -1807,7 +1904,7 @@ function ProgressBar({
         ]
       }
     )
-  ] }) });
+  ] });
 }
 const Card = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
   "div",
@@ -1960,66 +2057,46 @@ function ReportSummary({
     ] })
   ] });
 }
-const API_BASE = "https://api.stopusing.klr.kr";
-function qs(params) {
-  if (!params) return "";
-  const s = Object.entries(params).filter(([, v]) => v !== void 0 && v !== null && v !== "").map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&");
-  return s ? `?${s}` : "";
-}
-async function request(url, method = "GET", body, signal) {
-  const res = await fetch(
-    url.startsWith("http") ? url : `${API_BASE}${url}`,
-    {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: void 0,
-      signal,
-      credentials: "omit"
-    }
-  );
-  const json = await res.json();
-  const data = (json == null ? void 0 : json.data) ?? json;
-  if (!res.ok) {
-    const msg = (json == null ? void 0 : json.message) || `HTTP ${res.status}`;
-    throw new Error(msg);
+async function fetchTxArray(params) {
+  try {
+    const res = await httpClient.get(
+      API_ENDPOINTS.TRANSACTIONS,
+      params
+    );
+    return Array.isArray(res == null ? void 0 : res.data) ? res.data : [];
+  } catch {
+    return [];
   }
-  return data;
 }
-function get(path, params, signal) {
-  return request(`${path}${qs(params)}`, "GET", void 0, signal);
+async function fetchOverAndFixed(opts) {
+  const userUid = opts == null ? void 0 : opts.userUid;
+  let [over, fixed] = await Promise.all([
+    fetchTxArray({ userUid, type: "OVER_EXPENSE" }),
+    fetchTxArray({ userUid, type: "FIXED_EXPENSE" })
+  ]);
+  if (over.length === 0 || fixed.length === 0) {
+    const all = await fetchTxArray({ userUid });
+    if (over.length === 0) over = all.filter((t) => t.type === "OVER_EXPENSE");
+    if (fixed.length === 0) fixed = all.filter((t) => t.type === "FIXED_EXPENSE");
+  }
+  return { over, fixed };
+}
+function getBudgetGoalById(id, params) {
+  return httpClient.get(
+    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
+    params
+    // ✅ 전달
+  );
 }
 const USER_UID = "a";
-const GOAL_ID = 1;
-async function fetchMonthlyGoal(signal) {
+async function fetchMonthlyGoal() {
+  var _a;
   try {
-    const goal = await get(
-      `/api/v1/budgetgoals/${GOAL_ID}`,
-      { userUid: USER_UID },
-      signal
-    );
-    return Number.isFinite(goal == null ? void 0 : goal.price) ? Math.max(0, goal.price) : 0;
+    const res = await getBudgetGoalById(1, { userUid: USER_UID });
+    const price = (_a = res == null ? void 0 : res.data) == null ? void 0 : _a.price;
+    return Number.isFinite(price) ? Math.max(0, price) : 0;
   } catch {
     return 0;
-  }
-}
-async function fetchTransactionsByType(type, signal) {
-  try {
-    return await get(
-      `/api/v1/transactions`,
-      { userUid: USER_UID, type },
-      signal
-    );
-  } catch {
-    try {
-      const all = await get(
-        `/api/v1/transactions`,
-        { userUid: USER_UID },
-        signal
-      );
-      return all.filter((t) => t.type === type);
-    } catch {
-      return [];
-    }
   }
 }
 function useReport() {
@@ -2027,21 +2104,14 @@ function useReport() {
   const [fixedList, setFixedList] = useState([]);
   const [monthlyGoal, setMonthlyGoal] = useState(0);
   useEffect(() => {
-    const ac = new AbortController();
-    fetchMonthlyGoal(ac.signal).then(setMonthlyGoal).catch(() => setMonthlyGoal(0));
-    return () => ac.abort();
+    fetchMonthlyGoal().then(setMonthlyGoal).catch(() => setMonthlyGoal(0));
   }, []);
   useEffect(() => {
-    const ac = new AbortController();
     (async () => {
-      const [over, fixed] = await Promise.all([
-        fetchTransactionsByType("OVER_EXPENSE", ac.signal),
-        fetchTransactionsByType("FIXED_EXPENSE", ac.signal)
-      ]);
+      const { over, fixed } = await fetchOverAndFixed({ userUid: USER_UID });
       setOverList(over);
       setFixedList(fixed);
     })();
-    return () => ac.abort();
   }, []);
   const monthOver = overList.filter((t) => inThisMonth(t.createdAt || t.startAt));
   const monthFixed = fixedList.filter((t) => inThisMonth(t.createdAt || t.startAt));
@@ -2331,7 +2401,7 @@ const route6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: MorePage
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-Cgj4s-zF.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/index-B6K-E3z7.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-Bxwamau3.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/index-B6K-E3z7.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/httpClient-CWcscfoA.js"], "css": ["/assets/root-D7j38S-a.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_index-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses._index": { "id": "routes/expenses._index", "parentId": "root", "path": "expenses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._index-Kf6nIaET.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/proxy-C3LYbkDo.js", "/assets/expense-DPxRIikd.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.$expenseId": { "id": "routes/expenses.$expenseId", "parentId": "root", "path": "expenses/:expenseId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._expenseId-6QSRJA4G.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/button-Bs42eLNO.js", "/assets/expense-DPxRIikd.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/utils-B3HXpwuO.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.add": { "id": "routes/expenses.add", "parentId": "root", "path": "expenses/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses.add-C4owUVNs.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/button-Bs42eLNO.js", "/assets/utils-B3HXpwuO.js", "/assets/index-B6K-E3z7.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/expense-DPxRIikd.js", "/assets/httpClient-CWcscfoA.js", "/assets/proxy-C3LYbkDo.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/report": { "id": "routes/report", "parentId": "root", "path": "report", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/report-X2c6O7VH.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/useReport-D0CzwX5g.js", "/assets/utils-B3HXpwuO.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "features/more/pages/MorePage": { "id": "features/more/pages/MorePage", "parentId": "root", "path": "more", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/MorePage-NHKHxez2.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/useReport-D0CzwX5g.js", "/assets/httpClient-CWcscfoA.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/utils-B3HXpwuO.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-79ce1af0.js", "version": "79ce1af0", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DFMVeL8j.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/index-C3C7g39L.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-BhJgDS2F.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/index-C3C7g39L.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/httpClient-CWcscfoA.js"], "css": ["/assets/root-DYEmgneT.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_index-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses._index": { "id": "routes/expenses._index", "parentId": "root", "path": "expenses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._index-CkEbfvZs.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/validation-toliqgmx.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/proxy-C3LYbkDo.js", "/assets/expense-CkU4x5BU.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.$expenseId": { "id": "routes/expenses.$expenseId", "parentId": "root", "path": "expenses/:expenseId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses._expenseId-DmBTVYdf.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/httpClient-CWcscfoA.js", "/assets/useExpenses-DaQT4tNd.js", "/assets/validation-toliqgmx.js", "/assets/button-vWu2_4Yx.js", "/assets/expense-CkU4x5BU.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/utils-C0GuhilF.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/expenses.add": { "id": "routes/expenses.add", "parentId": "root", "path": "expenses/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/expenses.add-CNz9fSdL.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/button-vWu2_4Yx.js", "/assets/utils-C0GuhilF.js", "/assets/index-CdkfFI4V.js", "/assets/index-C3C7g39L.js", "/assets/expenseApi-6HP_E5FY.js", "/assets/expense-CkU4x5BU.js", "/assets/httpClient-CWcscfoA.js", "/assets/proxy-C3LYbkDo.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/report": { "id": "routes/report", "parentId": "root", "path": "report", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/report-CnSdrdBq.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/useReport-DyALt6uu.js", "/assets/index-CdkfFI4V.js", "/assets/index-C3C7g39L.js", "/assets/utils-C0GuhilF.js", "/assets/httpClient-CWcscfoA.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "features/more/pages/MorePage": { "id": "features/more/pages/MorePage", "parentId": "root", "path": "more", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/MorePage-CcQpDs-r.js", "imports": ["/assets/chunk-PVWAREVJ-B6zbi7fP.js", "/assets/useReport-DyALt6uu.js", "/assets/httpClient-CWcscfoA.js", "/assets/ExpenseHeader-DB5zjICS.js", "/assets/index-CdkfFI4V.js", "/assets/index-C3C7g39L.js", "/assets/utils-C0GuhilF.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-a0fadbf7.js", "version": "a0fadbf7", "sri": void 0 };
 const assetsBuildDirectory = "build\\client";
 const basename = "/";
 const future = { "unstable_middleware": false, "unstable_optimizeDeps": false, "unstable_splitRouteModules": false, "unstable_subResourceIntegrity": false, "unstable_viteEnvironmentApi": false };

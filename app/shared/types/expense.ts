@@ -36,14 +36,14 @@ export type ExpenseCategory =
 // 실제 API 응답 구조에 맞는 Transaction 타입 (Swagger 스펙 기준)
 export interface Transaction {
   id: number;
-  price: number;
+  price: number; // API에서는 integer이지만 JavaScript에서는 number
   title: string;
   type: ExpenseType;
   userUid: string;
   category: ExpenseCategory;
-  createdAt: string;
-  updatedAt: string;
-  startedAt: string; // startAt -> startedAt로 변경
+  createdAt: string; // date-time format
+  updatedAt: string; // date-time format
+  startedAt: string; // date-time format (startAt -> startedAt로 변경)
 }
 
 // 카테고리 응답 타입
@@ -54,37 +54,37 @@ export interface TransactionCategoryResponse {
 
 // 생성 요청 타입 (Swagger 스펙 기준)
 export interface TransactionCreateRequest {
-  price: number;
-  startAt?: string; // optional
-  title: string;
-  userUid: string; // userId -> userUid로 변경
-  type?: ExpenseType; // 지출 유형 추가
-  category?: ExpenseCategory; // 카테고리 추가
+  price: number; // minimum: 0, integer format
+  startAt?: string; // date-time format, optional
+  title: string; // required
+  userUid: string; // required
+  type?: ExpenseType; // optional - OVER_EXPENSE, FIXED_EXPENSE, NONE
+  category?: ExpenseCategory; // optional - 카테고리 enum
 }
 
 // 수정 요청 타입 (Swagger 스펙 기준)
 export interface TransactionUpdateRequest {
-  price: number;
-  type?: ExpenseType;
-  startAt?: string;
-  title: string;
-  category?: ExpenseCategory;
+  price: number; // minimum: 0, integer format, required
+  type?: ExpenseType; // optional
+  startAt?: string; // date-time format, optional
+  title: string; // required
+  category?: ExpenseCategory; // optional
 }
 
 // Report 응답 타입 (Swagger 스펙 기준)
 export interface TransactionReportResponse {
-  totalPrice: number;
-  totalCount: number;
-  startAt: string;
-  endAt: string;
+  totalPrice: number; // integer format
+  totalCount: number; // integer format
+  startAt: string; // date-time format
+  endAt: string; // date-time format
 }
 
-// 조회 필터 타입
+// 조회 필터 타입 (GET /api/v1/transactions 파라미터)
 export interface TransactionFilter {
-  userUid: string;
-  type: ExpenseType;
-  startAt?: string;
-  endAt?: string;
+  userUid: string; // required
+  type: ExpenseType; // required - OVER_EXPENSE, FIXED_EXPENSE, NONE
+  startAt?: string; // date format, optional
+  endAt?: string; // date format, optional
 }
 
 // 기존 호환성을 위한 별칭

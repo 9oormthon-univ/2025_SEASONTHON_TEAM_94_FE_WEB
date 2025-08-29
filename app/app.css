@@ -505,3 +505,8 @@ select:not([data-slot="calendar"] select) {
   appearance: none;
   margin: 0;
 }
+
+/* 하단바 숨김 모드 */
+body.hide-nav nav { display: none !important; }
+body.hide-nav .content { padding-bottom: 0 !important; } /* 내용 하단여백 회수 */
+

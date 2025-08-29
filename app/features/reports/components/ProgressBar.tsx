@@ -23,7 +23,7 @@ export default function ProgressBar({
   return (
     <div className="relative pt-7">
       {/* 바 자체는 shadcn/ui Progress로 */}
-      <Progress value={pct} className="h-10 rounded-md" />
+      <Progress value={pct} className="h-10 rounded-md [&>div]:bg-[#002B5B]" />
 
       {/* 중앙 퍼센트 텍스트 (채워진 바의 정중앙) */}
       <div

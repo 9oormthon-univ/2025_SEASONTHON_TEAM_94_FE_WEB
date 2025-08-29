@@ -65,7 +65,10 @@ body {
   /* 모바일에서 더 부드러운 애니메이션 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
+/* 전역 선택/드래그 비활성화 (Calendar는 제외) */
+*:not([data-slot="calendar"] *):not(.rdp-day *):not(.rdp-month *):not(.rdp-week *) {
   /* 선택 비활성화 */
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -214,7 +217,7 @@ img {
   @apply block mb-4 text-lg font-bold text-foreground;
 }
 
-.action-group button {
+.action-group button:not([data-slot="calendar"] button):not(.rdp-day button) {
   @apply mr-3 mb-3 px-6 py-4 bg-primary text-primary-foreground text-base font-semibold rounded-2xl transition-all duration-200;
   /* 터치 친화적 크기 */
   @apply min-h-[52px] min-w-[52px];
@@ -231,7 +234,7 @@ img {
 }
 
 /* 뒤로가기 버튼 특별 스타일 */
-button:first-child {
+button:first-child:not([data-slot="calendar"] button):not(.rdp-day button) {
   @apply mb-6 px-5 py-4 bg-secondary text-secondary-foreground text-base font-semibold rounded-2xl min-h-[52px] transition-all duration-200;
   @apply active:bg-secondary/80 active:scale-95;
   @apply shadow-md hover:shadow-lg;
@@ -255,10 +258,10 @@ p {
   @apply text-base text-foreground leading-relaxed;
 }
 
-/* 폼 컨트롤 개선 */
-input,
-textarea,
-select {
+/* 폼 컨트롤 개선 (Calendar 제외) */
+input:not([data-slot="calendar"] input):not(.rdp-day input),
+textarea:not([data-slot="calendar"] textarea),
+select:not([data-slot="calendar"] select) {
   @apply text-base; /* iOS 줌 방지 */
   @apply min-h-[52px]; /* 터치 영역 확보 */
   @apply rounded-2xl border border-border px-4 py-3;

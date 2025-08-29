@@ -1,13 +1,14 @@
 import { useSearchParams, Link } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { fetchTransactions } from '../api/expenseApi';
 import { ExpenseHeader } from '../components/ExpenseHeader';
 import { UncategorizedExpenseList } from '../components/UncategorizedExpenseList';
 import { CategorizedExpenseList } from '../components/CategorizedExpenseList';
 import { EXPENSE_TYPES, type Transaction } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import ArrowDown from '@/assets/keyboard_arrow_down.svg';
-import Plus from '@/assets/plus.svg';
+import ArrowDownIcon from '@/assets/keyboard_arrow_down.svg?react';
+import PlusIcon from '@/assets/plus.svg?react';
 
 export function ExpensesPage() {
   const [searchParams] = useSearchParams();
@@ -67,6 +68,12 @@ export function ExpensesPage() {
     loadExpenses();
   }, [activeTab]);
 
+  // Transaction 업데이트 후 콜백 함수
+  const handleTransactionUpdate = useCallback((expenseId: number) => {
+    // 해당 아이템을 로컬 상태에서 제거 (애니메이션 완료 후)
+    setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
+  }, []);
+
   // 에러 상태 처리
   if (error) {
     return (
@@ -98,6 +105,7 @@ export function ExpensesPage() {
             title: '미분류 지출이 없어요!',
             description: '모든 지출이 분류되었습니다.',
           }}
+          onTransactionUpdate={handleTransactionUpdate}
         />
       );
     }
@@ -126,7 +134,7 @@ export function ExpensesPage() {
             <div className="relative">
               <Link
                 to="/expenses?tab=unclassified"
-                className={`py-2 text-2xl font-bold ${
+                className={`py-2 text-2xl font-bold transition-colors duration-200 ${
                   activeTab === 'unclassified'
                     ? 'text-[#002b5b]'
                     : 'text-[#bfbfbf]'
@@ -135,13 +143,23 @@ export function ExpensesPage() {
                 미분류
               </Link>
               {activeTab === 'unclassified' && (
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-[#002b5b]"></div>
+                <motion.div
+                  layoutId="tabIndicator"
+                  className="absolute -bottom-2 left-0 right-0 h-1 bg-[#002b5b]"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 500,
+                    damping: 30,
+                  }}
+                />
               )}
             </div>
             <div className="relative ml-6">
               <Link
                 to="/expenses?tab=classified"
-                className={`py-2 text-2xl font-bold ${
+                className={`py-2 text-2xl font-bold transition-colors duration-200 ${
                   activeTab === 'classified'
                     ? 'text-[#002b5b]'
                     : 'text-[#bfbfbf]'
@@ -150,27 +168,32 @@ export function ExpensesPage() {
                 분류
               </Link>
               {activeTab === 'classified' && (
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-[#002b5b]"></div>
+                <motion.div
+                  layoutId="tabIndicator"
+                  className="absolute -bottom-2 left-0 right-0 h-1 bg-[#002b5b]"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 500,
+                    damping: 30,
+                  }}
+                />
               )}
             </div>
           </div>
 
           {/* Plus Button - 탭과 같은 라인 */}
-          <button onClick={loadExpenses} disabled={loading}>
-            <img src={Plus} alt="plus" className="w-9 h-9" />
-          </button>
+          <Link to="/expenses/add">
+            <PlusIcon className="w-9 h-9" />
+          </Link>
         </div>
       </div>
 
       {/* Date Filter */}
       <div className="text-sm text-[#757575] px-6 pt-4 pb-2 flex items-center">
         {selectedMonth}
-        <img
-          src={ArrowDown}
-          alt="arrow-down"
-          className="w-4 h-4 ml-2"
-          style={{ width: '12px', height: '12px' }}
-        />
+        <ArrowDownIcon className="w-3 h-3 ml-2" />
       </div>
 
       <div className="px-6 pt-2">
@@ -179,7 +202,20 @@ export function ExpensesPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff6200]"></div>
           </div>
         ) : (
-          renderContent()
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{
+                duration: 0.3,
+                ease: [0.4, 0.0, 0.2, 1],
+              }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
     </div>

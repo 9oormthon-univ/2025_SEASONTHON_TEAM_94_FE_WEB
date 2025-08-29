@@ -11,17 +11,13 @@ import {
   type TransactionCreateRequest,
   type TransactionUpdateRequest,
   type TransactionCategoryResponse,
+  type TransactionReportResponse,
+  type TransactionFilter,
 } from '@/shared/types/expense';
 import type { ApiResponse } from '@/shared/types/api';
 
-// 조회 필터 타입
-export interface TransactionFilter {
-  userUid: string;
-  type?: ExpenseType;
-}
-
 /**
- * 타입별 지출 내역 조회
+ * 타입별 지출 내역 조회 (Swagger 스펙: GET /api/v1/transactions)
  */
 export async function fetchTransactions(
   filter: TransactionFilter
@@ -34,7 +30,7 @@ export async function fetchTransactions(
 }
 
 /**
- * 지출 상세 조회
+ * 지출 상세 조회 (Swagger 스펙: GET /api/v1/transactions/{id})
  */
 export async function fetchTransactionById(
   userUid: string,
@@ -48,7 +44,7 @@ export async function fetchTransactionById(
 }
 
 /**
- * 지출 생성
+ * 지출 생성 (Swagger 스펙: POST /api/v1/transactions)
  */
 export async function createTransaction(
   transaction: TransactionCreateRequest
@@ -61,7 +57,7 @@ export async function createTransaction(
 }
 
 /**
- * 지출 수정
+ * 지출 수정 (Swagger 스펙: PUT /api/v1/transactions/{id})
  */
 export async function updateTransaction(
   userUid: string,
@@ -76,33 +72,32 @@ export async function updateTransaction(
 }
 
 /**
- * 지출 삭제
+ * 지출 삭제 (Swagger 스펙: DELETE /api/v1/transactions/{id})
  */
 export async function deleteTransaction(
   userUid: string,
   id: number
 ): Promise<void> {
-  await httpClient.delete<ApiResponse<void>>(
+  await httpClient.delete<ApiResponse<Transaction>>(
     `${API_ENDPOINTS.TRANSACTION_BY_ID(id)}?userUid=${userUid}`
   );
 }
 
 /**
- * 타입별 지출 총 금액 조회
+ * 지출 분석을 위한 조회 (Swagger 스펙: GET /api/v1/transactions/report)
  */
-export async function fetchTotalPriceByType(
-  userUid: string,
-  type: ExpenseType
-): Promise<number> {
-  const response = await httpClient.get<ApiResponse<number>>(
-    API_ENDPOINTS.TOTAL_PRICE,
-    { userUid, type }
+export async function fetchTransactionReport(
+  filter: TransactionFilter
+): Promise<TransactionReportResponse> {
+  const response = await httpClient.get<ApiResponse<TransactionReportResponse>>(
+    API_ENDPOINTS.TRANSACTIONS_REPORT,
+    filter
   );
   return response.data;
 }
 
 /**
- * 카테고리 목록 조회
+ * 카테고리 목록 조회 (Swagger 스펙: GET /api/v1/transactions/categories)
  */
 export async function fetchCategories(): Promise<
   TransactionCategoryResponse[]
@@ -119,3 +114,19 @@ export const fetchExpenseById = fetchTransactionById;
 export const createExpense = createTransaction;
 export const updateExpense = updateTransaction;
 export const deleteExpense = deleteTransaction;
+
+// 호환성을 위한 타입별 총 금액 조회 함수 (Report API 사용)
+export async function fetchTotalPriceByType(
+  userUid: string,
+  type: ExpenseType,
+  startAt?: string,
+  endAt?: string
+): Promise<number> {
+  const reportData = await fetchTransactionReport({
+    userUid,
+    type,
+    startAt,
+    endAt,
+  });
+  return reportData.totalPrice;
+}

@@ -33,7 +33,7 @@ export const EXPENSE_CATEGORIES = {
 export type ExpenseCategory =
   (typeof EXPENSE_CATEGORIES)[keyof typeof EXPENSE_CATEGORIES];
 
-// 실제 API 응답 구조에 맞는 Transaction 타입
+// 실제 API 응답 구조에 맞는 Transaction 타입 (Swagger 스펙 기준)
 export interface Transaction {
   id: number;
   price: number;
@@ -43,7 +43,7 @@ export interface Transaction {
   category: ExpenseCategory;
   createdAt: string;
   updatedAt: string;
-  startAt: string;
+  startedAt: string; // startAt -> startedAt로 변경
 }
 
 // 카테고리 응답 타입
@@ -52,23 +52,39 @@ export interface TransactionCategoryResponse {
   label: string;
 }
 
-// 생성 요청 타입
+// 생성 요청 타입 (Swagger 스펙 기준)
 export interface TransactionCreateRequest {
   price: number;
-  startAt: string;
+  startAt?: string; // optional
   title: string;
-  userId: string;
-  [key: string]: unknown;
+  userUid: string; // userId -> userUid로 변경
+  type?: ExpenseType; // 지출 유형 추가
+  category?: ExpenseCategory; // 카테고리 추가
 }
 
-// 수정 요청 타입
+// 수정 요청 타입 (Swagger 스펙 기준)
 export interface TransactionUpdateRequest {
   price: number;
   type?: ExpenseType;
   startAt?: string;
   title: string;
   category?: ExpenseCategory;
-  [key: string]: unknown;
+}
+
+// Report 응답 타입 (Swagger 스펙 기준)
+export interface TransactionReportResponse {
+  totalPrice: number;
+  totalCount: number;
+  startAt: string;
+  endAt: string;
+}
+
+// 조회 필터 타입
+export interface TransactionFilter {
+  userUid: string;
+  type: ExpenseType;
+  startAt?: string;
+  endAt?: string;
 }
 
 // 기존 호환성을 위한 별칭

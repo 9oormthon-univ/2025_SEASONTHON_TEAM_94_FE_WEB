@@ -50,7 +50,7 @@ export default function ReportSummary({
                   </>
                 ) : (
                   <>
-                    목표 대비{' '}
+                    이번 달에{' '}
                     <span className="text-[#FF6200] font-bold">
                       {(
                         100 -
@@ -58,7 +58,7 @@ export default function ReportSummary({
                       ).toFixed(2)}
                       %
                     </span>{' '}
-                    아끼고 있어요.
+                    나 아끼고 있어요.
                   </>
                 )}
               </p>

@@ -33,12 +33,15 @@ type Pages = {
   "/reports/budget-goal": {
     params: {};
   };
+  "/profile/nickname": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/expenses" | "/expenses/:expenseId" | "/expenses/add" | "/report" | "/more" | "/reports/budget-goal";
+    page: "/" | "/expenses" | "/expenses/:expenseId" | "/expenses/add" | "/report" | "/more" | "/reports/budget-goal" | "/profile/nickname";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -67,5 +70,9 @@ type RouteFiles = {
   "features/reports/pages/BudgetGoalPage.tsx": {
     id: "features/reports/pages/BudgetGoalPage";
     page: "/reports/budget-goal";
+  };
+  "features/profile/pages/NicknamePage.tsx": {
+    id: "features/profile/pages/NicknamePage";
+    page: "/profile/nickname";
   };
 };

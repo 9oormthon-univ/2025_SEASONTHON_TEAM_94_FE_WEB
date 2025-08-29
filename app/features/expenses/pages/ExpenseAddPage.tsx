@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -11,12 +11,23 @@ import { MOCK_USER_UID } from '@/shared/config/api';
 import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
 import { useExpenses } from '@/features/expenses/hooks/useExpenses';
 import type { ExpenseFormData } from '@/features/expenses/utils/validation';
+import { toLocalISOString } from '@/shared/utils/utils';
 
 export function ExpenseAddPage() {
   const navigate = useNavigate();
   const { createExpense } = useExpenses();
   const [isLoading, setIsLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
+
+  // 생성 시 고정된 시간 사용
+  const defaultValues = useMemo(() => ({
+    userUid: MOCK_USER_UID,
+    selectedDate: new Date(),
+    dutchPayCount: 1, // 기본값 1로 수정
+    app: '',
+    type: EXPENSE_TYPES.OVER_EXPENSE,
+    category: undefined, // 카테고리는 나중에 추가 예정
+  }), []);
 
   const handleFormSubmit = async (formData: ExpenseFormData) => {
     setIsLoading(true);
@@ -29,7 +40,7 @@ export function ExpenseAddPage() {
 
       const transactionData: TransactionCreateRequest = {
         price: finalAmount,
-        startAt: formData.selectedDate.toISOString(),
+        startAt: toLocalISOString(formData.selectedDate),
         title: formData.title,
         userUid: formData.userUid,
         type: formData.type, // 폼에서 선택된 지출 유형 사용
@@ -74,16 +85,7 @@ export function ExpenseAddPage() {
         <ExpenseForm
           onSubmit={handleFormSubmit}
           onValidationChange={setIsFormValid}
-          defaultValues={{
-            price: 0,
-            title: '',
-            userUid: MOCK_USER_UID,
-            selectedDate: new Date(),
-            dutchPayCount: 0,
-            app: '',
-            type: EXPENSE_TYPES.OVER_EXPENSE,
-            category: undefined, // 카테고리는 나중에 추가 예정
-          }}
+          defaultValues={defaultValues}
         />
       </div>
 

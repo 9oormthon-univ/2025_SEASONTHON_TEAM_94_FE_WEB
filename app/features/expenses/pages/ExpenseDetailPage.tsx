@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import { useExpenses } from '@/features/expenses/hooks/useExpenses';
@@ -9,6 +9,7 @@ import { MOCK_USER_UID } from '@/shared/config/api';
 import { fetchTransactionById } from '@/features/expenses/api/expenseApi';
 import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
 import type { ExpenseFormData } from '@/features/expenses/utils/validation';
+import { toLocalISOString } from '@/shared/utils/utils';
 
 export function ExpenseDetailPage() {
   const { expenseId } = useParams();
@@ -62,7 +63,7 @@ export function ExpenseDetailPage() {
         title: formData.title,
         type: formData.type,
         category: formData.category,
-        startAt: formData.selectedDate.toISOString(),
+        startAt: toLocalISOString(formData.selectedDate),
       };
 
       await updateExpense(userUid, expense.id, updateData);
@@ -101,8 +102,8 @@ export function ExpenseDetailPage() {
     navigate(`/expenses?tab=${nextTab}`);
   };
 
-  // Transaction을 ExpenseFormData로 변환
-  const getDefaultValues = (): Partial<ExpenseFormData> => {
+  // Transaction을 ExpenseFormData로 변환 (메모이제이션)
+  const getDefaultValues = useMemo((): Partial<ExpenseFormData> => {
     if (!expense) return {};
     
     return {
@@ -115,7 +116,7 @@ export function ExpenseDetailPage() {
       dutchPayCount: 1, // 기본값
       app: '', // 기본값 (Transaction에 app 필드가 없으므로)
     };
-  };
+  }, [expense]);
 
   if (loading) {
     return (
@@ -207,7 +208,7 @@ export function ExpenseDetailPage() {
         <ExpenseForm
           onSubmit={handleFormSubmit}
           onValidationChange={setIsFormValid}
-          defaultValues={getDefaultValues()}
+          defaultValues={getDefaultValues}
         />
       </div>
 

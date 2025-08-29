@@ -1,6 +1,6 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   ChevronRight,
 } from 'lucide-react';
@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 import { Calendar } from '@/shared/components/ui/calendar';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { cn } from '@/shared/utils/utils';
 import { EXPENSE_TYPES } from '@/shared/types/expense';
 import { expenseFormSchema, type ExpenseFormData } from '@/features/expenses/utils/validation';
@@ -31,6 +32,11 @@ export function ExpenseForm({
 }: ExpenseFormProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
+  // 기본 날짜 값을 메모이제이션하여 리렌더링 시에도 동일한 시간 유지
+  const defaultSelectedDate = useMemo(() => {
+    return defaultValues?.selectedDate || new Date();
+  }, [defaultValues?.selectedDate]);
+  
   const {
     control,
     handleSubmit,
@@ -43,14 +49,15 @@ export function ExpenseForm({
       price: 0,
       title: '',
       userUid: '',
-      selectedDate: new Date(),
       app: '',
       category: undefined,
-      ...defaultValues,
       // type이 항상 정의되도록 보장
-      type: defaultValues?.type ?? EXPENSE_TYPES.OVER_EXPENSE,
+      type: EXPENSE_TYPES.OVER_EXPENSE,
       // dutchPayCount가 항상 정의되도록 보장
-      dutchPayCount: defaultValues?.dutchPayCount ?? 1,
+      dutchPayCount: 1,
+      ...defaultValues,
+      // 수정 시 기존 시간 유지, 생성 시에만 현재 시간 사용
+      selectedDate: defaultSelectedDate,
     },
   });
 
@@ -97,43 +104,78 @@ export function ExpenseForm({
           name="type"
           control={control}
           render={({ field }) => (
-            <div className="bg-[#e6e6e6] rounded-[10px] h-[45px] flex p-1 relative">
-              {/* Active Tab Background */}
-              <div
-                className={cn(
-                  'absolute top-1 h-[37px] w-1/2 bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm',
-                  field.value === EXPENSE_TYPES.FIXED_EXPENSE
-                    ? 'translate-x-full'
-                    : 'translate-x-0'
-                )}
-              />
-
-              {/* Tab Buttons */}
-              <button
-                type="button"
-                onClick={() => field.onChange(EXPENSE_TYPES.OVER_EXPENSE)}
-                className={cn(
-                  'relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center self-center text-[16px] font-bold transition-colors duration-300',
-                  field.value === EXPENSE_TYPES.OVER_EXPENSE
-                    ? 'text-white'
-                    : 'text-gray-600'
-                )}
+            <Tabs 
+              value={field.value} 
+              onValueChange={field.onChange}
+              className="w-full"
+            >
+              <TabsList 
+                className="!bg-[#e6e6e6] !rounded-[10px] !h-[45px] !w-full !p-1 !relative !border-none !shadow-none !flex !items-center !justify-center"
+                style={{ 
+                  backgroundColor: '#e6e6e6',
+                  borderRadius: '10px',
+                  height: '45px',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                초과지출
-              </button>
-              <button
-                type="button"
-                onClick={() => field.onChange(EXPENSE_TYPES.FIXED_EXPENSE)}
-                className={cn(
-                  'relative z-10 flex-1 h-[37px] rounded-[8px] flex items-center justify-center self-center text-[16px] font-bold transition-colors duration-300',
-                  field.value === EXPENSE_TYPES.FIXED_EXPENSE
-                    ? 'text-white'
-                    : 'text-gray-600'
-                )}
-              >
-                고정지출
-              </button>
-            </div>
+                {/* 슬라이딩 배경 */}
+                <div
+                  className={cn(
+                    'absolute top-1 left-1 h-[37px] bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm',
+                    field.value === EXPENSE_TYPES.FIXED_EXPENSE
+                      ? 'translate-x-full'
+                      : 'translate-x-0'
+                  )}
+                  style={{
+                    width: 'calc(50% - 2px)', // 패딩 고려해서 조금 작게
+                  }}
+                />
+                
+                <TabsTrigger 
+                  value={EXPENSE_TYPES.OVER_EXPENSE}
+                  className="!h-[37px] !rounded-[8px] !text-[16px] !font-bold !min-h-[37px] !min-w-auto !relative !z-10 !bg-transparent !transition-colors !duration-300 !flex-1 !flex !items-center !justify-center !self-center data-[state=active]:!bg-transparent data-[state=active]:!text-white data-[state=inactive]:!text-gray-600"
+                  style={{
+                    height: '37px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    minHeight: '37px',
+                    minWidth: 'auto',
+                    backgroundColor: 'transparent',
+                    flex: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    alignSelf: 'center'
+                  }}
+                >
+                  초과지출
+                </TabsTrigger>
+                <TabsTrigger 
+                  value={EXPENSE_TYPES.FIXED_EXPENSE}
+                  className="!h-[37px] !rounded-[8px] !text-[16px] !font-bold !min-h-[37px] !min-w-auto !relative !z-10 !bg-transparent !transition-colors !duration-300 !flex-1 !flex !items-center !justify-center !self-center data-[state=active]:!bg-transparent data-[state=active]:!text-white data-[state=inactive]:!text-gray-600"
+                  style={{
+                    height: '37px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    minHeight: '37px',
+                    minWidth: 'auto',
+                    backgroundColor: 'transparent',
+                    flex: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    alignSelf: 'center'
+                  }}
+                >
+                  고정지출
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           )}
         />
         {errors.type && (
@@ -248,11 +290,21 @@ export function ExpenseForm({
                     selected={field.value}
                     onSelect={(date) => {
                       if (date) {
-                        // 현재 시간을 유지하면서 날짜만 변경
-                        const newDate = new Date(field.value || new Date());
-                        newDate.setFullYear(date.getFullYear());
-                        newDate.setMonth(date.getMonth());
-                        newDate.setDate(date.getDate());
+                        // 캘린더에서 선택된 날짜는 로컬 타임존의 00:00:00
+                        // 기존 시간을 보존하면서 날짜만 변경
+                        const currentDate = field.value;
+                        
+                        // 새로운 날짜 객체 생성 (로컬 타임존 유지)
+                        const newDate = new Date(
+                          date.getFullYear(),
+                          date.getMonth(), 
+                          date.getDate(),
+                          currentDate.getHours(),
+                          currentDate.getMinutes(),
+                          currentDate.getSeconds(),
+                          currentDate.getMilliseconds()
+                        );
+                        
                         field.onChange(newDate);
                         // 날짜 선택 후 캘린더 닫기
                         setIsCalendarOpen(false);

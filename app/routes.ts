@@ -8,5 +8,6 @@ export default [
   route('expenses/add', 'routes/expenses.add.tsx'),
   route('report', 'routes/report.tsx'),
   route("more", "features/more/pages/MorePage.tsx"),
-  route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx")
+  route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx"),
+  route("profile/nickname", "features/profile/pages/NicknamePage.tsx")
 ] satisfies RouteConfig;

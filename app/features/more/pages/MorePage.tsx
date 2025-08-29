@@ -5,6 +5,7 @@ import { fetchCurrentUser, type CurrentUser, logout } from '@/features/more/api/
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import { Link } from 'react-router-dom';
 import { useReport } from '@/features/reports/hooks/useReport';
+import { useNavigate } from 'react-router-dom';
 
 type MenuItem =
   | { type: 'link'; label: string; to: string }
@@ -13,6 +14,7 @@ type MenuItem =
   | { type: 'link', label: '목표 초과지출 설정/수정', to: '/reports/budget-goal' };
 
 export default function MorePage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<CurrentUser | null>(null);
   const { monthlyGoal, barPercent, percentCenterLeft, barLabel } = useReport();
 
@@ -34,18 +36,14 @@ export default function MorePage() {
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
       <ExpenseHeader />
 
-      {/* 본문: 세로 플렉스, 하단 여백은 흰색 영역에서 처리 */}
       <div className="flex flex-col">
-        {/* 프로필(평면) */}
         <ProfileCard
           name={user?.name ?? '사용자'}
           email={user?.email ?? ''}
-          onEdit={() => {}}
+          onEdit={() => navigate('/profile/nickname')} 
         />
 
-        {/* 프로필 이후 영역을 7:3 비율로 분할 */}
         <div className="flex-1 flex flex-col min-h-[80vh]">
-          {/* 7 */}
           <div className="flex-[5]">
             <MiniReport
               className="h-full"
@@ -57,7 +55,6 @@ export default function MorePage() {
             />
           </div>
 
-          {/* 3 + 하단바 공간 포함(흰색) */}
           <div className="flex-[3] bg-white ">
             <p><br /><br /></p>
             <nav className="px-6 space-y-10 tracking-wide leading-5">

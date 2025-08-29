@@ -121,7 +121,7 @@ export default function ReportPage() {
             !bg-[#FF6200] hover:opacity-90 disabled:opacity-100
           "
         >
-          {monthlyGoal > 0 ? '목표 지출 설정하기' : '목표 지출 설정하기'}
+          {monthlyGoal > 0 ? '목표 지출 줄이러 가기' : '목표 지출 설정하기'}
         </Button>
       </div>
 

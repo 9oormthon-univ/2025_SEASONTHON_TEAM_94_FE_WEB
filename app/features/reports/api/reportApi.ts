@@ -1,31 +1,35 @@
-import type { ApiList, TransactionResponse } from '../types';
+// features/reports/api/reportApi.ts
+import { httpClient } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS, MOCK_USER_UID } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
+import type { Transaction } from '@/shared/types/expense';
 
-const API_BASE = 'https://api.stopusing.klr.kr';
-const USER_UID = 'a';
-
-async function quietFetch(url: string, signal?: AbortSignal): Promise<TransactionResponse[]> {
+/** 내부: 트랜잭션 배열을 안전하게 가져오고, 실패 시 [] 반환 */
+async function fetchTxArray(params: Record<string, any>) {
   try {
-    const res = await fetch(url, { signal });
-    if (!res.ok) return [];
-    const json = (await res.json()) as ApiList<TransactionResponse[]>;
-    return Array.isArray(json?.data) ? json.data : [];
+    const res = await httpClient.get<ApiResponse<Transaction[]>>(
+      API_ENDPOINTS.TRANSACTIONS,
+      params
+    );
+    return Array.isArray(res?.data) ? res.data : [];
   } catch {
     return [];
   }
 }
 
-export async function fetchOverAndFixed(signal?: AbortSignal) {
-  const urlOver  = `${API_BASE}/api/v1/transactions?userUid=${USER_UID}&type=OVER_EXPENSE`;
-  const urlFixed = `${API_BASE}/api/v1/transactions?userUid=${USER_UID}&type=FIXED_EXPENSE`;
+/** over/fixed 각각 조회하되, 하나라도 비면 all을 불러 폴백 */
+export async function fetchOverAndFixed(opts?: {
+  userUid?: string;
+}) {
+  const userUid = opts?.userUid ?? MOCK_USER_UID;
 
   let [over, fixed] = await Promise.all([
-    quietFetch(urlOver, signal),
-    quietFetch(urlFixed, signal),
+    fetchTxArray({ userUid, type: 'OVER_EXPENSE' }),
+    fetchTxArray({ userUid, type: 'FIXED_EXPENSE' }),
   ]);
 
   if (over.length === 0 || fixed.length === 0) {
-    const urlAll = `${API_BASE}/api/v1/transactions?userUid=${USER_UID}`;
-    const all = await quietFetch(urlAll, signal);
+    const all = await fetchTxArray({ userUid });
     if (over.length === 0)  over  = all.filter(t => t.type === 'OVER_EXPENSE');
     if (fixed.length === 0) fixed = all.filter(t => t.type === 'FIXED_EXPENSE');
   }

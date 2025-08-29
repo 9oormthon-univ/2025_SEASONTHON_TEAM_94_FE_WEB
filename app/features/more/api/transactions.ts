@@ -1,23 +1,25 @@
-// src/api/transactions.ts
-import { get } from './index';
+// features/more/api/transactions.ts
+import { httpClient } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
+import type { Transaction } from '@/shared/types/expense';
 
 export type TxType = 'OVER_EXPENSE' | 'FIXED_EXPENSE' | 'NONE';
 
-export type TransactionResponse = {
-  id: number;
-  price: number;
-  title: string;
-  type: TxType;
-  userUid: string;
-  category?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  startAt?: string;
-};
-
-export function listTransactions(userUid: string, signal?: AbortSignal) {
-  return get<TransactionResponse[]>(`/api/v1/transactions`, { userUid }, signal);
+export async function listTransactions(userUid: string, signal?: AbortSignal) {
+  return httpClient.get<ApiResponse<Transaction[]>>(
+    API_ENDPOINTS.TRANSACTIONS,
+    { userUid }
+  );
 }
-export function listTransactionsByType(userUid: string, type: TxType, signal?: AbortSignal) {
-  return get<TransactionResponse[]>(`/api/v1/transactions`, { userUid, type }, signal);
+
+export async function listTransactionsByType(
+  userUid: string,
+  type: TxType,
+  signal?: AbortSignal
+) {
+  return httpClient.get<ApiResponse<Transaction[]>>(
+    API_ENDPOINTS.TRANSACTIONS,
+    { userUid, type }
+  );
 }

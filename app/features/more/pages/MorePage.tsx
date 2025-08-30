@@ -1,5 +1,5 @@
-// features/more/pages/MorePage.tsx
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import ProfileCard from '../components/ProfileCard';
 import MiniReport from '../components/MiniReport';
 import { fetchCurrentUser, type CurrentUser, logout } from '@/features/more/api/user';
@@ -40,55 +40,97 @@ export default function MorePage() {
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
       <ExpenseHeader />
 
-      <div className="flex flex-col">
-        <ProfileCard
-          name={user?.name ?? '사용자'}
-          email={user?.email ?? ''}
-          onEdit={() => navigate('/profile/nickname')}
-        />
-
-        <div className="flex-1 flex flex-col min-h-[80vh]">
-          <div className="flex-[5]">
-            <MiniReport
-              className="h-full"
-              title="초과지출"
-              barPercent={barPercent}
-              percentCenterLeft={percentCenterLeft}
-              barLabel={barLabel}
-              monthlyGoal={monthlyGoal}
+      {/* 컨텐츠만 빠르게 올라오기 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.4, 0.0, 0.2, 1] }}
+      >
+        <div className="flex flex-col">
+          {/* ✅ 이름 라인 고정 */}
+          <div className="sticky top-0 z-10 bg-[rgba(235,235,235,0.35)]/95 backdrop-blur supports-[backdrop-filter]:bg-[rgba(235,235,235,0.35)]">
+            <ProfileCard
+              name={user?.name ?? '사용자'}
+              email={user?.email ?? ''}
+              onEdit={() => navigate('/profile/nickname')}
             />
           </div>
 
-          <div className="flex-[3] bg-white ">
-            <p><br /><br /></p>
-            <nav className="px-6 space-y-10 tracking-wide leading-5">
-              {menuItems.map((m) => {
-                if (m.type === 'link') {
+          <div className="flex-1 flex flex-col min-h-[80vh]">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08, duration: 0.2 }}
+            >
+              <MiniReport
+                className="h-full"
+                title="초과지출"
+                barPercent={barPercent}
+                percentCenterLeft={percentCenterLeft}
+                barLabel={barLabel}
+                monthlyGoal={monthlyGoal}
+              />
+            </motion.div>
+
+            <div className="flex-[3] mt-40 bg-white">
+              <p><br /><br /></p>
+              {/* ✅ 리스트를 아래로 조금 내림 */}
+              <nav className="px-6 space-y-10 tracking-wide leading-5 ">
+                {menuItems.map((m, idx) => {
+                  const delay = 0.14 + idx * 0.05;
+                  if (m.type === 'link') {
+                    return (
+                      <Link key={m.label} to={m.to} className="block text-[14px] text-[#8F8F8F] no-underline font-light">
+                        <motion.span
+                          className="inline-block"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay, duration: 0.2 }}
+                          whileHover={{ y: -2, scale: 1.02 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          {m.label}
+                        </motion.span>
+                      </Link>
+                    );
+                  }
+                  if (m.type === 'external') {
+                    return (
+                      <a key={m.label} href={m.href} target="_blank" rel="noreferrer"
+                         className="block text-[14px] text-[#8F8F8F] no-underline font-light">
+                        <motion.span
+                          className="inline-block"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay, duration: 0.2 }}
+                          whileHover={{ y: -2, scale: 1.02 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          {m.label}
+                        </motion.span>
+                      </a>
+                    );
+                  }
                   return (
-                    <Link key={m.label} to={m.to} className="block text-[14px] text-[#8F8F8F] no-underline font-light">
+                    <motion.button
+                      key={m.label}
+                      onClick={m.onClick}
+                      className="block w-full text-left text-[14px] text-[#8F8F8F] font-light"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay, duration: 0.2 }}
+                      whileHover={{ y: -2, scale: 1.01 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
                       {m.label}
-                    </Link>
+                    </motion.button>
                   );
-                }
-                if (m.type === 'external') {
-                  return (
-                    <a key={m.label} href={m.href} target="_blank" rel="noreferrer"
-                      className="block text-[14px] text-[#8F8F8F] no-underline font-light">
-                      {m.label}
-                    </a>
-                  );
-                }
-                return (
-                  <button key={m.label} onClick={m.onClick}
-                          className="block w-full text-left text-[14px] text-[#8F8F8F] font-light">
-                    {m.label}
-                  </button>
-                );
-              })}
-            </nav>
+                })}
+              </nav>
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export const transactionCreateSchema = z.object({
   
   type: z
     .enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE] as const)
-    .default(EXPENSE_TYPES.OVER_EXPENSE),
+    .optional(), // API 스펙에서 optional
   
   category: z
     .enum([

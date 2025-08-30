@@ -124,3 +124,46 @@
     font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
 }
+
+/* Hide scrollbars globally (keep scrolling) */
+@layer base {
+  /* Firefox & legacy Edge */
+  * {
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+
+  /* WebView/mobile friendly defaults */
+  html,
+  body {
+    height: 100%;
+    overscroll-behavior: none; /* disable pull-to-refresh/bounce where supported */
+    -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+    -webkit-text-size-adjust: 100%; /* prevent font auto-zoom on iOS */
+  }
+
+  /* WebKit browsers (Chrome, Safari, Opera) */
+  *::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent; /* optional: no track color */
+  }
+}
+
+/* Utility to re-enable scrollbars on specific elements if needed */
+.scrollbar-auto {
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
+}
+.scrollbar-auto::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+/* Components: minor WebView helpers */
+@layer components {
+  /* Respect iOS/Android safe area when using a fixed bottom nav */
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

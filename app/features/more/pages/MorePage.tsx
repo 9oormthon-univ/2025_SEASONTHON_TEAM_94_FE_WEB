@@ -6,8 +6,12 @@ import { fetchCurrentUser, type CurrentUser, logout } from '@/features/more/api/
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import { Link, useNavigate } from 'react-router-dom';
 import { useReport } from '@/features/reports/hooks/useReport';
+import LogoutConfirm from "@/features/more/components/LogoutConfirm";
+import { useNavToast } from "@/shared/hooks/useNavToast";
+
 
 export default function MorePage() {
+  useNavToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<CurrentUser | null>(null);
   const { monthlyGoal, barPercent, percentCenterLeft, barLabel } = useReport();
@@ -109,18 +113,18 @@ export default function MorePage() {
                     );
                   }
                   return (
-                    <motion.button
-                      key={m.label}
-                      onClick={m.onClick}
-                      className="block w-full text-left text-[14px] text-[#8F8F8F] font-light"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay, duration: 0.2 }}
-                      whileHover={{ y: -2, scale: 1.01 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      {m.label}
-                    </motion.button>
+                    <LogoutConfirm key={m.label} redirectTo="/">
+                      <motion.button
+                        className="block w-full text-left text-[14px] text-[#8F8F8F] font-light"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay, duration: 0.2 }}
+                        whileHover={{ y: -2, scale: 1.01 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        {m.label}
+                      </motion.button>
+                    </LogoutConfirm>
                   );
                 })}
               </nav>

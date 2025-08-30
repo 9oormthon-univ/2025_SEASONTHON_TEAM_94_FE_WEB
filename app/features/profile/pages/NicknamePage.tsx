@@ -5,13 +5,13 @@ import { ChevronLeft } from 'lucide-react';
 import NicknameForm from '../components/NicknameForm';
 import { useNickname } from '../hooks/useNickname';
 import { useHideNav } from '@/shared/hooks/useHideNav';
+import { toast } from 'sonner';
 
 export default function NicknamePage() {
   useHideNav();
   const navigate = useNavigate();
   const { loading, saving, name, setName, changed, save } = useNickname();
 
-  // 하단 탭바만 숨김
   useEffect(() => {
     const selector = 'nav.fixed.bottom-0.left-0.right-0';
     const el = document.querySelector<HTMLElement>(selector);
@@ -23,7 +23,6 @@ export default function NicknamePage() {
 
   return (
     <div className="min-h-screen bg-white relative max-w-md mx-auto pb-20">
-      {/* 헤더는 그대로 */}
       <div className="relative px-4 pt-4 pb-2">
         <motion.div
           className="absolute left-4 top-4 p-1 -m-1 rounded hover:bg-black/5 active:bg-black/10"
@@ -36,7 +35,6 @@ export default function NicknamePage() {
         <h1 className="text-center text-[15px] font-medium text-black">닉네임 입력/수정</h1>
       </div>
 
-      {/* ✅ 폼(고정버튼 포함)은 opacity만 */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -49,8 +47,22 @@ export default function NicknamePage() {
           saving={saving}
           changed={changed}
           onSubmit={async () => {
-            const ok = await save();
-            if (ok) navigate(-1);
+            if (!changed) return;
+            try {
+              const ok = await save();
+              if (ok) {
+                toast.success("닉네임이 변경되었습니다.");
+                navigate("/more");
+              } else {
+                toast.error("닉네임 변경에 실패했습니다. 다시 시도해주세요.");
+              }
+            } catch (err: any) {
+              const msg =
+                err?.response?.data?.message ||
+                err?.message ||
+                "닉네임 저장 중 오류가 발생했습니다.";
+              toast.error(msg);
+            }
           }}
         />
       </motion.div>

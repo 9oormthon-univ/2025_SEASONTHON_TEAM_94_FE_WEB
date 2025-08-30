@@ -9,14 +9,12 @@ import type { BudgetGoalResponse } from '@/shared/types/budget';
 import { MOCK_USER_UID } from '@/shared/config/api';
 
 interface UseBudgetGoalOptions {
-  /** yyyy-MM-dd (미지정 시: 서버가 현재월 기준으로 최신값 반환) */
   date?: string;
-  /** 수정 강제 모드: ?id= 로 직접 들어온 경우 사용 가능 */
   idFromRoute?: number;
 }
 
 export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
-  const userUid = MOCK_USER_UID; // TODO: 로그인 사용자로 교체
+  const userUid = MOCK_USER_UID; 
   const { date, idFromRoute } = opts;
 
   const [loading, setLoading] = useState(true);
@@ -25,7 +23,6 @@ export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
   const [saving, setSaving] = useState(false);
   const hasExisting = useMemo(() => !!goal?.id || !!idFromRoute, [goal, idFromRoute]);
 
-  // 로드 (해당 월 최신 1건)
   useEffect(() => {
     (async () => {
       try {
@@ -43,7 +40,6 @@ export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
     })();
   }, [userUid, date]);
 
-  // 저장(신규/수정 통합)
   async function save() {
     if (!Number.isFinite(price) || price < 0) return;
     try {
@@ -70,7 +66,7 @@ export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
     price,
     setPrice,
     saving,
-    hasExisting, // true면 "수정", false면 "저장"
+    hasExisting, 
     save,
   };
 }

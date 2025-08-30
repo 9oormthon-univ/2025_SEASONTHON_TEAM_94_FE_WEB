@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import BudgetGoalForm from '../components/BudgetGoalForm';
 import { useBudgetGoal } from '../hooks/useBudgetGoal';
 import { useHideNav } from '@/shared/hooks/useHideNav';
+import { toast } from 'sonner';
 
 function useQuery() {
   const { search } = useLocation();
@@ -37,7 +38,6 @@ export default function BudgetGoalPage() {
 
   return (
     <div className="min-h-screen bg-white relative max-w-md mx-auto pb-24">
-      {/* 헤더는 그대로 */}
       <div className="relative top-10 px-4 pt-4 pb-2">
         <motion.div
           onClick={() => navigate(-1)}
@@ -52,7 +52,6 @@ export default function BudgetGoalPage() {
         </h1>
       </div>
 
-      {/* ✅ 폼(고정버튼 포함)은 opacity만 */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -66,8 +65,21 @@ export default function BudgetGoalPage() {
           changed={changed}
           onSubmit={async () => {
             if (!changed) return;
-            const ok = await save();
-            if (ok) navigate(-1);
+            try {
+              const ok = await save();
+              if (ok) {
+                toast.success("목표 초과지출이 저장되었어요!");
+                navigate("/report");
+              } else {
+                toast.error("저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+              }
+            } catch (err: any) {
+              const msg =
+                err?.response?.data?.message ||
+                err?.message ||
+                "저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+              toast.error(msg);
+            }
           }}
         />
       </motion.div>

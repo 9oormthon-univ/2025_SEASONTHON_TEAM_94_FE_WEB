@@ -10,7 +10,6 @@ import type { Transaction } from '@/shared/types/expense';
 
 const USER_UID = 'a';
 
-// ===== 월 목표 금액 조회 =====
 async function fetchMonthlyGoal(): Promise<number> {
   try {
     const res = await getBudgetGoalByDate({ userUid: USER_UID });
@@ -22,20 +21,17 @@ async function fetchMonthlyGoal(): Promise<number> {
   }
 }
 
-// ===== 메인 훅 =====
 export function useReport() {
   const [overList, setOverList]   = useState<Transaction[]>([]);
   const [fixedList, setFixedList] = useState<Transaction[]>([]);
   const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
 
-  // 1) 목표 금액(price) 로드
   useEffect(() => {
     fetchMonthlyGoal()
       .then(setMonthlyGoal)
       .catch(() => setMonthlyGoal(0));
   }, []);
 
-  // 2) 트랜잭션 로드
   useEffect(() => {
     (async () => {
       const { over, fixed } = await fetchOverAndFixed({ userUid: USER_UID });
@@ -44,7 +40,6 @@ export function useReport() {
     })();
   }, []);
 
-  // 3) 이번 달 필터링/집계
   const monthOver  = overList.filter(t => inThisMonth(t.createdAt || (t as any).startAt));
   const monthFixed = fixedList.filter(t => inThisMonth(t.createdAt || (t as any).startAt));
 
@@ -52,7 +47,6 @@ export function useReport() {
   const fixedSum = monthFixed.reduce((s, t) => s + (t.price || 0), 0);
   const total    = overSum + fixedSum;
 
-  // 4) 바/라벨 계산
   const rawPercent = monthlyGoal > 0 ? (total / monthlyGoal) * 100 : 100;
   const barPercent = Math.max(0, Math.min(100, rawPercent));
   const percentCenterLeft = Math.max(0, Math.min(100, barPercent / 2));

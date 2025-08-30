@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import { Button } from '@/shared/components/ui/button';
 
+
 type NicknameFormProps = {
   value: string;
   onChange: (v: string) => void;

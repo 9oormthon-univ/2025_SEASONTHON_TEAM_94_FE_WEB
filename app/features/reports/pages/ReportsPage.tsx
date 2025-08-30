@@ -9,8 +9,6 @@ import { useReport } from '../hooks/useReport';
 import { fmt } from '../utils/number';
 import { dateK } from '../utils/date';
 import { Button } from '@/shared/components/ui/button';
-
-// ✅ 추가: 현재 사용자 API 불러오기
 import { fetchCurrentUser, type CurrentUser } from '@/features/more/api/user';
 
 export default function ReportPage() {
@@ -21,18 +19,15 @@ export default function ReportPage() {
     monthlyGoal, barPercent, percentCenterLeft, barLabel, isOver,
   } = useReport();
 
-  // ✅ 추가: 사용자 상태
   const [user, setUser] = useState<CurrentUser | null>(null);
 
-  // ✅ 추가: 마운트 시 현재 사용자 불러오기 (테스트용 'a')
   useEffect(() => {
     (async () => {
-      const me = await fetchCurrentUser('a'); // TODO: 실제 로그인 유저로 교체
+      const me = await fetchCurrentUser('a'); 
       setUser(me);
     })();
   }, []);
 
-  // ✅ 추가: 닉네임 변경 이벤트 실시간 반영
   useEffect(() => {
     const onChanged = (e: Event) => {
       const { nickname } = (e as CustomEvent).detail || {};
@@ -72,7 +67,6 @@ export default function ReportPage() {
                 </motion.button>
               </div>
 
-              {/* 🔁 여기만 바꾸면 됨: 하드코딩된 '여울 님' → 사용자 닉네임 */}
               <h2 className="mt-1 text-xl font-extrabold !text-[#002B5B]">
                 {displayName} 님의 지출분석
               </h2>

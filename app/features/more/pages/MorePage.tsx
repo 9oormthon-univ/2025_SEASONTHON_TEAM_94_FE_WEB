@@ -40,14 +40,12 @@ export default function MorePage() {
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
       <ExpenseHeader />
 
-      {/* 컨텐츠만 빠르게 올라오기 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.4, 0.0, 0.2, 1] }}
       >
         <div className="flex flex-col">
-          {/* ✅ 이름 라인 고정 */}
           <div className="sticky top-0 z-10 bg-[rgba(235,235,235,0.35)]/95 backdrop-blur supports-[backdrop-filter]:bg-[rgba(235,235,235,0.35)]">
             <ProfileCard
               name={user?.name ?? '사용자'}
@@ -74,7 +72,6 @@ export default function MorePage() {
 
             <div className="flex-[3] mt-40 bg-white">
               <p><br /><br /></p>
-              {/* ✅ 리스트를 아래로 조금 내림 */}
               <nav className="px-6 space-y-10 tracking-wide leading-5 ">
                 {menuItems.map((m, idx) => {
                   const delay = 0.14 + idx * 0.05;

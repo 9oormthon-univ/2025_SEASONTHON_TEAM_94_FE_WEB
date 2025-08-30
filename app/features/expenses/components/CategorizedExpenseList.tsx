@@ -241,8 +241,6 @@ function CategorizedExpenseItem({
   onUpdate,
   onClick,
 }: CategorizedExpenseItemProps) {
-  // 은행명 추출 (title에서 첫 번째 단어 또는 기본값)
-  // 공백 포함 전체 은행명이 보이도록 전체 title 사용
   const bankName = (expense.title ?? '').trim() || '은행';
 
   return (

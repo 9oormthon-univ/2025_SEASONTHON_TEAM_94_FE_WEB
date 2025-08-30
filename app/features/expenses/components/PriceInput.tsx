@@ -116,7 +116,7 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
   // 상세 값 변화는 Controller 내부에서 처리
 
   return (
-    <div className="px-4 pb-8">
+    <div className="px-4 py-4">
       <div ref={containerRef} className="relative group">
         <Controller
           name="price"

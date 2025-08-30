@@ -59,6 +59,17 @@ export function ExpenseForm({
   const watchedValues = watch();
   const { selectedDate, dutchPayCount, price, title } = watchedValues;
 
+  // 모바일에서 더치페이 입력 시 "1"이 지워지지 않는 문제를 해결하기 위해
+  // 표시용 로컬 상태를 사용하고, blur 시 유효한 값으로 확정합니다.
+  const [dutchInput, setDutchInput] = useState<string>(() => String(dutchPayCount ?? 1));
+
+  // RHF 값이 외부적으로 변경되었을 때 로컬 표시값을 동기화합니다.
+  useEffect(() => {
+    const next = String(dutchPayCount ?? 1);
+    if (next !== dutchInput) setDutchInput(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dutchPayCount]);
+
   const isFormValid = price > 0 && title.trim().length > 0;
 
   useEffect(() => {
@@ -88,6 +99,15 @@ export function ExpenseForm({
                 type="text"
                 {...field}
                 placeholder="거래처를 입력하세요."
+                onFocus={(e) => {
+                  // 모바일에서 포커스 시 커서가 끝으로 이동하는 현상을 방지하고
+                  // 사용자가 탭한 위치의 커서를 유지하도록 한 번 더 설정합니다.
+                  const el = e.target as HTMLInputElement;
+                  const pos = el.selectionStart ?? el.value.length;
+                  requestAnimationFrame(() => {
+                    try { el.setSelectionRange(pos, pos); } catch {}
+                  });
+                }}
                 className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto"
               />
             )}
@@ -107,6 +127,13 @@ export function ExpenseForm({
                 type="text"
                 {...field}
                 placeholder="앱을 입력하세요. (선택사항)"
+                onFocus={(e) => {
+                  const el = e.target as HTMLInputElement;
+                  const pos = el.selectionStart ?? el.value.length;
+                  requestAnimationFrame(() => {
+                    try { el.setSelectionRange(pos, pos); } catch {}
+                  });
+                }}
                 className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto"
               />
             )}
@@ -180,15 +207,23 @@ export function ExpenseForm({
               control={control}
               render={({ field }) => (
                 <Input
-                  type="number"
+                  // 모바일 숫자 키패드 노출 및 커서 위치 선택 용이성 개선
+                  type="tel"
                   inputMode="numeric"
-                  min="1"
-                  value={field.value || 1}
+                  pattern="[0-9]*"
+                  value={dutchInput}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    const numericValue = value.replace(/[^0-9]/g, '');
-                    const parsedValue = numericValue === '' ? 1 : Math.max(1, parseInt(numericValue, 10));
-                    field.onChange(parsedValue);
+                    const numeric = e.target.value.replace(/[^0-9]/g, '');
+                    setDutchInput(numeric);
+                    if (numeric !== '') {
+                      const next = Math.max(1, parseInt(numeric, 10));
+                      field.onChange(next);
+                    }
+                  }}
+                  onBlur={() => {
+                    const next = dutchInput === '' ? 1 : Math.max(1, parseInt(dutchInput, 10));
+                    setDutchInput(String(next));
+                    field.onChange(next);
                   }}
                   placeholder="1"
                   className="!w-[55px] !h-[44px] !text-center !text-[16px] !text-[#3d3d3d] !font-medium"

@@ -7,11 +7,8 @@ import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import { Link, useNavigate } from 'react-router-dom';
 import { useReport } from '@/features/reports/hooks/useReport';
 import LogoutConfirm from "@/features/more/components/LogoutConfirm";
-import { useNavToast } from "@/shared/hooks/useNavToast";
-
 
 export default function MorePage() {
-  useNavToast();
   const navigate = useNavigate();
   const [user, setUser] = useState<CurrentUser | null>(null);
   const { monthlyGoal, barPercent, percentCenterLeft, barLabel } = useReport();

@@ -242,7 +242,8 @@ function CategorizedExpenseItem({
   onClick,
 }: CategorizedExpenseItemProps) {
   // 은행명 추출 (title에서 첫 번째 단어 또는 기본값)
-  const bankName = expense.title.split(' ')[0] || '은행';
+  // 공백 포함 전체 은행명이 보이도록 전체 title 사용
+  const bankName = (expense.title ?? '').trim() || '은행';
 
   return (
     <div className="flex flex-col gap-1">
@@ -258,7 +259,7 @@ function CategorizedExpenseItem({
           <span className="text-black">{bankName}</span>
           <span className="text-[#bfbfbf] ml-1">에서 온 알림</span>
         </div>
-        <div className={`text-2xl font-medium 'text-black'}`}>
+  <div className="text-2xl font-medium text-black">
           - {expense.price.toLocaleString()}원
         </div>
       </div>

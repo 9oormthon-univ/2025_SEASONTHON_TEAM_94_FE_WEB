@@ -123,8 +123,7 @@ function UncategorizedExpenseItem({
   expense,
   onUpdate,
 }: UncategorizedExpenseItemProps) {
-  // 은행명 추출 (title에서 첫 번째 단어 또는 기본값)
-  const bankName = expense.title.split(' ')[0] || '은행';
+  const bankName = (expense.title ?? '').trim() || '은행';
 
   const handleFixedExpenseClick = (e: React.MouseEvent) => {
     e.preventDefault();

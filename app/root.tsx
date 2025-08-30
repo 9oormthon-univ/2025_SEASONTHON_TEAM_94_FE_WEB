@@ -152,15 +152,15 @@ export default function App() {
             to="/expenses"
             className={`flex flex-col items-center py-1 px-4 ${
               location.pathname.startsWith('/expenses')
-                ? 'text-black'
-                : 'text-gray-500'
+                ? 'text-[#1F2937]'
+                : 'text-[#9CA3AF]'
             }`}
           >
             <HomeIcon
               className={`w-6 h-6 mb-1 ${
                 location.pathname.startsWith('/expenses')
-                  ? 'text-black fill-current'
-                  : 'text-gray-500'
+                  ? 'text-[#1F2937]'
+                  : 'text-[#9CA3AF]'
               }`}
             />
             <span className="text-xs">홈</span>
@@ -169,15 +169,15 @@ export default function App() {
             to="/report"
             className={`flex flex-col items-center py-1 px-4 ${
               location.pathname.startsWith('/report')
-                ? 'text-black'
-                : 'text-gray-500'
+                ? 'text-[#1F2937]'
+                : 'text-[#9CA3AF]'
             }`}
           >
             <ReportIcon
               className={`w-6 h-6 mb-1 ${
                 location.pathname.startsWith('/report')
-                  ? 'text-black fill-current'
-                  : 'text-gray-500'
+                  ? 'text-[#1F2937]'
+                  : 'text-[#9CA3AF]'
               }`}
             />
             <span className="text-xs">리포트</span>
@@ -186,15 +186,15 @@ export default function App() {
             to="/more"
             className={`flex flex-col items-center py-1 px-4 ${
               location.pathname.startsWith('/more')
-                ? 'text-black'
-                : 'text-gray-500'
+                ? 'text-[#1F2937]'
+                : 'text-[#9CA3AF]'
             }`}
           >
             <MoreIcon
               className={`w-6 h-6 mb-1 ${
                 location.pathname.startsWith('/more')
-                  ? 'text-black fill-current'
-                  : 'text-gray-500'
+                  ? 'text-[#1F2937]'
+                  : 'text-[#9CA3AF]'
               }`}
             />
             <span className="text-xs">더보기</span>

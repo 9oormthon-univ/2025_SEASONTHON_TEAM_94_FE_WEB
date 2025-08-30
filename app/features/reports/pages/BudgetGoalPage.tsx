@@ -1,6 +1,6 @@
-// features/reports/pages/BudgetGoalPage.tsx
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import BudgetGoalForm from '../components/BudgetGoalForm';
 import { useBudgetGoal } from '../hooks/useBudgetGoal';
@@ -22,40 +22,55 @@ export default function BudgetGoalPage() {
   const { loading, goal, price, setPrice, hasExisting, saving, save } =
     useBudgetGoal({ date, idFromRoute: id ? Number(id) : undefined });
 
-  const title = '목표 초과지출 설정'; // ✅ 수정 페이지도 “저장”만 표기
-
-  // 버튼 활성 조건: 값이 0 초과 && 기존값과 달라졌을 때
+  const title = '목표 초과지출 설정';
   const original = goal?.price ?? 0;
   const changed = price !== original && price > 0;
 
+  useEffect(() => {
+    const id = 'hide-global-bottom-fixed';
+    const style = document.createElement('style');
+    style.id = id;
+    style.innerHTML = `nav.fixed.bottom-0.left-0.right-0{ display:none !important; }`;
+    document.head.appendChild(style);
+    return () => { document.getElementById(id)?.remove(); };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white relative max-w-md mx-auto pb-24">
-      {/* 커스텀 헤더 (가운데 정렬) */}
+      {/* 헤더는 그대로 */}
       <div className="relative top-10 px-4 pt-4 pb-2">
-        <div
+        <motion.div
           onClick={() => navigate(-1)}
           className=" absolute left-4 top-1/2 -translate-y-1 p-1 -m-1 rounded hover:bg-black/5 active:bg-black/10"
           aria-label="뒤로"
+          whileTap={{ scale: 0.92 }}
         >
           <ChevronLeft className="w-6 h-6" />
-        </div>
+        </motion.div>
         <h1 className="text-center text-[15px] font-medium text-black tracking-[-0.165px]">
           {title}
         </h1>
       </div>
 
-      <BudgetGoalForm
-        value={price}
-        onChange={setPrice}
-        loading={loading}
-        saving={saving}
-        changed={changed}            
-        onSubmit={async () => {
-          if (!changed) return;
-          const ok = await save();
-          if (ok) navigate(-1);
-        }}
-      />
+      {/* ✅ 폼(고정버튼 포함)은 opacity만 */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <BudgetGoalForm
+          value={price}
+          onChange={setPrice}
+          loading={loading}
+          saving={saving}
+          changed={changed}
+          onSubmit={async () => {
+            if (!changed) return;
+            const ok = await save();
+            if (ok) navigate(-1);
+          }}
+        />
+      </motion.div>
     </div>
   );
 }

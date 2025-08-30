@@ -26,7 +26,7 @@ export default function BudgetGoalForm({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [focused, setFocused] = useState(false);
-  const [inputPx, setInputPx] = useState<number>(0); // 편집 전: 표시 문자열 실제 px
+  const [inputPx, setInputPx] = useState<number>(0); 
 
   const caretBeforeSuffix = (n: number) => {
     const before = n ? `${PREFIX}${n.toLocaleString()}`.length : 0;
@@ -128,18 +128,16 @@ export default function BudgetGoalForm({
           </button>
         )}
 
-        {/* 밑줄(그대로 유지) */}
         <div className="pointer-events-none absolute left-0 right-6 -bottom-[3px] h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" />
       </div>
 
-      {/* 하단 CTA (그대로) */}
-      <div className="fixed left-0 right-0 bottom-0 bg-white/90 backdrop-blur px-4 py-3">
+      <div className="fixed left-0 right-0 bottom-10 bg-white/90 backdrop-blur px-4 py-3">
         <Button
-          className={`w-full !h-[20px] !rounded-[6px] !font-normal ${
-            disabled ? '!bg-white !text-[#757575] border !border-[#002B5B]' : '!bg-[#002B5B] !text-white'
+          className={`w-full h-[45px] rounded-[6px] !font-normal ${
+            disabled ? '!bg-white text-[#757575] border-2 border-[#002B5B]' : 'bg-[#002B5B] !text-white'
           }`}
           disabled={disabled}
-          onClick={() => void onSubmit()}
+          onClick={async () => { await onSubmit(); }}
         >
           저장
         </Button>

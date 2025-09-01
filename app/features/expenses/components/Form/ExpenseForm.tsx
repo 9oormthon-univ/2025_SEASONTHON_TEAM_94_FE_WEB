@@ -154,7 +154,7 @@ export function ExpenseForm({
               render={({ field }) => (
                 <Input
                   // 모바일 숫자 키패드 노출 및 커서 위치 선택 용이성 개선
-                  type="tel"
+                  type="number"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={dutchPayHandlers.input}

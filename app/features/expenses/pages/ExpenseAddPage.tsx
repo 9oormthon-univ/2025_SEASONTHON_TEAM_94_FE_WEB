@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router';
-import { ChevronLeft } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
+import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import {
   EXPENSE_TYPES,
   type TransactionCreateRequest,
@@ -64,18 +64,7 @@ export function ExpenseAddPage() {
       className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-6">
-        <div
-          onClick={() => navigate('/expenses')}
-          className="cursor-pointer"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </div>
-        <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
-          지출 추가
-        </h1>
-        <div className="w-6" /> {/* Spacer */}
-      </div>
+      <ExpenseHeader title="지출 추가" />
 
       {/* Form */}
       <div className="flex-1">

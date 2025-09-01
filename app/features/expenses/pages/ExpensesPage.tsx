@@ -2,7 +2,7 @@ import { useSearchParams, Link } from 'react-router';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUncategorizedExpenses, useCategorizedExpenses } from '@/features/expenses/hooks';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import { UncategorizedExpenseList } from '@/features/expenses/components/List/UncategorizedExpenseList';
 import { CategorizedExpenseList } from '@/features/expenses/components/List/CategorizedExpenseList';
 import { MOCK_USER_UID } from '@/shared/config/api';
@@ -76,7 +76,7 @@ export function ExpensesPage() {
 
   return (
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
-      <ExpenseHeader />
+      <Header />
 
       {/* Tabs with Plus Button */}
       <div className="bg-white h-[60px]">
@@ -135,7 +135,10 @@ export function ExpensesPage() {
           </div>
 
           {/* Plus Button - 탭과 같은 라인 */}
-          <Link to="/expenses/add">
+          <Link 
+            to="/expenses/add"
+            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          >
             <PlusIcon className="w-9 h-9" />
           </Link>
         </div>
@@ -150,7 +153,7 @@ export function ExpensesPage() {
       <div className="px-6 pt-2">
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff6200]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-[#ff6200]"></div>
           </div>
         ) : (
           <AnimatePresence mode="wait">

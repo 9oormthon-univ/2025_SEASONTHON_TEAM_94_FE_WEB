@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { Controller } from 'react-hook-form';
 import type { Control, FieldErrors } from 'react-hook-form';
 import Edit from '@/assets/edit.svg';
@@ -11,12 +11,25 @@ interface PriceInputProps {
   setValue: (name: 'price', value: number) => void;
 }
 
+// 매직 넘버들을 명명된 상수로 분리 (가이드라인: Naming Magic Numbers)
 const PRICE_SUFFIX = '원';
 const PRICE_PREFIX = '-';
 const EDIT_GAP_PX = 6; // 텍스트와 아이콘 사이 간격
+const DEFAULT_BUTTON_WIDTH = 20;
+const ICON_WIDTH_WITH_MARGIN = 16;
+const TEXT_WIDTH_BUFFER = 2;
 
 const toDigits = (v: string) => v.replace(/[^\d]/g, '');
 const formatPriceDisplay = (n: number) => n ? `${PRICE_PREFIX}${n.toLocaleString()}${PRICE_SUFFIX}` : '';
+
+// Canvas 생성을 메모이제이션하여 성능 최적화
+let canvasCache: HTMLCanvasElement | null = null;
+const getCanvas = () => {
+  if (!canvasCache) {
+    canvasCache = document.createElement('canvas');
+  }
+  return canvasCache;
+};
 
 export function PriceInput({ control, errors, setValue }: PriceInputProps) {
   const [priceInputFocused, setPriceInputFocused] = useState(false);
@@ -24,93 +37,132 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
   const priceInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const caretBeforeSuffix = (n: number) => {
-    const before = n ? `${PRICE_PREFIX}${n.toLocaleString()}`.length : 0;
+  // 복잡한 조건을 명명된 변수로 분리 (가이드라인: Naming Complex Conditions)
+  const isInputFocused = priceInputFocused;
+  const shouldRecalculateWidth = !isInputFocused;
+
+  // 버튼 top 위치 계산 로직을 메모이제이션
+  const calculateButtonTop = useCallback(() => {
+    const input = priceInputRef.current;
+    if (!input) return '50%';
+    const computedStyle = getComputedStyle(input);
+    const paddingTop = parseFloat(computedStyle.paddingTop || '0');
+    const paddingBottom = parseFloat(computedStyle.paddingBottom || '0');
+    const height = input.clientHeight;
+    const centerY = input.offsetTop + paddingTop + Math.max(0, (height - paddingTop - paddingBottom)) / 2;
+    return centerY;
+  }, []);
+
+  const caretBeforeSuffix = useCallback((numericValue: number) => {
+    const caretPosition = numericValue ? `${PRICE_PREFIX}${numericValue.toLocaleString()}`.length : 0;
     requestAnimationFrame(() => {
-      const el = priceInputRef.current;
-      if (!el) return;
+      const element = priceInputRef.current;
+      if (!element) return;
       try { 
-        el.setSelectionRange(before, before); 
-      } catch {}
+        element.setSelectionRange(caretPosition, caretPosition); 
+      } catch {
+        // 선택 범위 설정 실패는 무시
+      }
     });
-  };
+  }, []);
 
   // 초기 렌더 직후(첫 페인트 전에) 현재 값 기준으로 즉시 폭 측정
   useLayoutEffect(() => {
-    if (priceInputFocused) return;
-    const raw = priceInputRef.current?.value ?? '';
-    const n = Number(toDigits(raw) || '0');
-    measurePriceWidth(n);
+    if (isInputFocused) return;
+    const rawValue = priceInputRef.current?.value ?? '';
+    const numericValue = Number(toDigits(rawValue) || '0');
+    measurePriceWidth(numericValue);
   }, []);
 
-  const measurePriceWidth = (price: number) => {
-    const el = priceInputRef.current;
-    if (!el) return;
-    const valueStr = formatPriceDisplay(price) || `${PRICE_PREFIX}0${PRICE_SUFFIX}`;
+  const measurePriceWidth = useCallback((price: number) => {
+    const element = priceInputRef.current;
+    if (!element) return;
+    const valueString = formatPriceDisplay(price) || `${PRICE_PREFIX}0${PRICE_SUFFIX}`;
 
-    const cs = getComputedStyle(el);
-    const font = `${cs.fontStyle} ${cs.fontVariant} ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return; 
-    ctx.font = font;
+    const computedStyle = getComputedStyle(element);
+    const font = `${computedStyle.fontStyle} ${computedStyle.fontVariant} ${computedStyle.fontWeight} ${computedStyle.fontSize} / ${computedStyle.lineHeight} ${computedStyle.fontFamily}`;
+    
+    // Canvas 재사용으로 성능 최적화
+    const canvas = getCanvas();
+    const context = canvas.getContext('2d');
+    if (!context) return; 
+    context.font = font;
 
-    const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-    const extra = 2;
-    const textWidth = ctx.measureText(valueStr).width + paddingX + extra;
+    const paddingX = parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+    const textWidth = context.measureText(valueString).width + paddingX + TEXT_WIDTH_BUFFER;
 
-    // 컨테이너 가용 폭(편집 버튼 영역 제외)으로 클램프
-    let finalWidth = textWidth;
-    if (!priceInputFocused) {
+    // 컨테이너 가용 폭 계산을 별도 함수로 분리 (가이드라인: Abstracting Implementation Details)
+    const calculateAvailableWidth = () => {
+      if (isInputFocused) return textWidth;
+      
       const container = containerRef.current;
-      if (container) {
-        const btn = container.querySelector('[data-role="price-edit-btn"]') as HTMLElement | null;
-        const containerWidth = container.clientWidth;
-        let btnWidth = 0;
-        if (btn) {
-          const bcs = getComputedStyle(btn);
-          btnWidth = btn.getBoundingClientRect().width
-            + parseFloat(bcs.marginLeft || '0')
-            + parseFloat(bcs.marginRight || '0');
-        } else {
-          btnWidth = 20; // 보수치
-        }
-        const available = Math.max(0, containerWidth - btnWidth);
-        finalWidth = Math.min(textWidth, available);
-      }
-    }
-    setPriceInputPx(finalWidth);
-  };
+      if (!container) return textWidth;
+      
+      const button = container.querySelector('[data-role="price-edit-btn"]') as HTMLElement | null;
+      const containerWidth = container.clientWidth;
+      
+      const buttonWidth = button ? (() => {
+        const buttonComputedStyle = getComputedStyle(button);
+        return button.getBoundingClientRect().width
+          + parseFloat(buttonComputedStyle.marginLeft || '0')
+          + parseFloat(buttonComputedStyle.marginRight || '0');
+      })() : DEFAULT_BUTTON_WIDTH;
+      
+      const availableWidth = Math.max(0, containerWidth - buttonWidth);
+      return Math.min(textWidth, availableWidth);
+    };
+
+    setPriceInputPx(calculateAvailableWidth());
+  }, [isInputFocused]);
 
   useEffect(() => {
-    document.fonts?.ready?.then(() => { 
-      if (!priceInputFocused) {
-        const raw = priceInputRef.current?.value ?? '';
-        const n = Number(toDigits(raw) || '0');
-        measurePriceWidth(n);
+    const handleFontsReady = () => {
+      if (shouldRecalculateWidth) {
+        const rawValue = priceInputRef.current?.value ?? '';
+        const numericValue = Number(toDigits(rawValue) || '0');
+        measurePriceWidth(numericValue);
       }
-    });
-  }, [priceInputFocused]);
+    };
+
+    document.fonts?.ready?.then(handleFontsReady);
+  }, [shouldRecalculateWidth, measurePriceWidth]);
 
   // 컨테이너 리사이즈에 반응
   useEffect(() => {
-    if (priceInputFocused) return;
+    if (isInputFocused) return;
     const container = containerRef.current;
     if (!container) return;
-    const recalc = () => {
-      const raw = priceInputRef.current?.value ?? '';
-      const n = Number(toDigits(raw) || '0');
-      measurePriceWidth(n);
+    
+    const handleResize = () => {
+      const rawValue = priceInputRef.current?.value ?? '';
+      const numericValue = Number(toDigits(rawValue) || '0');
+      measurePriceWidth(numericValue);
     };
-    const RO: any = (window as any).ResizeObserver;
-    const ro = RO ? new RO(() => recalc()) : undefined;
-    ro?.observe(container);
-    window.addEventListener('resize', recalc);
+    
+    // ResizeObserver 존재 여부 확인을 명명된 변수로 분리
+    const hasResizeObserver = typeof (window as any).ResizeObserver !== 'undefined';
+    const resizeObserver = hasResizeObserver ? new (window as any).ResizeObserver(handleResize) : null;
+    
+    resizeObserver?.observe(container);
+    window.addEventListener('resize', handleResize);
+    
     return () => {
-      ro?.disconnect?.();
-      window.removeEventListener('resize', recalc);
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', handleResize);
     };
-  }, [priceInputFocused]);
+  }, [isInputFocused, measurePriceWidth]);
+
+  // 편집 버튼 위치 계산을 별도 함수로 분리 (가이드라인: Abstracting Implementation Details)
+  const calculateEditButtonPosition = useCallback(() => {
+    const input = priceInputRef.current;
+    const container = containerRef.current;
+    const basePosition = input ? (input.offsetLeft + (priceInputPx || 0) + EDIT_GAP_PX) : EDIT_GAP_PX;
+    
+    if (!container) return basePosition;
+    
+    const maxLeftPosition = container.clientWidth - (ICON_WIDTH_WITH_MARGIN + EDIT_GAP_PX);
+    return Math.min(basePosition, Math.max(0, maxLeftPosition));
+  }, [priceInputPx]);
 
   // 값/포커스 변경 시 재측정 (비포커스 상태 우선)
   // 상세 값 변화는 Controller 내부에서 처리
@@ -124,8 +176,10 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
           render={({ field }) => {
             // eslint-disable-next-line react-hooks/rules-of-hooks
             useEffect(() => { 
-              if (!priceInputFocused) measurePriceWidth(field.value); 
-            }, [field.value, priceInputFocused]);
+              if (shouldRecalculateWidth) {
+                measurePriceWidth(field.value); 
+              }
+            }, [field.value, shouldRecalculateWidth, measurePriceWidth]);
 
             return (
               <input
@@ -141,59 +195,37 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
                 }}
                 onBlur={() => setPriceInputFocused(false)}
                 style={{
-                  width: priceInputFocused ? undefined : (priceInputPx || undefined),
-                  textAlign: priceInputFocused ? undefined : 'right',
-                  border: '0', 
-                  borderRadius: 0, 
-                  outline: 'none',
-                  boxShadow: 'none', 
-                  WebkitAppearance: 'none', 
-                  appearance: 'none',
+                  width: isInputFocused ? undefined : (priceInputPx || undefined),
+                  textAlign: isInputFocused ? undefined : 'right',
                 }}
                 className={`
                   w-full bg-transparent
-                  outline-none ring-0 focus:ring-0
-                  border-none
-                  !text-2xl font-bold text-black
+                  border-0 rounded-none outline-none shadow-none
+                  appearance-none
+                  text-2xl font-bold text-black
                   placeholder:text-[#B9B9B9] pb-2
-                  ${priceInputFocused ? 'pr-9' : ''} 
+                  ${isInputFocused ? 'pr-9' : ''} 
                 `}
                 placeholder={`${PRICE_PREFIX}0${PRICE_SUFFIX}`}
                 value={formatPriceDisplay(field.value)}
                 onChange={(e) => {
-                  const next = Number(toDigits(e.target.value) || '0');
-                  field.onChange(next);
-                  caretBeforeSuffix(next);
+                  const nextValue = Number(toDigits(e.target.value) || '0');
+                  field.onChange(nextValue);
+                  caretBeforeSuffix(nextValue);
                 }}
               />
             );
           }}
         />
 
-        {!priceInputFocused && (
+        {!isInputFocused && (
           <button
             type="button"
             aria-label="편집"
-            className="absolute -translate-y-1/2 rounded hover:bg-black/5 active:bg-black/10"
+            className="absolute -translate-y-1/2 rounded p-1 hover:bg-black/5 active:bg-black/10 transition-colors"
             style={{
-              top: (() => {
-                const input = priceInputRef.current;
-                if (!input) return '50%';
-                const cs = getComputedStyle(input);
-                const pt = parseFloat(cs.paddingTop || '0');
-                const pb = parseFloat(cs.paddingBottom || '0');
-                const h = input.clientHeight;
-                const centerY = input.offsetTop + pt + Math.max(0, (h - pt - pb)) / 2;
-                return centerY;
-              })(),
-              left: (() => {
-                const input = priceInputRef.current;
-                const container = containerRef.current;
-                const px = (input ? (input.offsetLeft + (priceInputPx || 0) + EDIT_GAP_PX) : EDIT_GAP_PX);
-                if (!container) return px;
-                const maxLeft = container.clientWidth - (16 + EDIT_GAP_PX); // 아이콘 폭 + 간격 보수치
-                return Math.min(px, Math.max(0, maxLeft));
-              })(),
+              top: calculateButtonTop(),
+              left: calculateEditButtonPosition(),
             }}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => { priceInputRef.current?.focus(); }}
@@ -203,28 +235,19 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
           </button>
         )}
 
-        {priceInputFocused && (
+        {isInputFocused && (
           <button
             type="button"
             aria-label="지우기"
-            className="absolute right-0 -translate-y-1/2 p-3 rounded hover:bg-black/5 active:bg-black/10"
+            className="absolute right-0 -translate-y-1/2 p-3 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+            style={{
+              top: calculateButtonTop(),
+            }}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => { 
               setValue('price', 0); 
               caretBeforeSuffix(0); 
               priceInputRef.current?.focus(); 
-            }}
-            style={{
-              top: (() => {
-                const input = priceInputRef.current;
-                if (!input) return '50%';
-                const cs = getComputedStyle(input);
-                const pt = parseFloat(cs.paddingTop || '0');
-                const pb = parseFloat(cs.paddingBottom || '0');
-                const h = input.clientHeight;
-                const centerY = input.offsetTop + pt + Math.max(0, (h - pt - pb)) / 2;
-                return centerY;
-              })(),
             }}
           >
             <img src={xIconUrl} alt="지우기" className="w-4 h-4 opacity-70" />
@@ -232,10 +255,10 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
         )}
 
         {/* 밑줄 애니메이션 */}
-  <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-[2px] bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150" />
+        <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-0.5 bg-black scale-x-0 group-focus-within:scale-x-100 origin-left transition-transform duration-150 ease-out" />
 
         {errors.price && (
-          <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
+          <p className="text-red-500 text-sm mt-2">{errors.price.message}</p>
         )}
       </div>
     </div>

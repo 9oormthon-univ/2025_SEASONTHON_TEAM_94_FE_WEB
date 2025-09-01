@@ -57,23 +57,23 @@ export function ExpenseDetail({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-4">
-        <div
+        <button
           onClick={onCancel}
-          className="p-0 cursor-pointer"
+          className="p-1 cursor-pointer rounded-full hover:bg-gray-100 transition-colors"
         >
           <ChevronLeft className="w-6 h-6" />
-        </div>
+        </button>
         <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
           지출 수정
         </h1>
-        <div className="w-6 flex justify-end">
+        <div className="w-8 flex justify-end">
           {onDelete && (
-            <div
+            <button
               onClick={onDelete}
-              className="p-0 cursor-pointer"
+              className="p-1 cursor-pointer rounded-full hover:bg-red-50 transition-colors"
             >
               <Trash2 className="w-5 h-5 text-red-500" />
-            </div>
+            </button>
           )}
         </div>
       </div>
@@ -89,7 +89,7 @@ export function ExpenseDetail({
         <div className="flex gap-3">
           <Button
             onClick={onCancel}
-            className="flex-1 h-[45px] border-[#002b5b] text-[#002b5b] text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/5"
+            className="flex-1 h-[45px] border-[#002b5b] text-[#002b5b] text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/5 transition-colors"
           >
              삭제
           </Button>
@@ -97,7 +97,7 @@ export function ExpenseDetail({
             form="expense-form"
             type="submit"
             disabled={isLoading}
-            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50"
+            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors"
           >
             {isLoading ? '수정 중...' : '수정'}
           </Button>

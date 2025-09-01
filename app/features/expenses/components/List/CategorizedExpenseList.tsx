@@ -119,7 +119,7 @@ export function CategorizedExpenseList({
               <Button
                 variant="ghost"
                 onClick={() => setIsOverExpenseExpanded(!isOverExpenseExpanded)}
-                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors p-0 h-auto"
+                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors duration-200 p-0 h-auto"
               >
                 {isOverExpenseExpanded ? '접기' : `더보기`}
               </Button>
@@ -179,7 +179,7 @@ export function CategorizedExpenseList({
               <Button
                 variant="ghost"
                 onClick={() => setIsFixedExpenseExpanded(!isFixedExpenseExpanded)}
-                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors p-0 h-auto"
+                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors duration-200 p-0 h-auto"
               >
                 {isFixedExpenseExpanded ? '접기' : `더보기`}
               </Button>
@@ -247,7 +247,7 @@ function CategorizedExpenseItem({
     <div className="flex flex-col gap-1">
       {/* Main Card */}
       <div 
-        className="bg-white rounded-[10px] p-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+        className="bg-white rounded-[10px] p-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors duration-200"
         onClick={onClick}
       >
         <div className="text-[12px] text-[#101010] mb-1 font-medium">

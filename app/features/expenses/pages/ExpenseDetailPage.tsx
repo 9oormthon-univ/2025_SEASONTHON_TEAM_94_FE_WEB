@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from 'react-router';
-import { ChevronLeft } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
+import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -111,7 +111,7 @@ export function ExpenseDetailPage() {
   if (loading) {
     return (
       <div className="bg-white min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-[#002b5b]"></div>
       </div>
     );
   }
@@ -151,18 +151,7 @@ export function ExpenseDetailPage() {
       className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-6">
-        <div
-          onClick={() => navigate('/expenses')}
-          className="cursor-pointer"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </div>
-        <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
-          지출 수정
-        </h1>
-        <div className="w-6" /> {/* Spacer */}
-      </div>
+      <ExpenseHeader title="지출 수정" />
 
       {/* Form */}
       <div className="flex-1">
@@ -181,7 +170,7 @@ export function ExpenseDetailPage() {
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="flex-1 h-[45px] text-red-500 border-red-500 hover:bg-red-50"
+                className="flex-1 h-[45px] text-red-500 border-red-500 hover:bg-red-50 transition-colors rounded-[10px]"
                 disabled={deleteExpenseMutation.isPending}
               >
                 삭제
@@ -198,7 +187,7 @@ export function ExpenseDetailPage() {
                 <AlertDialogCancel>취소</AlertDialogCancel>
                 <AlertDialogAction 
                   onClick={handleDelete}
-                  className="bg-red-500 hover:bg-red-600"
+                  className="bg-red-500 hover:bg-red-600 transition-colors"
                 >
                   삭제
                 </AlertDialogAction>

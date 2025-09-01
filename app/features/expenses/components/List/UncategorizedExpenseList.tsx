@@ -160,14 +160,14 @@ function UncategorizedExpenseItem({
         <Button
           variant="outline"
           onClick={handleFixedExpenseClick}
-          className="flex-1 h-[45px] border-[#ff6200] text-[#ff6200] bg-white rounded-[10px] text-[16px] font-bold hover:bg-[#ff6200]/5"
+          className="flex-1 h-[45px] border-[#ff6200] text-[#ff6200] bg-white rounded-[10px] text-[16px] font-bold hover:bg-[#ff6200]/5 transition-colors duration-200"
         >
           고정지출
         </Button>
 
         <Button
           onClick={handleOverExpenseClick}
-          className="flex-1 h-[45px] bg-[#ff6200] text-[#fffefb] rounded-[10px] text-[16px] font-bold hover:bg-[#ff6200]/90"
+          className="flex-1 h-[45px] bg-[#ff6200] text-[#fffefb] rounded-[10px] text-[16px] font-bold hover:bg-[#ff6200]/90 transition-colors duration-200"
         >
           초과지출
         </Button>

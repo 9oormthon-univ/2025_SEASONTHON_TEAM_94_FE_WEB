@@ -102,7 +102,7 @@ export function ExpenseForm({
                   <DrawerTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="text-base text-[#3d3d3d] tracking-[-0.176px] !p-0 h-auto font-normal justify-between"
+                      className="text-base text-[#3d3d3d] tracking-[-0.176px] !p-0 h-auto font-normal justify-between hover:bg-transparent"
                     >
                       {formatDateForDisplay(field.value)}
                       <CalendarIcon className="w-4 h-4 ml-2" />
@@ -133,7 +133,7 @@ export function ExpenseForm({
                         }
                       }}
                       captionLayout="dropdown"
-                      className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)]"
+                      className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)] border-none"
                     />
                   </DrawerContent>
                 </Drawer>
@@ -177,7 +177,7 @@ export function ExpenseForm({
               )}
             />
             {dutchPayCount > 1 && price && (
-              <div className="text-sm text-[#757575]">
+              <div className="text-sm text-[#757575] transition-opacity duration-200">
                 (1인당: {calculateDutchPayAmount(price, dutchPayCount)}원)
               </div>
             )}

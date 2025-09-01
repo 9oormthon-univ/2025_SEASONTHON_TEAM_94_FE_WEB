@@ -1,12 +1,15 @@
 import { Controller } from 'react-hook-form';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, CalendarIcon } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/shared/components/ui/popover';
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/shared/components/ui/drawer';
 import { Calendar } from '@/shared/components/ui/calendar';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/components';
@@ -95,49 +98,47 @@ export function ExpenseForm({
               name="selectedDate"
               control={control}
               render={({ field }) => (
-                <Popover open={calendarHandlers.isOpen} onOpenChange={calendarHandlers.setIsOpen}>
-                  <PopoverTrigger asChild>
+                <Drawer open={calendarHandlers.isOpen} onOpenChange={calendarHandlers.setIsOpen}>
+                  <DrawerTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="text-base text-[#3d3d3d] tracking-[-0.176px] !p-0 h-auto font-normal"
+                      className="text-base text-[#3d3d3d] tracking-[-0.176px] !p-0 h-auto font-normal justify-between"
                     >
                       {formatDateForDisplay(field.value)}
-                      <ChevronRight className="w-3 h-3" />
+                      <CalendarIcon className="w-4 h-4 ml-2" />
                     </Button>
-                  </PopoverTrigger>
-                <PopoverContent
-                  className="w-auto overflow-hidden p-0 m-2 max-w-[260px] sm:max-w-[300px]"
-                  align="center"
-                  side="top"
-                  sideOffset={8}
-                  avoidCollisions={true}
-                >
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={(date) => {
-                      if (date) {
-                        const currentDate = field.value;
-                        const newDate = new Date(
-                          date.getFullYear(),
-                          date.getMonth(), 
-                          date.getDate(),
-                          currentDate.getHours(),
-                          currentDate.getMinutes(),
-                          currentDate.getSeconds(),
-                          currentDate.getMilliseconds()
-                        );
-                        field.onChange(newDate);
-                        calendarHandlers.setIsOpen(false);
-                      }
-                    }}
-                    captionLayout="dropdown"
-                    className="rounded-md border shadow-lg text-sm"
-                  />
-                </PopoverContent>
-              </Popover>
-            )}
-          />
+                  </DrawerTrigger>
+                  <DrawerContent className="w-auto overflow-hidden p-0">
+                    <DrawerHeader className="sr-only">
+                      <DrawerTitle>날짜 선택</DrawerTitle>
+                      <DrawerDescription>지출 날짜를 선택하세요</DrawerDescription>
+                    </DrawerHeader>
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={(date) => {
+                        if (date) {
+                          const currentDate = field.value;
+                          const newDate = new Date(
+                            date.getFullYear(),
+                            date.getMonth(), 
+                            date.getDate(),
+                            currentDate.getHours(),
+                            currentDate.getMinutes(),
+                            currentDate.getSeconds(),
+                            currentDate.getMilliseconds()
+                          );
+                          field.onChange(newDate);
+                          calendarHandlers.setIsOpen(false);
+                        }
+                      }}
+                      captionLayout="dropdown"
+                      className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)]"
+                    />
+                  </DrawerContent>
+                </Drawer>
+              )}
+            />
           </div>
         </FormField>
 

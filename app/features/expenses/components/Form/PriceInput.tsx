@@ -22,24 +22,28 @@ const TEXT_WIDTH_BUFFER = 2;
 const toDigits = (v: string) => v.replace(/[^\d]/g, '');
 const formatPriceDisplay = (n: number) => n ? `${PRICE_PREFIX}${n.toLocaleString()}${PRICE_SUFFIX}` : '';
 
-// Canvas 생성을 메모이제이션하여 성능 최적화
-let canvasCache: HTMLCanvasElement | null = null;
-const getCanvas = () => {
-  if (!canvasCache) {
-    canvasCache = document.createElement('canvas');
-  }
-  return canvasCache;
-};
-
 export function PriceInput({ control, errors, setValue }: PriceInputProps) {
   const [priceInputFocused, setPriceInputFocused] = useState(false);
   const [priceInputPx, setPriceInputPx] = useState<number>(0);
   const priceInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Canvas를 컴포넌트 생명주기에 맞게 관리
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // 복잡한 조건을 명명된 변수로 분리 (가이드라인: Naming Complex Conditions)
   const isInputFocused = priceInputFocused;
   const shouldRecalculateWidth = !isInputFocused;
+
+  // Canvas 생성을 컴포넌트 레벨에서 관리
+  const getCanvas = useCallback(() => {
+    if (!canvasRef.current) {
+      // 브라우저 환경에서만 Canvas 생성
+      if (typeof document !== 'undefined') {
+        canvasRef.current = document.createElement('canvas');
+      }
+    }
+    return canvasRef.current;
+  }, []);
 
   // 버튼 top 위치 계산 로직을 메모이제이션
   const calculateButtonTop = useCallback(() => {
@@ -82,8 +86,10 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
     const computedStyle = getComputedStyle(element);
     const font = `${computedStyle.fontStyle} ${computedStyle.fontVariant} ${computedStyle.fontWeight} ${computedStyle.fontSize} / ${computedStyle.lineHeight} ${computedStyle.fontFamily}`;
     
-    // Canvas 재사용으로 성능 최적화
+    // 컴포넌트 레벨에서 관리되는 Canvas 사용
     const canvas = getCanvas();
+    if (!canvas) return;
+    
     const context = canvas.getContext('2d');
     if (!context) return; 
     context.font = font;
@@ -113,7 +119,7 @@ export function PriceInput({ control, errors, setValue }: PriceInputProps) {
     };
 
     setPriceInputPx(calculateAvailableWidth());
-  }, [isInputFocused]);
+  }, [isInputFocused, getCanvas]);
 
   useEffect(() => {
     const handleFontsReady = () => {

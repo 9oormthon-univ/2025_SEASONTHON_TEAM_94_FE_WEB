@@ -1,6 +1,6 @@
 import { useSearchParams, Link } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { fetchTransactions } from '@/features/expenses/api/expenseApi';
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import { UncategorizedExpenseList } from '@/features/expenses/components/UncategorizedExpenseList';

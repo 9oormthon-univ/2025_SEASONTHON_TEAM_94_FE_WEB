@@ -1,7 +1,7 @@
 // features/reports/pages/ReportPage.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import ProgressBar from '../components/ProgressBar';
 import ReportSummary from '../components/ReportSummary';

@@ -1,6 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
 import BudgetGoalForm from '../components/BudgetGoalForm';
 import { useBudgetGoal } from '../hooks/useBudgetGoal';

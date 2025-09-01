@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import ProfileCard from '../components/ProfileCard';
 import MiniReport from '../components/MiniReport';
 import { fetchCurrentUser, type CurrentUser, logout } from '@/features/more/api/user';

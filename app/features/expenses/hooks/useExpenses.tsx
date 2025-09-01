@@ -48,6 +48,7 @@ export function ExpenseProvider({
           type: defaultType,
           ...filter,
         };
+        
         const data = await fetchTransactions(finalFilter);
         setExpenses(data);
       } catch (err) {
@@ -70,70 +71,76 @@ export function ExpenseProvider({
       updatedExpense: TransactionUpdateRequest
     ) => {
       try {
-        // Optimistic update
+        setLoading(true);
+        setError(null);
+        
+        // API 호출
+        const updated = await updateTransaction(userId, id, updatedExpense);
+        
+        // 상태 업데이트
         setExpenses(prev =>
           prev.map(expense =>
-            expense.id === id ? { ...expense, ...updatedExpense } : expense
+            expense.id === id ? updated : expense
           )
         );
-
-        await updateTransaction(userId, id, updatedExpense);
-
-        // 성공 후 다시 조회
-        await refreshExpenses();
       } catch (error) {
-        // 에러 시 원상복구
-        await refreshExpenses();
+        setError('지출 수정에 실패했습니다.');
         throw error;
+      } finally {
+        setLoading(false);
       }
     },
-    [refreshExpenses]
+    []
   );
 
   const createExpense = useCallback(
     async (newExpense: TransactionCreateRequest) => {
       try {
+        setLoading(true);
+        setError(null);
+        
+        // API 호출
         const createdExpense = await createTransaction(newExpense);
-
-        // Optimistic update
+        
+        // 상태에 추가
         setExpenses(prev => [createdExpense, ...prev]);
-
-        // 성공 후 다시 조회
-        await refreshExpenses();
       } catch (error) {
-        // 에러 시 원상복구
-        await refreshExpenses();
+        setError('지출 생성에 실패했습니다.');
         throw error;
+      } finally {
+        setLoading(false);
       }
     },
-    [refreshExpenses]
+    []
   );
 
   const deleteExpense = useCallback(
     async (userId: string, id: number) => {
       try {
-        // Optimistic update
-        setExpenses(prev => prev.filter(expense => expense.id !== id));
-
+        setLoading(true);
+        setError(null);
+        
+        // API 호출
         await deleteTransaction(userId, id);
-
-        // 성공 후 다시 조회
-        await refreshExpenses();
+        
+        // 상태에서 제거
+        setExpenses(prev => prev.filter(expense => expense.id !== id));
       } catch (error) {
-        // 에러 시 원상복구
-        await refreshExpenses();
+        setError('지출 삭제에 실패했습니다.');
         throw error;
+      } finally {
+        setLoading(false);
       }
     },
-    [refreshExpenses]
+    []
   );
 
-  // 초기 데이터가 없으면 자동으로 로드
+  // 초기 데이터가 명시적으로 제공된 경우에만 사용
   useEffect(() => {
-    if (!initialExpenses || initialExpenses.length === 0) {
-      refreshExpenses();
+    if (initialExpenses && initialExpenses.length > 0) {
+      setExpenses(initialExpenses);
     }
-  }, [refreshExpenses, initialExpenses]);
+  }, [initialExpenses]);
 
   const value = {
     expenses,

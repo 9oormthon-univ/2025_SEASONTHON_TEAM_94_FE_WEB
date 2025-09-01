@@ -17,13 +17,11 @@ export function ExpensesPage() {
     'unclassified';
   const [selectedMonth, setSelectedMonth] = useState('8월 1일 - 8월 28일');
 
-  // 탭별 독립적인 상태 관리
   const [expenses, setExpenses] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 탭별 API 호출
-  const loadExpenses = async () => {
+  const loadExpenses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -61,20 +59,23 @@ export function ExpensesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
   // 탭이 변경될 때마다 새로 로드
   useEffect(() => {
     loadExpenses();
-  }, [activeTab]);
+  }, [loadExpenses]);
 
-  // Transaction 업데이트 후 콜백 함수
-  const handleTransactionUpdate = useCallback((expenseId: number) => {
-    // 해당 아이템을 로컬 상태에서 제거 (애니메이션 완료 후)
-    setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
+  // Transaction 업데이트 후 콜백 함수 (UncategorizedExpenseList용)
+  const handleTransactionUpdateWithParams = useCallback((id: number, type?: any) => {
+    setExpenses(prev => prev.filter(expense => expense.id !== id));
   }, []);
 
-  // 에러 상태 처리
+  // Transaction 업데이트 후 콜백 함수 (CategorizedExpenseList용)
+  const handleTransactionUpdate = useCallback(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -105,7 +106,7 @@ export function ExpensesPage() {
             title: '미분류 지출이 없어요!',
             description: '모든 지출이 분류되었습니다.',
           }}
-          onTransactionUpdate={handleTransactionUpdate}
+          onTransactionUpdate={handleTransactionUpdateWithParams}
         />
       );
     }
@@ -118,7 +119,7 @@ export function ExpensesPage() {
           title: '분류된 지출이 없어요',
           description: '지출을 추가하고 분류해보세요.',
         }}
-        onExpenseUpdate={loadExpenses}
+        onExpenseUpdate={handleTransactionUpdate}
       />
     );
   };

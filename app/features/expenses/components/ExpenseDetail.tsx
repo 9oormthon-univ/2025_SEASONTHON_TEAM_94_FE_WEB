@@ -89,7 +89,7 @@ export function ExpenseDetail({
         <div className="flex gap-3">
           <Button
             onClick={onCancel}
-            className="flex-1 h-[45px] border-[#002b5b] text-[#002b5b] text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/5 transition-colors"
+            className="flex-1 h-[45px] border-sub-blue text-sub-blue text-[15px] font-medium rounded-[10px] hover:bg-sub-blue/5 transition-colors"
           >
              삭제
           </Button>
@@ -97,7 +97,7 @@ export function ExpenseDetail({
             form="expense-form"
             type="submit"
             disabled={isLoading}
-            className="flex-1 h-[45px] bg-[#002b5b] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors"
+            className="flex-1 h-[45px] bg-sub-blue text-white text-[15px] font-medium rounded-[10px] hover:bg-sub-blue/90 disabled:opacity-50 transition-colors"
           >
             {isLoading ? '수정 중...' : '수정'}
           </Button>

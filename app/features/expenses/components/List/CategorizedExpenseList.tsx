@@ -119,7 +119,7 @@ export function CategorizedExpenseList({
               <Button
                 variant="ghost"
                 onClick={() => setIsOverExpenseExpanded(!isOverExpenseExpanded)}
-                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors duration-200 p-0 h-auto"
+                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-sub-gray transition-colors duration-200 p-0 h-auto"
               >
                 {isOverExpenseExpanded ? '접기' : `더보기`}
               </Button>
@@ -179,7 +179,7 @@ export function CategorizedExpenseList({
               <Button
                 variant="ghost"
                 onClick={() => setIsFixedExpenseExpanded(!isFixedExpenseExpanded)}
-                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-[#6b6b6b] transition-colors duration-200 p-0 h-auto"
+                className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-sub-gray transition-colors duration-200 p-0 h-auto"
               >
                 {isFixedExpenseExpanded ? '접기' : `더보기`}
               </Button>
@@ -208,11 +208,11 @@ function ExpenseSectionHeader({
   return (
     <div>
       <div className="flex flex-col gap-1">
-        <div className="text-[24px] font-bold text-[#002b5b]">{title}</div>
+        <div className="text-[24px] font-bold text-sub-blue">{title}</div>
         {subtitle && (
           <div className="text-[15px] text-[#1e1e1e]">{subtitle}</div>
         )}
-        <div className="text-[24px] font-bold text-[#ff6200]">
+        <div className="text-[24px] font-bold text-main-orange">
           - {total.toLocaleString()}원
         </div>
       </div>

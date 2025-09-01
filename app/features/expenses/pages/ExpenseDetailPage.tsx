@@ -111,7 +111,7 @@ export function ExpenseDetailPage() {
   if (loading) {
     return (
       <div className="bg-white min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-[#002b5b]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-sub-blue"></div>
       </div>
     );
   }
@@ -200,9 +200,9 @@ export function ExpenseDetailPage() {
             form="expense-form"
             type="submit"
             disabled={updateExpenseMutation.isPending || !isFormValid}
-            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors ${
+            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-sub-blue/90 disabled:opacity-50 transition-colors ${
               isFormValid && !updateExpenseMutation.isPending
-                ? 'bg-[#002b5b]'
+                ? 'bg-sub-blue'
                 : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
             }`}
           >

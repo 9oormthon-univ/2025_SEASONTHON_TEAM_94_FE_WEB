@@ -82,9 +82,9 @@ export function ExpenseAddPage() {
             form="expense-form"
             type="submit"
             disabled={createExpenseMutation.isPending || !isFormValid}
-            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors ${
+            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-sub-blue/90 disabled:opacity-50 transition-colors ${
               isFormValid && !createExpenseMutation.isPending
-                ? 'bg-[#002b5b]'
+                ? 'bg-sub-blue'
                 : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
             }`}
           >

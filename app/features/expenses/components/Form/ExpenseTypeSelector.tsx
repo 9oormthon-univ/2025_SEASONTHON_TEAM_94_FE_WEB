@@ -27,7 +27,7 @@ export function ExpenseTypeSelector({ control, errors }: ExpenseTypeSelectorProp
             >
               <div
                 className={cn(
-                  'absolute top-1 left-1 h-[37px] bg-[#ff6200] rounded-[8px] transition-all duration-300 ease-in-out shadow-sm w-[calc(50%-2px)]',
+                  'absolute top-1 left-1 h-[37px] bg-main-orange rounded-[8px] transition-all duration-300 ease-in-out shadow-sm w-[calc(50%-2px)]',
                   field.value === EXPENSE_TYPES.FIXED_EXPENSE
                     ? 'translate-x-full'
                     : 'translate-x-0'

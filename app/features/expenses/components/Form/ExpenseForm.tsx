@@ -177,7 +177,7 @@ export function ExpenseForm({
               )}
             />
             {dutchPayCount > 1 && price && (
-              <div className="text-sm text-[#757575] transition-opacity duration-200">
+              <div className="text-sm text-sub-gray transition-opacity duration-200">
                 (1인당: {calculateDutchPayAmount(price, dutchPayCount)}원)
               </div>
             )}

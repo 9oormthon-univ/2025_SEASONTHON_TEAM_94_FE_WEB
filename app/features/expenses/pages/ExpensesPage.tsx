@@ -87,7 +87,7 @@ export function ExpensesPage() {
                 to="/expenses?tab=unclassified"
                 className={`py-2 text-2xl font-bold transition-colors duration-200 ${
                   activeTab === 'unclassified'
-                    ? 'text-[#002b5b]'
+                    ? 'text-sub-blue'
                     : 'text-[#bfbfbf]'
                 }`}
               >
@@ -96,7 +96,7 @@ export function ExpensesPage() {
               {activeTab === 'unclassified' && (
                 <motion.div
                   layoutId="tabIndicator"
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-[#002b5b]"
+                  className="absolute -bottom-2 left-0 right-0 h-1 bg-sub-blue"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{
@@ -112,7 +112,7 @@ export function ExpensesPage() {
                 to="/expenses?tab=classified"
                 className={`py-2 text-2xl font-bold transition-colors duration-200 ${
                   activeTab === 'classified'
-                    ? 'text-[#002b5b]'
+                    ? 'text-sub-blue'
                     : 'text-[#bfbfbf]'
                 }`}
               >
@@ -121,7 +121,7 @@ export function ExpensesPage() {
               {activeTab === 'classified' && (
                 <motion.div
                   layoutId="tabIndicator"
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-[#002b5b]"
+                  className="absolute -bottom-2 left-0 right-0 h-1 bg-sub-blue"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{
@@ -145,7 +145,7 @@ export function ExpensesPage() {
       </div>
 
       {/* Date Filter */}
-      <div className="text-sm text-[#757575] px-6 pt-4 pb-2 flex items-center">
+      <div className="text-sm text-sub-gray px-6 pt-4 pb-2 flex items-center">
         {selectedMonth}
         <ArrowDownIcon className="w-3 h-3 ml-2" />
       </div>
@@ -153,7 +153,7 @@ export function ExpensesPage() {
       <div className="px-6 pt-2">
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-[#ff6200]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-main-orange"></div>
           </div>
         ) : (
           <AnimatePresence mode="wait">

@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import {
   EXPENSE_TYPES,
@@ -10,14 +9,13 @@ import {
 } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
 import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
-import { useExpenses } from '@/features/expenses/hooks/useExpenses';
+import { useCreateExpense } from '@/features/expenses/hooks';
 import type { ExpenseFormData } from '@/features/expenses/utils/validation';
 import { toLocalISOString } from '@/shared/utils/utils';
 
 export function ExpenseAddPage() {
   const navigate = useNavigate();
-  const { createExpense } = useExpenses();
-  const [isLoading, setIsLoading] = useState(false);
+  const createExpenseMutation = useCreateExpense();
   const [isFormValid, setIsFormValid] = useState(false);
 
   // 생성 시 고정된 시간 사용
@@ -31,7 +29,6 @@ export function ExpenseAddPage() {
   }), []);
 
   const handleFormSubmit = async (formData: ExpenseFormData) => {
-    setIsLoading(true);
     try {
       // 더치페이 적용된 실제 금액 계산
       const finalAmount =
@@ -48,17 +45,13 @@ export function ExpenseAddPage() {
         category: formData.category, // 폼에서 선택된 카테고리 (있다면)
       };
 
-      await createExpense(transactionData);
-
-      // 성공 토스트 표시
-      toast.success('지출이 성공적으로 저장되었습니다!');
+      await createExpenseMutation.mutateAsync(transactionData);
 
       // 성공 시 지출 목록으로 이동
       navigate('/expenses');
     } catch (error) {
-      toast.error('지출 저장에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setIsLoading(false);
+      // 에러는 mutation 훅에서 toast로 처리됨
+      console.error('지출 생성 실패:', error);
     }
   };
 
@@ -99,14 +92,14 @@ export function ExpenseAddPage() {
           <Button
             form="expense-form"
             type="submit"
-            disabled={isLoading || !isFormValid}
+            disabled={createExpenseMutation.isPending || !isFormValid}
             className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors ${
-              isFormValid && !isLoading
+              isFormValid && !createExpenseMutation.isPending
                 ? 'bg-[#002b5b]'
                 : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
             }`}
           >
-            {isLoading ? '저장 중...' : '저장'}
+            {createExpenseMutation.isPending ? '저장 중...' : '저장'}
           </Button>
         </div>
       </div>

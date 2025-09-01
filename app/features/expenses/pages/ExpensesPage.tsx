@@ -1,11 +1,10 @@
 import { useSearchParams, Link } from 'react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { fetchTransactions } from '@/features/expenses/api/expenseApi';
+import { useUncategorizedExpenses, useCategorizedExpenses } from '@/features/expenses/hooks';
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
 import { UncategorizedExpenseList } from '@/features/expenses/components/UncategorizedExpenseList';
 import { CategorizedExpenseList } from '@/features/expenses/components/CategorizedExpenseList';
-import { EXPENSE_TYPES, type Transaction } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
 import ArrowDownIcon from '@/assets/keyboard_arrow_down.svg?react';
 import PlusIcon from '@/assets/plus.svg?react';
@@ -17,112 +16,63 @@ export function ExpensesPage() {
     'unclassified';
   const [selectedMonth, setSelectedMonth] = useState('8월 1일 - 8월 28일');
 
-  const [expenses, setExpenses] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // TanStack Query 훅을 사용하여 데이터 가져오기
+  const uncategorizedQuery = useUncategorizedExpenses(MOCK_USER_UID);
+  const categorizedQuery = useCategorizedExpenses(MOCK_USER_UID);
 
-  const loadExpenses = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // 현재 활성 탭에 따라 적절한 쿼리 선택
+  const currentQuery = activeTab === 'unclassified' ? uncategorizedQuery : categorizedQuery;
+  const expenses = currentQuery.data || [];
+  const loading = currentQuery.isLoading;
+  const error = currentQuery.error;
 
-      let data: Transaction[] = [];
+  // 트랜잭션 업데이트 핸들러 (삭제 등의 경우)
+  const handleTransactionUpdateWithParams = (id: number) => {
+    // TanStack Query는 mutation 후 자동으로 캐시를 업데이트하므로
+    // 별도의 상태 업데이트가 필요 없음
+    currentQuery.refetch();
+  };
 
-      if (activeTab === 'unclassified') {
-        // 미분류 탭: NONE 타입만
-        data = await fetchTransactions({
-          userUid: MOCK_USER_UID,
-          type: EXPENSE_TYPES.NONE,
-        });
-      } else {
-        // 분류 탭: OVER_EXPENSE와 FIXED_EXPENSE 둘 다 가져오기
-        const [overExpenses, fixedExpenses] = await Promise.all([
-          fetchTransactions({
-            userUid: MOCK_USER_UID,
-            type: EXPENSE_TYPES.OVER_EXPENSE,
-          }),
-          fetchTransactions({
-            userUid: MOCK_USER_UID,
-            type: EXPENSE_TYPES.FIXED_EXPENSE,
-          }),
-        ]);
-        data = [...overExpenses, ...fixedExpenses];
-      }
-
-      setExpenses(data);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : '지출 데이터를 불러오는데 실패했습니다.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab]);
-
-  // 탭이 변경될 때마다 새로 로드
-  useEffect(() => {
-    loadExpenses();
-  }, [loadExpenses]);
-
-  // Transaction 업데이트 후 콜백 함수 (UncategorizedExpenseList용)
-  const handleTransactionUpdateWithParams = useCallback((id: number, type?: any) => {
-    setExpenses(prev => prev.filter(expense => expense.id !== id));
-  }, []);
-
-  // Transaction 업데이트 후 콜백 함수 (CategorizedExpenseList용)
-  const handleTransactionUpdate = useCallback(() => {
-    loadExpenses();
-  }, [loadExpenses]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg border border-red-200 p-6 max-w-md">
-          <div className="text-red-600 text-center">
-            <div className="text-4xl mb-4">⚠️</div>
-            <h3 className="text-lg font-semibold mb-2">오류가 발생했습니다</h3>
-            <p className="text-sm mb-4">{error}</p>
-            <button
-              onClick={loadExpenses}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              다시 시도
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 트랜잭션 일반 업데이트 핸들러
+  const handleTransactionUpdate = () => {
+    currentQuery.refetch();
+  };
 
   const renderContent = () => {
     if (activeTab === 'unclassified') {
       return (
         <UncategorizedExpenseList
           expenses={expenses}
-          emptyState={{
-            icon: '🎉',
-            title: '미분류 지출이 없어요!',
-            description: '모든 지출이 분류되었습니다.',
-          }}
           onTransactionUpdate={handleTransactionUpdateWithParams}
         />
       );
+    } else {
+      return (
+        <CategorizedExpenseList
+          expenses={expenses}
+          onExpenseUpdate={handleTransactionUpdate}
+        />
+      );
     }
-
-    return (
-      <CategorizedExpenseList
-        expenses={expenses}
-        emptyState={{
-          icon: '📝',
-          title: '분류된 지출이 없어요',
-          description: '지출을 추가하고 분류해보세요.',
-        }}
-        onExpenseUpdate={handleTransactionUpdate}
-      />
-    );
   };
+
+  if (error) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">
+            {error instanceof Error ? error.message : '데이터를 불러오는데 실패했습니다.'}
+          </p>
+          <button
+            onClick={() => currentQuery.refetch()}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">

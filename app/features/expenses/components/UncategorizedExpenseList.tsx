@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
 import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
-import { updateTransaction } from '@/features/expenses/api/expenseApi';
+import { useUpdateExpense } from '@/features/expenses/hooks/useExpenseMutations';
 
 const ANIMATION_DELAY_MS = 300;
 
@@ -22,8 +22,8 @@ export function UncategorizedExpenseList({
   emptyState,
   onTransactionUpdate,
 }: UncategorizedExpenseListProps) {
-  // ✅ hooks를 항상 같은 순서로 호출하기 위해 조건부 렌더링 이전에 배치
   const [removingIds, setRemovingIds] = useState<Set<number>>(new Set());
+  const updateExpenseMutation = useUpdateExpense();
 
   const handleTransactionUpdate = useCallback(
     async (expenseId: number, type: ExpenseType) => {
@@ -32,11 +32,15 @@ export function UncategorizedExpenseList({
       try {
         const expense = expenses.find(e => e.id === expenseId);
         if (expense) {
-          await updateTransaction(expense.userUid, expenseId, {
-            price: expense.price,
-            title: expense.title,
-            type,
-            category: expense.category,
+          await updateExpenseMutation.mutateAsync({
+            userUid: expense.userUid,
+            id: expenseId,
+            data: {
+              price: expense.price,
+              title: expense.title,
+              type,
+              category: expense.category,
+            },
           });
 
           // 애니메이션 완료 후 부모 컴포넌트에 알림
@@ -53,7 +57,7 @@ export function UncategorizedExpenseList({
         });
       }
     },
-    [expenses, onTransactionUpdate]
+    [expenses, onTransactionUpdate, updateExpenseMutation]
   );
 
   // ✅ 조건부 렌더링은 hooks 이후에 배치

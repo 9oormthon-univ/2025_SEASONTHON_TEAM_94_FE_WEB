@@ -1,8 +1,9 @@
 // API
 export * from '@/features/expenses/api/expenseApi';
+export * from '@/features/expenses/api/queryKeys';
 
-// Hooks
-export * from '@/features/expenses/hooks/useExpenses';
+// Hooks - TanStack Query 기반
+export * from '@/features/expenses/hooks';
 
 // Components
 export * from '@/features/expenses/components/UncategorizedExpenseList';

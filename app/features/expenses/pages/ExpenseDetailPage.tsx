@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { 
   AlertDialog,
@@ -15,10 +14,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/shared/components/ui/alert-dialog';
-import { useExpenses } from '@/features/expenses/hooks/useExpenses';
-import { EXPENSE_TYPES, type Transaction, type TransactionUpdateRequest } from '@/shared/types/expense';
+import { 
+  useExpenseDetail, 
+  useUpdateExpense, 
+  useDeleteExpense 
+} from '@/features/expenses/hooks';
+import { EXPENSE_TYPES, type TransactionUpdateRequest } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import { fetchTransactionById } from '@/features/expenses/api/expenseApi';
 import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
 import type { ExpenseFormData } from '@/features/expenses/utils/validation';
 import { toLocalISOString } from '@/shared/utils/utils';
@@ -26,43 +28,36 @@ import { toLocalISOString } from '@/shared/utils/utils';
 export function ExpenseDetailPage() {
   const { expenseId } = useParams();
   const navigate = useNavigate();
-  const { updateExpense, deleteExpense } = useExpenses();
-  const [expense, setExpense] = useState<Transaction | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const userUid = MOCK_USER_UID; // 실제로는 사용자 인증에서 가져옴
+  const userUid = MOCK_USER_UID;
+  const expenseIdNum = expenseId ? Number(expenseId) : 0;
 
-  useEffect(() => {
-    const loadExpense = async () => {
-      if (!expenseId) {
-        setError('지출 ID가 없습니다.');
-        setLoading(false);
-        return;
-      }
+  // TanStack Query 훅들 사용
+  const { data: expense, isLoading: loading, error } = useExpenseDetail(userUid, expenseIdNum);
+  const updateExpenseMutation = useUpdateExpense();
+  const deleteExpenseMutation = useDeleteExpense();
 
-      try {
-        setLoading(true);
-        const data = await fetchTransactionById(userUid, Number(expenseId));
-        setExpense(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : '지출을 불러오는데 실패했습니다.'
-        );
-      } finally {
-        setLoading(false);
-      }
+  // 폼 기본값 설정
+  const defaultValues = useMemo(() => {
+    if (!expense) return null;
+
+    return {
+      userUid: expense.userUid,
+      title: expense.title,
+      price: expense.price,
+      selectedDate: new Date(expense.startedAt),
+      type: expense.type,
+      category: expense.category,
+      app: '', // API에서 app 정보가 없으므로 빈 문자열
+      dutchPayCount: 1, // 기본값
     };
+  }, [expense]);
 
-    loadExpense();
-  }, [expenseId, userUid]);
-
+  // 폼 제출 핸들러
   const handleFormSubmit = async (formData: ExpenseFormData) => {
     if (!expense) return;
 
-    setIsUpdating(true);
     try {
       // 더치페이 적용된 실제 금액 계산
       const finalAmount =
@@ -72,129 +67,78 @@ export function ExpenseDetailPage() {
 
       const updateData: TransactionUpdateRequest = {
         price: finalAmount,
+        startAt: toLocalISOString(formData.selectedDate),
         title: formData.title,
         type: formData.type,
         category: formData.category,
-        startAt: toLocalISOString(formData.selectedDate),
       };
 
-      await updateExpense(userUid, expense.id, updateData);
+      await updateExpenseMutation.mutateAsync({
+        userUid,
+        id: expense.id,
+        data: updateData,
+      });
 
-      // 성공 토스트 표시
-      toast.success('지출이 성공적으로 수정되었습니다!');
-
-      // 성공 시 지출 목록으로 이동
-      const nextTab =
-        formData.type === EXPENSE_TYPES.NONE
-          ? 'unclassified'
-          : 'classified';
+      // 성공 시 목록으로 돌아가기
+      const nextTab = formData.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
       navigate(`/expenses?tab=${nextTab}`);
     } catch (error) {
-      console.error('updateExpense error:', error);
-      toast.error('지출 수정에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setIsUpdating(false);
+      // 에러는 mutation 훅에서 toast로 처리됨
+      console.error('지출 수정 실패:', error);
     }
   };
 
+  // 삭제 핸들러
   const handleDelete = async () => {
     if (!expense) return;
 
     try {
-      await deleteExpense(userUid, expense.id);
-      
-      // 성공 토스트 표시
-      toast.success('지출이 성공적으로 삭제되었습니다!');
-      
-      navigate('/expenses');
-    } catch (e) {
-      console.error('deleteExpense error:', e);
-      toast.error('지출 삭제에 실패했습니다.');
+      await deleteExpenseMutation.mutateAsync({
+        userUid,
+        id: expense.id,
+      });
+
+      // 성공 시 목록으로 돌아가기
+      const nextTab = expense.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
+      navigate(`/expenses?tab=${nextTab}`);
+    } catch (error) {
+      // 에러는 mutation 훅에서 toast로 처리됨
+      console.error('지출 삭제 실패:', error);
     }
   };
 
-  const handleCancel = () => {
-    const nextTab =
-      expense?.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
-    navigate(`/expenses?tab=${nextTab}`);
-  };
-
-  // Transaction을 ExpenseFormData로 변환 (메모이제이션)
-  const getDefaultValues = useMemo((): Partial<ExpenseFormData> => {
-    if (!expense) return {};
-    
-    return {
-      price: expense.price,
-      title: expense.title,
-      userUid: expense.userUid,
-      selectedDate: new Date(expense.startedAt),
-      type: expense.type,
-      category: expense.category,
-      dutchPayCount: 1, // 기본값
-      app: '', // 기본값 (Transaction에 app 필드가 없으므로)
-    };
-  }, [expense]);
-
+  // 로딩 상태
   if (loading) {
     return (
-      <motion.div 
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white min-h-screen max-w-md mx-2 relative"
-      >
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-        </div>
-      </motion.div>
+      <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
     );
   }
 
+  // 에러 상태
   if (error) {
     return (
-      <motion.div 
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white min-h-screen max-w-md mx-2 relative"
-      >
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="bg-white rounded-lg border border-red-200 p-6 max-w-md">
-            <div className="text-red-600 text-center">
-              <div className="text-4xl mb-4">⚠️</div>
-              <h3 className="text-lg font-semibold mb-2">오류가 발생했습니다</h3>
-              <p className="text-sm mb-4">{error}</p>
-              <button
-                onClick={() => navigate('/expenses')}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              >
-                목록으로 돌아가기
-              </button>
-            </div>
-          </div>
+      <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">
+            {error instanceof Error ? error.message : '지출을 불러오는데 실패했습니다.'}
+          </p>
+          <Button onClick={() => navigate('/expenses')}>목록으로 돌아가기</Button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
-  if (!expense) {
+  // 데이터가 없는 경우
+  if (!expense || !defaultValues) {
     return (
-      <motion.div 
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
-      >
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center text-gray-500">
-            <div className="text-4xl mb-4">💸</div>
-            <p>지출 정보를 찾을 수 없습니다.</p>
-          </div>
+      <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">지출 정보를 찾을 수 없습니다.</p>
+          <Button onClick={() => navigate('/expenses')}>목록으로 돌아가기</Button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -209,7 +153,7 @@ export function ExpenseDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-6">
         <div
-          onClick={handleCancel}
+          onClick={() => navigate('/expenses')}
           className="cursor-pointer"
         >
           <ChevronLeft className="w-6 h-6" />
@@ -225,17 +169,20 @@ export function ExpenseDetailPage() {
         <ExpenseForm
           onSubmit={handleFormSubmit}
           onValidationChange={setIsFormValid}
-          defaultValues={getDefaultValues}
+          defaultValues={defaultValues}
         />
       </div>
 
       {/* Action Buttons */}
       <div className="px-4 sm:px-6 py-4 mt-auto mb-16">
         <div className="flex gap-3">
+          {/* 삭제 버튼 */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
-                className="flex-1 h-[45px] bg-[#EDEDED] text-[#6E6E6E] text-[15px] font-medium rounded-[10px]"
+                variant="outline"
+                className="flex-1 h-[45px] text-red-500 border-red-500 hover:bg-red-50"
+                disabled={deleteExpenseMutation.isPending}
               >
                 삭제
               </Button>
@@ -244,33 +191,33 @@ export function ExpenseDetailPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>지출 삭제</AlertDialogTitle>
                 <AlertDialogDescription>
-                  지출을 삭제 하시겠어요?<br  />삭제 시 다시 복구가 불가능해요
+                  이 지출을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter className="flex-row gap-3">
-                <AlertDialogCancel className="flex-1 h-[45px] text-[15px] font-medium rounded-[10px]">
-                  취소
-                </AlertDialogCancel>
+              <AlertDialogFooter>
+                <AlertDialogCancel>취소</AlertDialogCancel>
                 <AlertDialogAction 
                   onClick={handleDelete}
-                  className="flex-1 h-[45px] bg-red-600 hover:bg-red-700 text-white text-[15px] font-medium rounded-[10px]"
+                  className="bg-red-500 hover:bg-red-600"
                 >
                   삭제
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {/* 수정 버튼 */}
           <Button
             form="expense-form"
             type="submit"
-            disabled={isUpdating || !isFormValid}
+            disabled={updateExpenseMutation.isPending || !isFormValid}
             className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-[#002b5b]/90 disabled:opacity-50 transition-colors ${
-              isFormValid && !isUpdating
+              isFormValid && !updateExpenseMutation.isPending
                 ? 'bg-[#002b5b]'
                 : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
             }`}
           >
-            {isUpdating ? '수정 중...' : '수정'}
+            {updateExpenseMutation.isPending ? '수정 중...' : '수정'}
           </Button>
         </div>
       </div>

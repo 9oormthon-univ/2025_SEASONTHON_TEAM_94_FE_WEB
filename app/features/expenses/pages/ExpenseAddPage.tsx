@@ -8,9 +8,9 @@ import {
   type TransactionCreateRequest,
 } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
+import { ExpenseForm } from '@/features/expenses/components/Form/ExpenseForm';
 import { useCreateExpense } from '@/features/expenses/hooks';
-import type { ExpenseFormData } from '@/features/expenses/utils/validation';
+import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import { toLocalISOString } from '@/shared/utils/utils';
 
 export function ExpenseAddPage() {

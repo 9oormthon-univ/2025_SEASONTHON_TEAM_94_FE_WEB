@@ -1,6 +1,4 @@
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect, useMemo } from 'react';
+import { Controller } from 'react-hook-form';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
@@ -10,13 +8,13 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 import { Calendar } from '@/shared/components/ui/calendar';
-import { EXPENSE_TYPES } from '@/shared/types/expense';
-import { expenseFormSchema, type ExpenseFormData } from '@/features/expenses/utils/validation';
+import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/components';
-import { PriceInput } from './PriceInput';
-import { ExpenseTypeSelector } from './ExpenseTypeSelector';
-import { FormField } from './FormField';
+import { PriceInput } from '@/features/expenses/components/Form/PriceInput';
+import { ExpenseTypeSelector } from '@/features/expenses/components/Form/ExpenseTypeSelector';
+import { FormField } from '@/features/expenses/components/Form/FormField';
 import { formatDateForDisplay, calculateDutchPayAmount } from '@/features/expenses/utils/formUtils';
+import { useExpenseForm } from '@/features/expenses/hooks/useExpenseForm';
 
 interface ExpenseFormProps extends ExpenseHookFormProps {
   onSubmit: (data: ExpenseFormData) => void;
@@ -29,52 +27,15 @@ export function ExpenseForm({
   defaultValues,
   onValidationChange,
 }: ExpenseFormProps) {
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  
-  const defaultSelectedDate = useMemo(() => {
-    return defaultValues?.selectedDate || new Date();
-  }, [defaultValues?.selectedDate]);
-  
   const {
-    control,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<ExpenseFormData>({
-    resolver: zodResolver(expenseFormSchema),
-    defaultValues: {
-      price: 0,
-      title: '',
-      userUid: '',
-      app: '',
-      category: undefined,
-      type: EXPENSE_TYPES.OVER_EXPENSE,
-      dutchPayCount: 1,
-      ...defaultValues,
-      selectedDate: defaultSelectedDate,
-    },
-  });
+    form,
+    watchedValues,
+    calendarHandlers,
+    dutchPayHandlers,
+  } = useExpenseForm({ defaultValues, onValidationChange });
 
-  const watchedValues = watch();
-  const { selectedDate, dutchPayCount, price, title } = watchedValues;
-
-  // 모바일에서 더치페이 입력 시 "1"이 지워지지 않는 문제를 해결하기 위해
-  // 표시용 로컬 상태를 사용하고, blur 시 유효한 값으로 확정합니다.
-  const [dutchInput, setDutchInput] = useState<string>(() => String(dutchPayCount ?? 1));
-
-  // RHF 값이 외부적으로 변경되었을 때 로컬 표시값을 동기화합니다.
-  useEffect(() => {
-    const next = String(dutchPayCount ?? 1);
-    if (next !== dutchInput) setDutchInput(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dutchPayCount]);
-
-  const isFormValid = price > 0 && title.trim().length > 0;
-
-  useEffect(() => {
-    onValidationChange?.(isFormValid);
-  }, [isFormValid, onValidationChange]);
+  const { control, handleSubmit, setValue, formState: { errors } } = form;
+  const { dutchPayCount, price } = watchedValues;
 
   return (
     <form id="expense-form" onSubmit={handleSubmit(onSubmit)}>
@@ -99,15 +60,6 @@ export function ExpenseForm({
                 type="text"
                 {...field}
                 placeholder="거래처를 입력하세요."
-                onFocus={(e) => {
-                  // 모바일에서 포커스 시 커서가 끝으로 이동하는 현상을 방지하고
-                  // 사용자가 탭한 위치의 커서를 유지하도록 한 번 더 설정합니다.
-                  const el = e.target as HTMLInputElement;
-                  const pos = el.selectionStart ?? el.value.length;
-                  requestAnimationFrame(() => {
-                    try { el.setSelectionRange(pos, pos); } catch {}
-                  });
-                }}
                 className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto"
               />
             )}
@@ -127,13 +79,6 @@ export function ExpenseForm({
                 type="text"
                 {...field}
                 placeholder="앱을 입력하세요. (선택사항)"
-                onFocus={(e) => {
-                  const el = e.target as HTMLInputElement;
-                  const pos = el.selectionStart ?? el.value.length;
-                  requestAnimationFrame(() => {
-                    try { el.setSelectionRange(pos, pos); } catch {}
-                  });
-                }}
                 className="!text-base !text-[#3d3d3d] !placeholder:text-[#bfbfbf] !text-right !bg-transparent !border-none !outline-none !shadow-none !p-0 !h-auto"
               />
             )}
@@ -150,7 +95,7 @@ export function ExpenseForm({
               name="selectedDate"
               control={control}
               render={({ field }) => (
-                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <Popover open={calendarHandlers.isOpen} onOpenChange={calendarHandlers.setIsOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="ghost"
@@ -183,7 +128,7 @@ export function ExpenseForm({
                           currentDate.getMilliseconds()
                         );
                         field.onChange(newDate);
-                        setIsCalendarOpen(false);
+                        calendarHandlers.setIsOpen(false);
                       }
                     }}
                     captionLayout="dropdown"
@@ -211,18 +156,18 @@ export function ExpenseForm({
                   type="tel"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  value={dutchInput}
+                  value={dutchPayHandlers.input}
                   onChange={(e) => {
                     const numeric = e.target.value.replace(/[^0-9]/g, '');
-                    setDutchInput(numeric);
+                    dutchPayHandlers.setInput(numeric);
                     if (numeric !== '') {
                       const next = Math.max(1, parseInt(numeric, 10));
                       field.onChange(next);
                     }
                   }}
                   onBlur={() => {
-                    const next = dutchInput === '' ? 1 : Math.max(1, parseInt(dutchInput, 10));
-                    setDutchInput(String(next));
+                    const next = dutchPayHandlers.input === '' ? 1 : Math.max(1, parseInt(dutchPayHandlers.input, 10));
+                    dutchPayHandlers.setInput(String(next));
                     field.onChange(next);
                   }}
                   placeholder="1"

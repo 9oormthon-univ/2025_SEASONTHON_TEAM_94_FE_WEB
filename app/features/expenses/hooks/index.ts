@@ -19,3 +19,5 @@ export {
   useUpdateExpense,
   useDeleteExpense,
 } from './useExpenseMutations';
+
+export { useExpenseForm } from './useExpenseForm';

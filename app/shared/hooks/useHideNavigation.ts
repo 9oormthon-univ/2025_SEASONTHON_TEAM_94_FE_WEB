@@ -4,20 +4,7 @@ const HIDE_NAV_STYLE_ID = 'hide-global-bottom-fixed';
 
 /**
  * 전역 하단 네비게이션을 숨기는 훅
- * 기존 클래스 기반 방식과 스타일 삽입 방식을 모두 지원
- */
-export function useHideNav() {
-  useEffect(() => {
-    document.body.classList.add('hide-nav');
-    return () => {
-      document.body.classList.remove('hide-nav');
-    };
-  }, []);
-}
-
-/**
- * 스타일 삽입을 통해 네비게이션을 숨기는 훅
- * 더 강력한 숨김 효과가 필요한 경우 사용
+ * 컴포넌트가 마운트될 때 네비게이션을 숨기고, 언마운트될 때 복원합니다.
  */
 export function useHideNavigation() {
   useEffect(() => {

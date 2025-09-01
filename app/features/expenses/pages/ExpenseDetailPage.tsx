@@ -21,8 +21,8 @@ import {
 } from '@/features/expenses/hooks';
 import { EXPENSE_TYPES, type TransactionUpdateRequest } from '@/shared/types/expense';
 import { MOCK_USER_UID } from '@/shared/config/api';
-import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
-import type { ExpenseFormData } from '@/features/expenses/utils/validation';
+import { ExpenseForm } from '@/features/expenses/components/Form/ExpenseForm';
+import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import { toLocalISOString } from '@/shared/utils/utils';
 
 export function ExpenseDetailPage() {

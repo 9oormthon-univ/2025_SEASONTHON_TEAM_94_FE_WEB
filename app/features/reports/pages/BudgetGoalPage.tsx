@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
 import BudgetGoalForm from '../components/BudgetGoalForm';
 import { useBudgetGoal } from '../hooks/useBudgetGoal';
-import { useHideNav } from '@/shared/hooks/useHideNav';
+import { useHideNav, useHideNavigation } from '@/shared/hooks/useHideNav';
 import { toast } from 'sonner';
 
 function useQuery() {
@@ -14,6 +14,7 @@ function useQuery() {
 
 export default function BudgetGoalPage() {
   useHideNav();
+  useHideNavigation(); // 더 강력한 숨김 효과를 위해 추가
   const q = useQuery();
   const navigate = useNavigate();
 

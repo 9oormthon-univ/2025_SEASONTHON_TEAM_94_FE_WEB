@@ -3,7 +3,7 @@ import { Controller } from 'react-hook-form';
 import type { Control, FieldErrors } from 'react-hook-form';
 import Edit from '@/assets/edit.svg';
 import xIconUrl from '@/assets/X.svg?url';
-import type { ExpenseFormData } from '@/features/expenses/utils/validation';
+import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 
 interface PriceInputProps {
   control: Control<ExpenseFormData>;

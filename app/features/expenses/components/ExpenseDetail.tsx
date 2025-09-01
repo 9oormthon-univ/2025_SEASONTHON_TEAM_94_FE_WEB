@@ -1,9 +1,9 @@
 import { ChevronLeft, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
-import { ExpenseForm } from './ExpenseForm';
+import { ExpenseForm } from './Form/ExpenseForm';
 import type { Transaction } from '@/shared/types/expense';
-import type { ExpenseFormData } from '@/features/expenses/utils/validation';
+import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 
 interface ExpenseDetailProps {
   expense: Transaction | null;

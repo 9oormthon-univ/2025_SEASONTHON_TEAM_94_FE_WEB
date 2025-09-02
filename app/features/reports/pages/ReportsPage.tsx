@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import ProgressBar from '../components/ProgressBar';
 import ReportSummary from '../components/ReportSummary';
 import { useReport } from '../hooks/useReport';
@@ -42,7 +42,7 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto pb-20">
-      <ExpenseHeader />
+      <Header />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

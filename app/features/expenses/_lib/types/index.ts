@@ -1,10 +1,7 @@
-// Hook 관련 타입들
-export * from './hooks';
-
 // Component 관련 타입들
-export * from './components';
+export * from '@/features/expenses/_lib/types/components'
 
-// 재사용을 위한 re-export
+// Hook 관련 타입들
 export type {
   Transaction,
   TransactionCreateRequest,

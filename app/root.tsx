@@ -10,7 +10,7 @@ import { Link, useLocation } from 'react-router';
 
 import type { Route } from './+types/root';
 import '@/app.css';
-import { ExpenseProvider } from '@/features/expenses/hooks/useExpenses';
+import { QueryProvider } from '@/shared/providers/QueryProvider';
 import { Toaster } from '@/shared/components/ui/sonner';
 
 import HomeIcon from '@/assets/home.svg?react';
@@ -142,7 +142,7 @@ export default function App() {
   // }, []);
 
   return (
-    <ExpenseProvider>
+    <QueryProvider>
       <div className="app-container">
         <main className="content">
           <Outlet />
@@ -202,7 +202,7 @@ export default function App() {
         </nav>
         <Toaster richColors position="top-center" />
       </div>
-    </ExpenseProvider>
+    </QueryProvider>
   );
 }
 

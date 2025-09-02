@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import ProfileCard from '../components/ProfileCard';
 import MiniReport from '../components/MiniReport';
 import { fetchCurrentUser, type CurrentUser, logout } from '@/features/more/api/user';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import { Link, useNavigate } from 'react-router-dom';
 import { useReport } from '@/features/reports/hooks/useReport';
 import LogoutConfirm from "@/features/more/components/LogoutConfirm";
@@ -39,7 +39,7 @@ export default function MorePage() {
 
   return (
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
-      <ExpenseHeader />
+      <Header />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

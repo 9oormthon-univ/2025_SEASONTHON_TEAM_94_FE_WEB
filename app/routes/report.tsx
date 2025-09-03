@@ -1,2 +1,10 @@
 import ReportPage from '@/features/reports/pages/ReportsPage';
-export default ReportPage;
+import { AuthGuard } from '@/features/auth';
+
+export default function Report() {
+  return (
+    <AuthGuard>
+      <ReportPage />
+    </AuthGuard>
+  );
+}

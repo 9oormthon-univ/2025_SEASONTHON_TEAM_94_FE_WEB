@@ -34,7 +34,7 @@ export function ExpenseDetailPage() {
   const expenseIdNum = expenseId ? Number(expenseId) : 0;
 
   // TanStack Query 훅들 사용
-  const { data: expense, isLoading: loading, error } = useExpenseDetail(userUid, expenseIdNum);
+  const { data: expense, isLoading: loading, error } = useExpenseDetail(expenseIdNum);
   const updateExpenseMutation = useUpdateExpense();
   const deleteExpenseMutation = useDeleteExpense();
 
@@ -69,12 +69,13 @@ export function ExpenseDetailPage() {
         price: finalAmount,
         startAt: toLocalISOString(formData.selectedDate),
         title: formData.title,
+        bankName: formData.bankName || expense.bankName,
+        splitCount: formData.dutchPayCount,
         type: formData.type,
         category: formData.category,
       };
 
       await updateExpenseMutation.mutateAsync({
-        userUid,
         id: expense.id,
         data: updateData,
       });
@@ -93,10 +94,7 @@ export function ExpenseDetailPage() {
     if (!expense) return;
 
     try {
-      await deleteExpenseMutation.mutateAsync({
-        userUid,
-        id: expense.id,
-      });
+      await deleteExpenseMutation.mutateAsync(expense.id);
 
       // 성공 시 목록으로 돌아가기
       const nextTab = expense.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';

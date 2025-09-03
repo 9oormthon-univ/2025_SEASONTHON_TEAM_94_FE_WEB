@@ -17,8 +17,8 @@ export function ExpensesPage() {
   const [selectedMonth, setSelectedMonth] = useState('8월 1일 - 8월 28일');
 
   // TanStack Query 훅을 사용하여 데이터 가져오기
-  const uncategorizedQuery = useUncategorizedExpenses(MOCK_USER_UID);
-  const categorizedQuery = useCategorizedExpenses(MOCK_USER_UID);
+  const uncategorizedQuery = useUncategorizedExpenses();
+  const categorizedQuery = useCategorizedExpenses();
 
   // 현재 활성 탭에 따라 적절한 쿼리 선택
   const currentQuery = activeTab === 'unclassified' ? uncategorizedQuery : categorizedQuery;

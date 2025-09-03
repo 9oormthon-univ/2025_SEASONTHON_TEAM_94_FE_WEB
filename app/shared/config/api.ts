@@ -45,5 +45,7 @@ export const API_ENDPOINTS = {
   // user/auth (실제 백엔드 경로와 다르면 여기만 바꾸면 됨)
   USERS_ME: '/api/v1/users/me',
   USERS: '/api/v1/users',
-  AUTH_LOGOUT: '/api/logout',
+  
+  // 개발용 로그인
+  DEV_LOGIN: '/dev/login',
 } as const;

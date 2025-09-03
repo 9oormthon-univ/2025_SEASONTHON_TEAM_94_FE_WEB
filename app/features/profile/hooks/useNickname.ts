@@ -14,7 +14,7 @@ export function useNickname() {
     (async () => {
       setLoading(true);
       try {
-        const me = await getMe(USER_UID);
+        const me = await getMe();
         const initial = (me.nickname?.trim() || me.username?.trim() || '');
         setOriginal(initial);
         setName(initial);
@@ -34,7 +34,7 @@ export function useNickname() {
     if (!changed || saving) return false;
     setSaving(true);
     try {
-      const updated = await putNickname(USER_UID, name.trim());
+      const updated = await putNickname(name.trim());
       const finalName = updated.nickname?.trim() || updated.username?.trim() || '';
       setOriginal(finalName);
       setName(finalName);

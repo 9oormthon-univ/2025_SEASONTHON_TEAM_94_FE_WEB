@@ -38,11 +38,12 @@ export function ExpenseDetail({
     return {
       price: expense.price,
       title: expense.title,
+      bankName: expense.bankName,
       userUid: expense.userUid,
       selectedDate: new Date(expense.startedAt),
       type: expense.type,
       category: expense.category,
-      dutchPayCount: 1, // 기본값
+      dutchPayCount: expense.splitCount || 1,
       app: '', // 기본값 (Transaction에 app 필드가 없으므로)
     };
   };

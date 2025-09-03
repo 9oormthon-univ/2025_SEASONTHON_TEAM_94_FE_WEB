@@ -34,12 +34,10 @@ export async function fetchTransactions(
  * 지출 상세 조회 (Swagger 스펙: GET /api/v1/transactions/{id})
  */
 export async function fetchTransactionById(
-  userUid: string,
   id: number
 ): Promise<Transaction> {
   const response = await httpClient.get<ApiResponse<Transaction>>(
-    API_ENDPOINTS.TRANSACTION_BY_ID(id),
-    { userUid }
+    API_ENDPOINTS.TRANSACTION_BY_ID(id)
   );
   return response.data;
 }
@@ -74,12 +72,11 @@ export async function createTransactionByAlert(
  * 지출 수정 (Swagger 스펙: PUT /api/v1/transactions/{id})
  */
 export async function updateTransaction(
-  userUid: string,
   id: number,
   transaction: TransactionUpdateRequest
 ): Promise<Transaction> {
   const response = await httpClient.put<ApiResponse<Transaction>>(
-    `${API_ENDPOINTS.TRANSACTION_BY_ID(id)}?userUid=${userUid}`,
+    API_ENDPOINTS.TRANSACTION_BY_ID(id),
     transaction
   );
   return response.data;
@@ -89,11 +86,10 @@ export async function updateTransaction(
  * 지출 삭제 (Swagger 스펙: DELETE /api/v1/transactions/{id})
  */
 export async function deleteTransaction(
-  userUid: string,
   id: number
 ): Promise<void> {
   await httpClient.delete<ApiResponse<Transaction>>(
-    `${API_ENDPOINTS.TRANSACTION_BY_ID(id)}?userUid=${userUid}`
+    API_ENDPOINTS.TRANSACTION_BY_ID(id)
   );
 }
 
@@ -132,13 +128,11 @@ export const deleteExpense = deleteTransaction;
 
 // 호환성을 위한 타입별 총 금액 조회 함수 (Report API 사용)
 export async function fetchTotalPriceByType(
-  userUid: string,
   type: ExpenseType,
   startAt?: string,
   endAt?: string
 ): Promise<number> {
   const reportData = await fetchTransactionReport({
-    userUid,
     type,
     startAt,
     endAt,

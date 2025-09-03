@@ -27,7 +27,7 @@ export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
     (async () => {
       try {
         setLoading(true);
-        const res = await getBudgetGoalByDate({ userUid, date });
+        const res = await getBudgetGoalByDate({ date });
         const g = res.data;
         setGoal(g);
         setPrice(g?.price ?? 0);
@@ -46,10 +46,10 @@ export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
       setSaving(true);
       if (hasExisting) {
         const id = (goal?.id ?? idFromRoute)!;
-        const res = await updateBudgetGoal(id, { userUid }, { price });
+        const res = await updateBudgetGoal(id, { price });
         setGoal(res.data);
       } else {
-        const res = await createBudgetGoal({ userUid, price });
+        const res = await createBudgetGoal({ price });
         setGoal(res.data);
       }
       return true;

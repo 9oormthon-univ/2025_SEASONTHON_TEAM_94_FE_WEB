@@ -18,20 +18,19 @@ async function fetchTxArray(params: Record<string, any>) {
 }
 
 /** over/fixed 각각 조회하되, 하나라도 비면 all을 불러 폴백 */
-export async function fetchOverAndFixed(opts?: {
-  userUid?: string;
-}) {
-  const userUid = opts?.userUid ?? MOCK_USER_UID;
-
+export async function fetchOverAndFixed() {
   let [over, fixed] = await Promise.all([
-    fetchTxArray({ userUid, type: 'OVER_EXPENSE' }),
-    fetchTxArray({ userUid, type: 'FIXED_EXPENSE' }),
+    fetchTxArray({ type: 'OVER_EXPENSE' }),
+    fetchTxArray({ type: 'FIXED_EXPENSE' }),
   ]);
 
+  // userUid는 더 이상 필요하지 않으므로 제거
   if (over.length === 0 || fixed.length === 0) {
-    const all = await fetchTxArray({ userUid });
-    if (over.length === 0)  over  = all.filter(t => t.type === 'OVER_EXPENSE');
-    if (fixed.length === 0) fixed = all.filter(t => t.type === 'FIXED_EXPENSE');
+    // 전체 조회는 NONE 타입으로 대체하거나 둘을 합쳐서 처리
+    const allOver = await fetchTxArray({ type: 'OVER_EXPENSE' });
+    const allFixed = await fetchTxArray({ type: 'FIXED_EXPENSE' });
+    if (over.length === 0) over = allOver;
+    if (fixed.length === 0) fixed = allFixed;
   }
 
   return { over, fixed };

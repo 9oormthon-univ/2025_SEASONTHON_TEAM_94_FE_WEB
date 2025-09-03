@@ -12,7 +12,7 @@ const USER_UID = 'a';
 
 async function fetchMonthlyGoal(): Promise<number> {
   try {
-    const res = await getBudgetGoalByDate({ userUid: USER_UID });
+    const res = await getBudgetGoalByDate({ date: new Date().toISOString().split('T')[0] });
     const goal: BudgetGoalResponse | null = res.data;
     const price = goal?.price;
     return Number.isFinite(price) ? Math.max(0, price) : 0;
@@ -34,7 +34,7 @@ export function useReport() {
 
   useEffect(() => {
     (async () => {
-      const { over, fixed } = await fetchOverAndFixed({ userUid: USER_UID });
+      const { over, fixed } = await fetchOverAndFixed();
       setOverList(over);
       setFixedList(fixed);
     })();

@@ -15,13 +15,13 @@ export const expenseKeys = {
   list: (filter: TransactionFilter) => [...expenseKeys.lists(), filter] as const,
   
   // 특정 타입별 지출 목록
-  listByType: (userUid: string, type: ExpenseType) => 
-    [...expenseKeys.lists(), { userUid, type }] as const,
+  listByType: (type: ExpenseType) => 
+    [...expenseKeys.lists(), { type }] as const,
   
   // 개별 지출 상세 쿼리들
   details: () => [...expenseKeys.all, 'detail'] as const,
-  detail: (userUid: string, id: number) => 
-    [...expenseKeys.details(), userUid, id] as const,
+  detail: (id: number) => 
+    [...expenseKeys.details(), id] as const,
     
   // 리포트 관련 쿼리들
   reports: () => [...expenseKeys.all, 'report'] as const,
@@ -31,12 +31,9 @@ export const expenseKeys = {
   // 카테고리 관련 쿼리들
   categories: () => [...expenseKeys.all, 'categories'] as const,
   
-  // 특정 사용자의 모든 지출 관련 쿼리
-  user: (userUid: string) => [...expenseKeys.all, 'user', userUid] as const,
-  
   // 타입별 총 금액 쿼리
-  totalByType: (userUid: string, type: ExpenseType, startAt?: string, endAt?: string) =>
-    [...expenseKeys.all, 'total', { userUid, type, startAt, endAt }] as const,
+  totalByType: (type: ExpenseType, startAt?: string, endAt?: string) =>
+    [...expenseKeys.all, 'total', { type, startAt, endAt }] as const,
 } as const;
 
 // Query Option 팩토리 함수들
@@ -51,8 +48,8 @@ export const expenseQueries = {
   }),
   
   // 개별 지출 상세 조회를 위한 옵션
-  detail: (userUid: string, id: number) => ({
-    queryKey: expenseKeys.detail(userUid, id),
+  detail: (id: number) => ({
+    queryKey: expenseKeys.detail(id),
     staleTime: 1000 * 60 * 10, // 10분 (상세 정보는 더 오래 캐시)
     meta: {
       errorMessage: '지출 상세 정보를 불러오는데 실패했습니다.',

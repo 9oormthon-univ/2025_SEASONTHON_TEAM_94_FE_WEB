@@ -14,9 +14,19 @@ declare global {
       getAppVersion?: () => string;
       isNetworkAvailable?: () => boolean;
 
+      // 인증 관련
+      onAuthSuccess?: (uid: string, username: string) => void;
+
       // 기타
       shareContent?: (title: string, content: string) => void;
       openExternalUrl?: (url: string) => void;
+    };
+    webkit?: {
+      messageHandlers?: {
+        authHandler?: {
+          postMessage: (message: any) => void;
+        };
+      };
     };
   }
 }
@@ -90,5 +100,36 @@ export function openExternalUrl(url: string): void {
   } else {
     // 웹에서는 새 탭에서 열기
     window.open(url, '_blank');
+  }
+}
+
+/**
+ * 네이티브 앱에 인증 성공 정보 전달
+ * iOS와 Android 모두 지원
+ */
+export function sendAuthDataToNative(userData: { uid: string; username: string }): void {
+  try {
+    // Android 환경
+    if (typeof window !== 'undefined' && window.Android?.onAuthSuccess) {
+      window.Android.onAuthSuccess(userData.uid, userData.username);
+      console.log('Auth data sent to Android:', userData);
+      return;
+    }
+
+    // iOS 환경 (WebKit)
+    if (typeof window !== 'undefined' && window.webkit?.messageHandlers?.authHandler) {
+      const message = {
+        type: 'AUTH_SUCCESS',
+        data: userData
+      };
+      window.webkit.messageHandlers.authHandler.postMessage(message);
+      console.log('Auth data sent to iOS:', userData);
+      return;
+    }
+
+    // 웹 환경에서의 대체 처리 (개발/테스트용)
+    console.log('Auth data (web fallback):', userData);
+  } catch (error) {
+    console.error('Failed to send auth data to native:', error);
   }
 }

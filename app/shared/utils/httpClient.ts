@@ -1,4 +1,5 @@
 import { getApiBaseUrl, API_CONFIG, AUTH_CONFIG } from '@/shared/config/api';
+import { clearAuthCookies, getCookie } from '@/shared/utils/cookie';
 
 const TIMEOUT_DURATION = API_CONFIG.TIMEOUT;
 const MAX_RETRIES = API_CONFIG.RETRY_COUNT;
@@ -82,19 +83,18 @@ export class HttpService {
   private headerInterceptor?: () => Record<string, string>;
 
   constructor() {
-    // JWT 토큰 자동 추가를 위한 인터셉터 설정
+    // 쿠키 기반 인증 + 서버가 Authorization 헤더를 기대할 수 있으므로
+    // Authorization 쿠키가 접근 가능하면 Bearer 헤더를 추가합니다.
     this.setHeaderInterceptor(() => {
       const headers: Record<string, string> = {};
-
-      if (typeof window !== 'undefined') {
-        const token =
-          localStorage.getItem(AUTH_CONFIG.TOKEN_KEY) ||
-          sessionStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
+      try {
+        const token = getCookie('Authorization');
         if (token) {
-          headers.Authorization = `Bearer ${token}`;
+          headers['Authorization'] = headers['Authorization'] || `Bearer ${token}`;
         }
+      } catch {
+        // ignore
       }
-
       return headers;
     });
   }
@@ -104,11 +104,20 @@ export class HttpService {
   }
 
   private clearAuthData(): void {
+    console.log('[HttpClient] clearAuthData 호출됨');
+    
     if (typeof window !== 'undefined') {
+      // 쿠키 기반 인증에서는 클라이언트 측에서 쿠키를 삭제
+      console.log('[HttpClient] 인증 쿠키 삭제 중...');
+      clearAuthCookies();
+      
+      // 기존 localStorage/sessionStorage 정리 (혹시 남아있을 수 있는 데이터)
       localStorage.removeItem(AUTH_CONFIG.TOKEN_KEY);
       localStorage.removeItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
       localStorage.removeItem(AUTH_CONFIG.TOKEN_EXPIRY_KEY);
       sessionStorage.removeItem(AUTH_CONFIG.TOKEN_KEY);
+      
+      console.log('[HttpClient] 인증 데이터 삭제 완료');
     }
   }
 
@@ -164,7 +173,8 @@ export class HttpService {
   private getHeaders(
     customHeaders?: Record<string, string>
   ): Record<string, string> {
-    const baseHeaders = { 'Content-Type': 'application/json' };
+    // 기본적으로 GET 같은 바디 없는 요청에 Content-Type을 강제로 넣지 않기 위해 비워둔다.
+    const baseHeaders: Record<string, string> = {};
     const interceptedHeaders = this.headerInterceptor?.() || {};
 
     return {
@@ -176,12 +186,21 @@ export class HttpService {
 
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      // 401 에러 처리
+      // 401 에러 처리 - 일시적으로 비활성화하여 디버깅
       if (response.status === 401) {
-        this.clearAuthData();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
+        console.log('[HttpClient] 401 에러 감지:', {
+          url: response.url,
+          status: response.status,
+          statusText: response.statusText,
+          willClearCookies: false // 디버깅을 위해 비활성화
+        });
+        
+        // 일시적으로 쿠키 삭제와 리다이렉트 비활성화
+        // this.clearAuthData();
+        // if (typeof window !== 'undefined') {
+        //   console.log('[HttpClient] /auth로 리다이렉트');
+        //   window.location.href = '/auth';
+        // }
       }
 
       let responseBody: unknown;
@@ -229,13 +248,18 @@ export class HttpService {
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       try {
+        const method = (config.method || 'GET') as HttpMethod;
+        const headers = this.getHeaders(config.headers);
         const options: RequestInit = {
-          method: config.method || 'GET',
-          headers: this.getHeaders(config.headers),
+          method,
+          headers,
           signal: controller.signal,
+          credentials: 'include',
         };
 
         if (config.body !== undefined) {
+          // 바디가 있는 경우에만 JSON 컨텐트 타입을 명시
+          headers['Content-Type'] = headers['Content-Type'] || 'application/json';
           options.body = JSON.stringify(config.body);
         }
 

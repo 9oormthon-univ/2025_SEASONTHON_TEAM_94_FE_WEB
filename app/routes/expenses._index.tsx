@@ -1,5 +1,10 @@
 import { ExpensesPage } from '@/features/expenses';
+import { AuthGuard } from '@/features/auth';
 
 export default function ExpensesIndex() {
-  return <ExpensesPage />;
+  return (
+    <AuthGuard>
+      <ExpensesPage />
+    </AuthGuard>
+  );
 }

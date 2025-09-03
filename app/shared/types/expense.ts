@@ -38,6 +38,9 @@ export interface Transaction {
   id: number;
   price: number; // API에서는 integer이지만 JavaScript에서는 number
   title: string;
+  bankName: string; // 새로 추가된 필드
+  memo?: string; // 새로 추가된 필드
+  splitCount: number; // 새로 추가된 필드
   type: ExpenseType;
   userUid: string;
   category: ExpenseCategory;
@@ -57,7 +60,8 @@ export interface TransactionCreateRequest {
   price: number; // minimum: 0, integer format
   startAt?: string; // date-time format, optional
   title: string; // required
-  userUid: string; // required
+  bankName: string; // required
+  splitCount: number; // required
   type?: ExpenseType; // optional - OVER_EXPENSE, FIXED_EXPENSE, NONE
   category?: ExpenseCategory; // optional - 카테고리 enum
 }
@@ -68,6 +72,9 @@ export interface TransactionUpdateRequest {
   type?: ExpenseType; // optional
   startAt?: string; // date-time format, optional
   title: string; // required
+  bankName: string; // required
+  splitCount: number; // required
+  memo?: string; // optional
   category?: ExpenseCategory; // optional
 }
 
@@ -76,6 +83,8 @@ export interface TransactionCreateByAlertRequest {
   price: number; // integer format, required
   startAt?: string; // date-time format, optional
   title: string; // required
+  bankName: string; // required
+  memo?: string; // optional
   userUid: string; // required
 }
 
@@ -89,7 +98,6 @@ export interface TransactionReportResponse {
 
 // 조회 필터 타입 (GET /api/v1/transactions 파라미터)
 export interface TransactionFilter extends Record<string, string | number | boolean | undefined> {
-  userUid: string; // required
   type: ExpenseType; // required - OVER_EXPENSE, FIXED_EXPENSE, NONE
   startAt?: string; // date format, optional
   endAt?: string; // date format, optional

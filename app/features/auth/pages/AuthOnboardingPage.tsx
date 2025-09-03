@@ -4,6 +4,9 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { httpClient } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
 
 export default function AuthOnboardingPage() {
   const navigate = useNavigate();
@@ -21,27 +24,22 @@ export default function AuthOnboardingPage() {
     setIsLoading(true);
 
     try {
-      // 닉네임 설정 API 호출
-      const response = await fetch('/api/v1/users/me', {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nickname: nickname.trim()
-        })
+      // 닉네임 설정 API 호출 (Swagger 스펙에 맞게 PUT 메서드 사용)
+      await httpClient.put<ApiResponse<{
+        id: string;
+        role: string;
+        username: string;
+        nickname: string;
+        email: string;
+      }>>(API_ENDPOINTS.USERS, {
+        nickname: nickname.trim()
       });
 
-      if (response.ok) {
-        // 온보딩 완료 후 expenses 페이지로 이동
-        navigate('/expenses', { replace: true });
-      } else {
-        alert('닉네임 설정에 실패했습니다. 다시 시도해주세요.');
-      }
+      // 온보딩 완료 후 expenses 페이지로 이동
+      navigate('/expenses', { replace: true });
     } catch (error) {
       console.error('Onboarding error:', error);
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
+      alert('닉네임 설정에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
     }

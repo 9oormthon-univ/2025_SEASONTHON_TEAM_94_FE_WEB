@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { isAuthenticated } from '@/shared/utils/cookie';
+import { httpClient } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
 
 const KAKAO_LOGIN_URL = 'https://api.stopusing.klr.kr/oauth2/authorization/kakao';
 
@@ -10,10 +12,15 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 이미 로그인된 상태라면 expense 페이지로 리다이렉트
-    if (isAuthenticated()) {
-      navigate('/expenses', { replace: true });
-    }
+    // 이미 로그인된 상태라면 expense 페이지로 리다이렉트 (서버 확인)
+    (async () => {
+      try {
+        await httpClient.get<ApiResponse<any>>(API_ENDPOINTS.USERS_ME);
+        navigate('/expenses', { replace: true });
+      } catch {
+        // not authed → stay
+      }
+    })();
   }, [navigate]);
 
   const handleKakaoLogin = () => {

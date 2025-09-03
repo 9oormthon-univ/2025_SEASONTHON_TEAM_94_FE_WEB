@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { isAuthenticated } from '@/shared/utils/cookie';
+import { httpClient, HttpError } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -13,22 +15,43 @@ interface AuthGuardProps {
  */
 export function AuthGuard({ children }: AuthGuardProps) {
   const navigate = useNavigate();
+  const [authState, setAuthState] = useState<'checking' | 'authed' | 'unauthed'>('checking');
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate('/auth', { replace: true });
-    }
+    let mounted = true;
+    (async () => {
+      try {
+        // 서버에 세션(쿠키) 기반 인증 여부 확인
+        await httpClient.get<ApiResponse<any>>(API_ENDPOINTS.USERS_ME);
+        if (!mounted) return;
+        setAuthState('authed');
+      } catch (error) {
+        if (!mounted) return;
+        if (error instanceof HttpError && (error.status === 401 || error.status === 403)) {
+          setAuthState('unauthed');
+          navigate('/auth', { replace: true });
+        } else {
+          // 5xx 등은 일단 앱 접근 허용 (내부에서 재시도/안내)
+          setAuthState('authed');
+        }
+      }
+    })();
+    return () => { mounted = false; };
   }, [navigate]);
 
-  // 인증된 경우에만 children 렌더링
-  if (!isAuthenticated()) {
+  // 로딩 상태 표시 (간단한 스켈레톤)
+  if (authState === 'checking') {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="mt-4 text-sm text-gray-600">인증 확인 중...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
 
+  if (authState === 'unauthed') {
+    return null;
+  }
+
+  console.log('[AuthGuard] 인증됨, children 렌더링');
   return <>{children}</>;
 }

@@ -10,18 +10,18 @@ export interface UserResponse {
   role: 'ROLE_USER' | string;
 }
 
-export async function getMe(userUid: string, signal?: AbortSignal) {
+export async function getMe(signal?: AbortSignal) {
   const res = await httpService.get<ApiResponse<UserResponse>>(
     '/api/v1/users/me',
-    { userUid },
+    {},
     { ...(signal ? { signal } as any : {}) }
   );
   return res.data;
 }
 
-export async function updateNickname(userUid: string, nickname: string, signal?: AbortSignal) {
+export async function updateNickname(nickname: string, signal?: AbortSignal) {
   const res = await httpService.put<ApiResponse<UserResponse>>(
-    `/api/v1/users?userUid=${encodeURIComponent(userUid)}`,
+    '/api/v1/users',
     { nickname },
     { ...(signal ? { signal } as any : {}) }
   );

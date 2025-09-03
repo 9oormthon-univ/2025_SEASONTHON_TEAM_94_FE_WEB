@@ -21,6 +21,7 @@ export function ExpenseAddPage() {
   // 생성 시 고정된 시간 사용
   const defaultValues = useMemo(() => ({
     userUid: MOCK_USER_UID,
+    bankName: '',
     selectedDate: new Date(),
     dutchPayCount: 1, // 기본값 1로 수정
     app: '',
@@ -40,7 +41,8 @@ export function ExpenseAddPage() {
         price: finalAmount,
         startAt: toLocalISOString(formData.selectedDate),
         title: formData.title,
-        userUid: formData.userUid,
+        bankName: formData.bankName,
+        splitCount: formData.dutchPayCount,
         type: formData.type, // 폼에서 선택된 지출 유형 사용
         category: formData.category, // 폼에서 선택된 카테고리 (있다면)
       };

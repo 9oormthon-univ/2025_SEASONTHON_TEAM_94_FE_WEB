@@ -16,31 +16,28 @@ export function createBudgetGoal(body: BudgetGoalCreateRequest) {
   );
 }
 
-// 2) 단건 조회 (id) — userUid 쿼리 필수
-export function getBudgetGoalById(id: number, params: { userUid: string }) {
+// 2) 단건 조회 (id)
+export function getBudgetGoalById(id: number) {
   return httpClient.get<ApiResponse<BudgetGoalResponse>>(
-    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
-    params
+    API_ENDPOINTS.BUDGET_GOAL_BY_ID(id)
   );
 }
 
 // 3) 날짜 기준 최근 데이터(해당 월) — 단건 반환
-export function getBudgetGoalByDate(params: { userUid: string; date?: string }) {
+export function getBudgetGoalByDate(params?: { date?: string }) {
   return httpClient.get<ApiResponse<BudgetGoalResponse>>(
     API_ENDPOINTS.BUDGET_GOALS,
     params
   );
 }
 
-// 4) 수정 — userUid 쿼리 필수
+// 4) 수정
 export function updateBudgetGoal(
   id: number,
-  params: { userUid: string },
   body: BudgetGoalUpdateRequest
 ) {
   return httpClient.put<ApiResponse<BudgetGoalResponse>>(
     API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
-    body,
-    { params }
+    body
   );
 }

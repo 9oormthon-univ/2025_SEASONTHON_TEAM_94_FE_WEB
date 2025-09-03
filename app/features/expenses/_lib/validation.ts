@@ -65,6 +65,11 @@ export const expenseFormSchema = z.object({
     .min(1, '제목을 입력해주세요.')
     .max(200, '제목은 200자 이하로 입력해주세요.'),
   
+  bankName: z
+    .string({ message: '은행명을 입력해주세요.' })
+    .min(1, '은행명을 입력해주세요.')
+    .max(50, '은행명은 50자 이하로 입력해주세요.'),
+  
   userUid: z
     .string({ message: '사용자 정보가 필요합니다.' })
     .min(1, '사용자 정보가 필요합니다.'),

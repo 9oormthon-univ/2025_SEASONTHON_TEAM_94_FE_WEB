@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getCookie } from '@/shared/utils/cookie';
-import { getCurrentUserFromToken, isValidToken } from '../utils/jwtUtils';
 import { sendAuthDataToNative } from '@/shared/utils/nativeBridge';
+import { httpClient, HttpError } from '@/shared/utils/httpClient';
+import { API_ENDPOINTS } from '@/shared/config/api';
+import type { ApiResponse } from '@/shared/types/api';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -10,89 +11,61 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      try {
-        // 1. 쿠키에서 Authorization 토큰 읽기
-        const accessToken = getCookie('Authorization');
-        
-        if (!accessToken) {
-          console.log('No access token found in cookies');
-          setStatus('error');
-          // 로그인 실패 시 auth 페이지로 리다이렉트
-          setTimeout(() => navigate('/auth', { replace: true }), 2000);
-          return;
-        }
-
-        // 2. JWT 토큰 유효성 검증
-        if (!isValidToken()) {
-          console.log('Invalid or expired token');
-          setStatus('error');
-          setTimeout(() => navigate('/auth', { replace: true }), 2000);
-          return;
-        }
-
-        // 3. JWT에서 사용자 정보 추출
-        const userInfo = getCurrentUserFromToken();
-        
-        if (!userInfo) {
-          console.log('Failed to extract user info from token');
-          setStatus('error');
-          setTimeout(() => navigate('/auth', { replace: true }), 2000);
-          return;
-        }
-
-        // 4. 네이티브 앱에 사용자 정보 전달
-        sendAuthDataToNative({
-          uid: userInfo.uid,
-          username: userInfo.username
-        });
-
-        // 5. 사용자 정보를 통해 신규/기존 유저 판별을 위한 API 호출
+      const maxAttempts = 5;
+      const baseDelay = 250; // ms
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-          const response = await fetch('/api/v1/users/me', {
-            method: 'GET',
-            credentials: 'include', // 쿠키 포함
-            headers: {
-              'Content-Type': 'application/json',
-            }
+          // 서버에 세션(쿠키) 기반 인증 여부 확인
+          const response = await httpClient.get<ApiResponse<{
+            id: string;
+            role: string;
+            username: string;
+            nickname: string;
+            email: string;
+          }>>(API_ENDPOINTS.USERS_ME);
+
+          const userData = response.data;
+
+          // 네이티브 앱에 사용자 정보 전달
+          sendAuthDataToNative({
+            uid: userData.id || 'unknown',
+            username: userData.username || userData.nickname || 'unknown',
           });
 
-          if (response.ok) {
-            const userData = await response.json();
-            
-            // 응답 데이터를 기반으로 신규/기존 유저 판별
-            // 백엔드 응답 구조에 따라 조건을 조정해야 할 수 있습니다
-            const isNewUser = userData.isNewUser || !userData.nickname || userData.createdAt === userData.updatedAt;
-            
-            setStatus('success');
-            
-            if (isNewUser) {
-              // 신규 유저는 온보딩 페이지로
-              navigate('/auth/onboarding', { replace: true });
-            } else {
-              // 기존 유저는 expense 페이지로
-              navigate('/expenses', { replace: true });
-            }
+          // 신규/기존 유저 판별 후 라우팅
+          const isNewUser =
+            !userData.nickname ||
+            userData.nickname === userData.username ||
+            userData.nickname.trim() === '';
+
+          setStatus('success');
+          if (isNewUser) {
+            navigate('/auth/onboarding', { replace: true });
           } else {
-            // API 호출 실패 시, 기본적으로 expense 페이지로 이동
-            console.warn('Failed to fetch user info, redirecting to expenses');
-            setStatus('success');
             navigate('/expenses', { replace: true });
           }
-        } catch (apiError) {
-          // API 에러 시에도 기본적으로 expense 페이지로 이동
-          console.warn('API call error, redirecting to expenses:', apiError);
+          return;
+        } catch (error) {
+          const shouldRetry = attempt < maxAttempts;
+          console.warn(`[AuthCallback] USERS_ME failed (attempt ${attempt}/${maxAttempts}).`, error);
+          if (shouldRetry) {
+            await new Promise((r) => setTimeout(r, baseDelay * attempt));
+            continue;
+          }
+          // 재시도 후에도 실패 시: 401/403은 인증 실패로 간주, 그 외(예: 500)는 우회 성공 처리
+          if (error instanceof HttpError && (error.status === 401 || error.status === 403)) {
+            setStatus('error');
+            setTimeout(() => navigate('/auth', { replace: true }), 1500);
+            return;
+          }
+          // 우회 성공: 일단 앱 진입 후 내부 페이지에서 복구 시도
           setStatus('success');
           navigate('/expenses', { replace: true });
+          return;
         }
-
-      } catch (error) {
-        console.error('Auth callback error:', error);
-        setStatus('error');
-        setTimeout(() => navigate('/auth', { replace: true }), 2000);
       }
     };
 
-    // 페이지 로드 시 인증 콜백 처리 실행
     handleAuthCallback();
   }, [navigate]);
 
@@ -126,7 +99,7 @@ export default function AuthCallbackPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">`로그인 실패`</h2>
+            <h2 className="text-lg font-semibold text-gray-900">로그인 실패</h2>
             <p className="text-sm text-gray-600">로그인 페이지로 돌아갑니다...</p>
           </>
         )}

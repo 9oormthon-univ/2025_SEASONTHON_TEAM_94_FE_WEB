@@ -1,69 +1,17 @@
-import { jwtDecode } from 'jwt-decode';
-import type { JWTPayload } from '@/shared/types/auth';
-import { getCookie } from '@/shared/utils/cookie';
-
 /**
- * JWT 토큰을 디코딩하여 payload를 반환하는 함수
- * @param token JWT 토큰 문자열
- * @returns JWT Payload 또는 null
+ * 쿠키 기반 인증을 위한 유틸리티 파일
+ * JWT 토큰 대신 서버의 set-cookie를 통한 인증 방식을 사용합니다.
+ * 
+ * 실제 인증 관련 함수들은 @/shared/utils/cookie.ts에 정의되어 있습니다.
  */
-export function decodeJWT(token: string): JWTPayload | null {
-  try {
-    const decoded = jwtDecode<JWTPayload>(token);
-    return decoded;
-  } catch (error) {
-    console.error('JWT decode error:', error);
-    return null;
-  }
-}
 
-/**
- * 현재 저장된 Authorization 쿠키를 디코딩하여 사용자 정보를 반환
- * @returns 사용자 정보 또는 null
- */
-export function getCurrentUserFromToken(): { uid: string; username: string } | null {
-  const token = getCookie('Authorization');
-  
-  if (!token) {
-    return null;
-  }
+// 이 파일은 JWT 토큰 기반 인증에서 쿠키 기반 인증으로 변경되면서
+// 더 이상 사용되지 않습니다.
+// 
+// 인증 관련 함수들:
+// - isAuthenticated() : @/shared/utils/cookie.ts
+// - getCookie() : @/shared/utils/cookie.ts 
+// - setCookie() : @/shared/utils/cookie.ts
+// - deleteCookie() : @/shared/utils/cookie.ts
 
-  const payload = decodeJWT(token);
-  if (!payload) {
-    return null;
-  }
-
-  return {
-    uid: payload.uid,
-    username: payload.username
-  };
-}
-
-/**
- * JWT 토큰이 만료되었는지 확인하는 함수
- * @param token JWT 토큰 문자열
- * @returns 만료 여부
- */
-export function isTokenExpired(token: string): boolean {
-  const payload = decodeJWT(token);
-  if (!payload) {
-    return true;
-  }
-
-  const currentTime = Math.floor(Date.now() / 1000);
-  return payload.exp < currentTime;
-}
-
-/**
- * 현재 저장된 Authorization 토큰이 유효한지 확인
- * @returns 토큰 유효성 여부
- */
-export function isValidToken(): boolean {
-  const token = getCookie('Authorization');
-  
-  if (!token) {
-    return false;
-  }
-
-  return !isTokenExpired(token);
-}
+export {}; // 빈 export로 모듈로 만들기

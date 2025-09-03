@@ -21,6 +21,7 @@ export function useExpenseForm({ defaultValues, onValidationChange }: UseExpense
     defaultValues: {
       price: 0,
       title: '',
+      bankName: '',
       userUid: '',
       app: '',
       category: undefined,

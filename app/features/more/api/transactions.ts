@@ -6,20 +6,19 @@ import type { Transaction } from '@/shared/types/expense';
 
 export type TxType = 'OVER_EXPENSE' | 'FIXED_EXPENSE' | 'NONE';
 
-export async function listTransactions(userUid: string, signal?: AbortSignal) {
+export async function listTransactions(type?: TxType, signal?: AbortSignal) {
   return httpClient.get<ApiResponse<Transaction[]>>(
     API_ENDPOINTS.TRANSACTIONS,
-    { userUid }
+    type ? { type } : {}
   );
 }
 
 export async function listTransactionsByType(
-  userUid: string,
   type: TxType,
   signal?: AbortSignal
 ) {
   return httpClient.get<ApiResponse<Transaction[]>>(
     API_ENDPOINTS.TRANSACTIONS,
-    { userUid, type }
+    { type }
   );
 }

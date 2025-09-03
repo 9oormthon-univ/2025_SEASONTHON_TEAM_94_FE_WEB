@@ -33,11 +33,12 @@ export function UncategorizedExpenseList({
         const expense = expenses.find(e => e.id === expenseId);
         if (expense) {
           await updateExpenseMutation.mutateAsync({
-            userUid: expense.userUid,
             id: expenseId,
             data: {
               price: expense.price,
               title: expense.title,
+              bankName: expense.bankName,
+              splitCount: expense.splitCount,
               type,
               category: expense.category,
             },

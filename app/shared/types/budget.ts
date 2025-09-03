@@ -8,10 +8,9 @@ export interface BudgetGoalResponse {
 }
 
 export interface BudgetGoalCreateRequest {
-  price: number;
-  userUid: string;
+  price: number; // required
 }
 
 export interface BudgetGoalUpdateRequest {
-  price: number;
+  price: number; // required
 }

@@ -1,5 +1,5 @@
 import { Controller } from 'react-hook-form';
-import { ChevronRight, CalendarIcon, Clock } from 'lucide-react';
+import { CalendarIcon, Clock } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -13,11 +13,11 @@ import {
 import { Calendar } from '@/shared/components/ui/calendar';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/components';
-import { ExpenseTypeSelector } from '@/features/expenses/components/Form/ExpenseTypeSelector';
-import { FormField } from '@/features/expenses/components/Form/FormField';
-import { InputField } from '@/features/expenses/components/Form/InputField';
-import { NumberStepper } from '@/features/expenses/components/Form/NumberStepper';
-import { CategorySelector } from '@/features/expenses/components/Form/CategorySelector';
+import { ExpenseTypeSelector } from './ExpenseTypeSelector';
+import { FormField } from './FormField';
+import { InputField } from './InputField';
+import { NumberStepper } from './NumberStepper';
+import { CategorySelector } from './CategorySelector';
 import { formatDateForDisplay, calculateDutchPayAmount } from '@/features/expenses/utils/formUtils';
 import { useExpenseForm } from '@/features/expenses/hooks/useExpenseForm';
 
@@ -113,10 +113,12 @@ export function ExpenseForm({
                   value={field.value}
                   onChange={(value) => {
                     field.onChange(value);
+                    setValue('splitCount', value); // splitCount도 함께 업데이트
                     dutchPayHandlers.setInput(String(value));
                   }}
                   min={1}
                   max={20}
+                  price={price}
                 />
               )}
             />
@@ -200,18 +202,18 @@ export function ExpenseForm({
           />
         </InputField>
 
-        {/* Memo (previously App) */}
+        {/* Memo */}
         <InputField 
           label="메모" 
-          error={errors.app?.message}
-          htmlFor="app"
+          error={errors.memo?.message}
+          htmlFor="memo"
         >
           <Controller
-            name="app"
+            name="memo"
             control={control}
             render={({ field }) => (
               <Input
-                id="app"
+                id="memo"
                 type="text"
                 {...field}
                 placeholder="메모를 입력하세요. (선택사항)"

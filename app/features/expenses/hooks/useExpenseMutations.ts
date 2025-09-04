@@ -14,7 +14,7 @@ import {
 } from '@/features/expenses/api/expenseApi';
 import { expenseKeys } from '@/features/expenses/api/queryKeys';
 import type {
-  Transaction,
+  TransactionResponse,
   TransactionCreateRequest,
   TransactionCreateByAlertRequest,
   TransactionUpdateRequest,
@@ -28,53 +28,12 @@ export function useCreateExpense() {
 
   return useMutation({
     mutationFn: createTransaction,
-    onMutate: async (newExpense: TransactionCreateRequest) => {
-      // 낙관적 업데이트를 위해 관련 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: expenseKeys.all });
-
-      // 이전 데이터 백업
-      const previousExpenses = queryClient.getQueriesData({ 
-        queryKey: expenseKeys.all 
-      });
-
-      // 낙관적 업데이트: 새 지출을 임시로 추가
-      const tempExpense: Transaction = {
-        id: Date.now(), // 임시 ID
-        price: newExpense.price,
-        title: newExpense.title,
-        bankName: newExpense.bankName,
-        memo: '',
-        splitCount: newExpense.splitCount,
-        type: newExpense.type || 'NONE',
-        userUid: '', // 서버에서 설정됨
-        category: newExpense.category || 'OTHER',
-        startedAt: newExpense.startAt || new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // 목록 쿼리들에 임시 데이터 추가
-      queryClient.setQueriesData(
-        { queryKey: expenseKeys.lists() },
-        (old: Transaction[] | undefined) => 
-          old ? [tempExpense, ...old] : [tempExpense]
-      );
-
-      return { previousExpenses };
-    },
     onSuccess: (data, variables, context) => {
       // 성공 시 캐시 무효화하여 최신 데이터 가져오기
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       toast.success('지출이 성공적으로 저장되었습니다!');
     },
     onError: (error, variables, context) => {
-      // 실패 시 이전 상태로 롤백
-      if (context?.previousExpenses) {
-        context.previousExpenses.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-      
       const message = error instanceof Error 
         ? error.message 
         : '지출 저장에 실패했습니다.';
@@ -131,7 +90,7 @@ export function useUpdateExpense() {
       // 낙관적 업데이트
       queryClient.setQueriesData(
         { queryKey: expenseKeys.lists() },
-        (old: Transaction[] | undefined) =>
+        (old: TransactionResponse[] | undefined) =>
           old?.map(expense => 
             expense.id === id 
               ? { ...expense, ...data, updatedAt: new Date().toISOString() }
@@ -143,7 +102,7 @@ export function useUpdateExpense() {
       const detailQueryKey = expenseKeys.detail(id);
       queryClient.setQueryData(
         detailQueryKey,
-        (old: Transaction | undefined) => 
+        (old: TransactionResponse | undefined) => 
           old ? { ...old, ...data, updatedAt: new Date().toISOString() } : old
       );
 
@@ -194,7 +153,7 @@ export function useDeleteExpense() {
       // 낙관적 업데이트: 해당 지출 제거
       queryClient.setQueriesData(
         { queryKey: expenseKeys.lists() },
-        (old: Transaction[] | undefined) =>
+        (old: TransactionResponse[] | undefined) =>
           old?.filter(expense => expense.id !== id)
       );
 
@@ -228,8 +187,4 @@ export function useDeleteExpense() {
   });
 }
 
-// 기존 호환성을 위한 별칭들
-export const useCreateTransaction = useCreateExpense;
-export const useCreateTransactionByAlert = useCreateExpenseByAlert;
-export const useUpdateTransaction = useUpdateExpense;
-export const useDeleteTransaction = useDeleteExpense;
+

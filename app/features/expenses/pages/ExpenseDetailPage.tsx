@@ -20,7 +20,6 @@ import {
   useDeleteExpense 
 } from '@/features/expenses/hooks';
 import { EXPENSE_TYPES, type TransactionUpdateRequest } from '@/shared/types/expense';
-import { MOCK_USER_UID } from '@/shared/config/api';
 import { ExpenseForm } from '@/features/expenses/components/Form/ExpenseForm';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import { toLocalISOString } from '@/shared/utils/utils';
@@ -30,7 +29,6 @@ export function ExpenseDetailPage() {
   const navigate = useNavigate();
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const userUid = MOCK_USER_UID;
   const expenseIdNum = expenseId ? Number(expenseId) : 0;
 
   // TanStack Query 훅들 사용
@@ -164,16 +162,21 @@ export function ExpenseDetailPage() {
       <div className="px-4 sm:px-6 py-4 mt-auto mb-16">
         <div className="flex gap-3">
           {/* 삭제 버튼 */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="flex-1 h-[45px] text-red-500 border-red-500 hover:bg-red-50 transition-colors rounded-[10px]"
-                disabled={deleteExpenseMutation.isPending}
-              >
-                삭제
-              </Button>
-            </AlertDialogTrigger>
+          <motion.div
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.1 }}
+            className="flex-1"
+          >
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-[52px] text-base font-bold text-sub-gray border-sub-gray hover:bg-red-50 transition-colors rounded-[10px]"
+                  disabled={deleteExpenseMutation.isPending}
+                >
+                  삭제
+                </Button>
+              </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>지출 삭제</AlertDialogTitle>
@@ -191,21 +194,28 @@ export function ExpenseDetailPage() {
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
+            </AlertDialog>
+          </motion.div>
 
           {/* 수정 버튼 */}
-          <Button
-            form="expense-form"
-            type="submit"
-            disabled={updateExpenseMutation.isPending || !isFormValid}
-            className={`flex-1 h-[45px] text-white text-[15px] font-medium rounded-[10px] hover:bg-sub-blue/90 disabled:opacity-50 transition-colors ${
-              isFormValid && !updateExpenseMutation.isPending
-                ? 'bg-sub-blue'
-                : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
-            }`}
+          <motion.div
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.1 }}
+            className="flex-1"
           >
-            {updateExpenseMutation.isPending ? '수정 중...' : '수정'}
-          </Button>
+            <Button
+              form="expense-form"
+              type="submit"
+              disabled={updateExpenseMutation.isPending || !isFormValid}
+              className={`w-full h-[52px] text-white text-base font-bold rounded-[10px] disabled:opacity-50 transition-colors ${
+                isFormValid && !updateExpenseMutation.isPending
+                  ? 'bg-main-orange'
+                  : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
+              }`}
+            >
+              {updateExpenseMutation.isPending ? '수정 중...' : '수정'}
+            </Button>
+          </motion.div>
         </div>
       </div>
     </motion.div>

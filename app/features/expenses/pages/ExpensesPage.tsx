@@ -5,7 +5,6 @@ import { useUncategorizedExpenses, useCategorizedExpenses } from '@/features/exp
 import { Header } from '@/shared/components/Header';
 import { UncategorizedExpenseList } from '@/features/expenses/components/List/UncategorizedExpenseList';
 import { CategorizedExpenseList } from '@/features/expenses/components/List/CategorizedExpenseList';
-import { MOCK_USER_UID } from '@/shared/config/api';
 import ArrowDownIcon from '@/assets/keyboard_arrow_down.svg?react';
 import PlusIcon from '@/assets/plus.svg?react';
 

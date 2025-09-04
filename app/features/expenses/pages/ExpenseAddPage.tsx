@@ -7,7 +7,6 @@ import {
   EXPENSE_TYPES,
   type TransactionCreateRequest,
 } from '@/shared/types/expense';
-import { MOCK_USER_UID } from '@/shared/config/api';
 import { ExpenseForm } from '@/features/expenses/components/Form/ExpenseForm';
 import { useCreateExpense } from '@/features/expenses/hooks';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
@@ -20,31 +19,28 @@ export function ExpenseAddPage() {
 
   // 생성 시 고정된 시간 사용
   const defaultValues = useMemo(() => ({
-    userUid: MOCK_USER_UID,
-    bankName: '',
-    selectedDate: new Date(),
-    dutchPayCount: 1, // 기본값 1로 수정
-    app: '',
+    title: '', // 거래처 필드
+    price: 0, // 금액 필드
+    bankName: '', // 은행명 (선택사항)
+    selectedDate: new Date(), // 지출일시
+    dutchPayCount: 1, // 더치페이 인원 (기본값 1)
+    splitCount: 1, // API 전송용 splitCount (dutchPayCount와 동일)
+    memo: '', // 메모 (선택사항)
     type: EXPENSE_TYPES.OVER_EXPENSE,
-    category: undefined, // 카테고리는 나중에 추가 예정
+    category: undefined, // 카테고리 (선택사항)
   }), []);
 
   const handleFormSubmit = async (formData: ExpenseFormData) => {
     try {
-      // 더치페이 적용된 실제 금액 계산
-      const finalAmount =
-        formData.dutchPayCount > 1
-          ? Math.floor(formData.price / formData.dutchPayCount)
-          : formData.price;
-
       const transactionData: TransactionCreateRequest = {
-        price: finalAmount,
-        startAt: toLocalISOString(formData.selectedDate),
-        title: formData.title,
-        bankName: formData.bankName,
-        splitCount: formData.dutchPayCount,
-        type: formData.type, // 폼에서 선택된 지출 유형 사용
-        category: formData.category, // 폼에서 선택된 카테고리 (있다면)
+        price: formData.price, // 금액
+        startAt: toLocalISOString(formData.selectedDate), // 지출일시 -> startAt
+        title: formData.title, // 거래처 -> title
+        bankName: formData.bankName || '', // 은행명 (선택사항)
+        splitCount: formData.splitCount || formData.dutchPayCount, // 더치페이 -> splitCount
+        type: formData.type, // 지출 유형
+        category: formData.category, // 카테고리 (선택사항)
+        memo: formData.memo, // 메모 (선택사항)
       };
 
       await createExpenseMutation.mutateAsync(transactionData);

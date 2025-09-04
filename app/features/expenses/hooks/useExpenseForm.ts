@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { EXPENSE_TYPES } from '@/shared/types/expense';
 import { expenseFormSchema, type ExpenseFormData } from '@/features/expenses/_lib/validation';
 
@@ -22,41 +22,49 @@ export function useExpenseForm({ defaultValues, onValidationChange }: UseExpense
       price: 0,
       title: '',
       bankName: '',
-      userUid: '',
-      app: '',
+      memo: '',
       category: undefined,
       type: EXPENSE_TYPES.OVER_EXPENSE,
       dutchPayCount: 1,
+      splitCount: 1, // dutchPayCount와 동일한 값
       ...defaultValues,
       selectedDate: defaultSelectedDate,
     },
   });
 
   const watchedValues = form.watch();
-  const { dutchPayCount, price, title } = watchedValues;
+  const { dutchPayCount, price, title, selectedDate } = watchedValues;
 
   const [dutchInput, setDutchInput] = useState<string>(() => String(dutchPayCount ?? 1));
 
   useEffect(() => {
     const next = String(dutchPayCount ?? 1);
-    if (next !== dutchPayHandlers.input) dutchPayHandlers.setInput(next);
-  }, [dutchPayCount]);
+    if (next !== dutchInput) {
+      setDutchInput(next);
+    }
+  }, [dutchPayCount, dutchInput]);
 
-  const isFormValid = price > 0 && title.trim().length > 0;
+  // 필수 필드 기반 유효성 검사: 금액, 거래처, 지출일시, 더치페이
+  const isFormValid = useMemo(() => {
+    return price > 0 && 
+           title.trim().length > 0 && 
+           selectedDate instanceof Date && 
+           dutchPayCount >= 1;
+  }, [price, title, selectedDate, dutchPayCount]);
 
   useEffect(() => {
     onValidationChange?.(isFormValid);
   }, [isFormValid, onValidationChange]);
 
-  const calendarHandlers = {
+  const calendarHandlers = useMemo(() => ({
     isOpen: isCalendarOpen,
     setIsOpen: setIsCalendarOpen,
-  };
+  }), [isCalendarOpen]);
 
-  const dutchPayHandlers = {
+  const dutchPayHandlers = useMemo(() => ({
     input: dutchInput,
     setInput: setDutchInput,
-  };
+  }), [dutchInput]);
 
   return {
     form,

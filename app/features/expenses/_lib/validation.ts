@@ -1,63 +1,116 @@
 import { z } from 'zod';
 import { EXPENSE_TYPES, EXPENSE_CATEGORIES } from '@/shared/types/expense';
 
-// API 문서의 TransactionCreateRequest에 맞는 스키마
-export const transactionCreateSchema = z.object({
+// 공통 필드 스키마
+const baseTransactionSchema = z.object({
   price: z
     .number({ message: '올바른 금액을 입력해주세요.' })
-    .min(0, '금액은 0 이상이어야 합니다.')
+    .min(1, '금액은 0 이상이어야 합니다.')
     .int('금액은 정수여야 합니다.'),
   
   title: z
     .string({ message: '제목을 입력해주세요.' })
     .min(1, '제목을 입력해주세요.')
     .max(200, '제목은 200자 이하로 입력해주세요.'),
-  
-  userUid: z
-    .string({ message: '사용자 정보가 필요합니다.' })
-    .min(1, '사용자 정보가 필요합니다.'),
+});
+
+// 카테고리 enum 스키마
+const categorySchema = z.enum([
+  EXPENSE_CATEGORIES.FOOD,
+  EXPENSE_CATEGORIES.GROCERIES,
+  EXPENSE_CATEGORIES.TRANSPORT,
+  EXPENSE_CATEGORIES.CAR,
+  EXPENSE_CATEGORIES.HOUSING,
+  EXPENSE_CATEGORIES.UTILITIES,
+  EXPENSE_CATEGORIES.TELECOM,
+  EXPENSE_CATEGORIES.SUBSCRIPTIONS,
+  EXPENSE_CATEGORIES.SHOPPING,
+  EXPENSE_CATEGORIES.BEAUTY,
+  EXPENSE_CATEGORIES.HEALTHCARE,
+  EXPENSE_CATEGORIES.EDUCATION,
+  EXPENSE_CATEGORIES.ENTERTAINMENT,
+  EXPENSE_CATEGORIES.TRAVEL,
+  EXPENSE_CATEGORIES.PETS,
+  EXPENSE_CATEGORIES.GIFTS_OCCASIONS,
+  EXPENSE_CATEGORIES.INSURANCE,
+  EXPENSE_CATEGORIES.TAXES_FEES,
+  EXPENSE_CATEGORIES.DONATION,
+  EXPENSE_CATEGORIES.OTHER,
+] as const);
+
+// 타입 enum 스키마
+const typeSchema = z.enum([
+  EXPENSE_TYPES.OVER_EXPENSE, 
+  EXPENSE_TYPES.FIXED_EXPENSE, 
+  EXPENSE_TYPES.NONE
+] as const);
+
+// API 문서의 TransactionCreateRequest에 맞는 스키마
+export const transactionCreateSchema = baseTransactionSchema.extend({
+  splitCount: z
+    .number({ message: '분할 횟수를 입력해주세요.' })
+    .min(1, '분할 횟수는 1 이상이어야 합니다.')
+    .int('분할 횟수는 정수여야 합니다.'),
   
   startAt: z
     .string()
-    .datetime('올바른 날짜 형식이 아닙니다.')
-    .optional(),
+    .datetime('올바른 날짜 형식이 아닙니다.'),
   
-  type: z
-    .enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE] as const)
-    .optional(), // API 스펙에서 optional
+  bankName: z
+    .string()
+    .optional()
+    .or(z.literal('')), // 빈 문자열 허용
   
-  category: z
-    .enum([
-      EXPENSE_CATEGORIES.FOOD,
-      EXPENSE_CATEGORIES.GROCERIES,
-      EXPENSE_CATEGORIES.TRANSPORT,
-      EXPENSE_CATEGORIES.CAR,
-      EXPENSE_CATEGORIES.HOUSING,
-      EXPENSE_CATEGORIES.UTILITIES,
-      EXPENSE_CATEGORIES.TELECOM,
-      EXPENSE_CATEGORIES.SUBSCRIPTIONS,
-      EXPENSE_CATEGORIES.SHOPPING,
-      EXPENSE_CATEGORIES.BEAUTY,
-      EXPENSE_CATEGORIES.HEALTHCARE,
-      EXPENSE_CATEGORIES.EDUCATION,
-      EXPENSE_CATEGORIES.ENTERTAINMENT,
-      EXPENSE_CATEGORIES.TRAVEL,
-      EXPENSE_CATEGORIES.PETS,
-      EXPENSE_CATEGORIES.GIFTS_OCCASIONS,
-      EXPENSE_CATEGORIES.INSURANCE,
-      EXPENSE_CATEGORIES.TAXES_FEES,
-      EXPENSE_CATEGORIES.DONATION,
-      EXPENSE_CATEGORIES.OTHER,
-    ] as const)
-    .optional(),
+  type: typeSchema.optional(),
+  category: categorySchema.optional(),
+  memo: z.string().optional(), // 메모 필드 추가
 });
 
 // 폼에서 사용할 스키마 (UI 전용 필드 포함)
 export const expenseFormSchema = z.object({
-  // API 필드들
+  // 필수 필드들
   price: z
     .number({ message: '올바른 금액을 입력해주세요.' })
-    .min(1, '금액은 0 이상이어야 합니다.')
+    .min(1, '금액은 1원 이상이어야 합니다.')
+    .int('금액은 정수여야 합니다.'),
+  
+  title: z
+    .string({ message: '거래처를 입력해주세요.' })
+    .min(1, '거래처를 입력해주세요.')
+    .max(200, '거래처는 200자 이하로 입력해주세요.'),
+
+  splitCount: z
+    .number({ message: '더치페이 인원을 입력해주세요.' })
+    .min(1, '더치페이 인원은 1명 이상이어야 합니다.')
+    .max(20, '더치페이 인원은 20명 이하로 설정해주세요.')
+    .int('더치페이 인원은 정수여야 합니다.'),
+
+  selectedDate: z.date({ message: '지출일시를 선택해주세요.' }),
+
+  // 선택 필드들
+  bankName: z
+    .string()
+    .optional()
+    .or(z.literal('')), // 빈 문자열 허용
+
+  memo: z.string().optional(),
+  
+  type: typeSchema,
+  category: categorySchema.optional(),
+
+  // 더치페이 UI를 위한 별칭 (splitCount와 동일한 값)
+  dutchPayCount: z
+    .number({ message: '더치페이 인원을 입력해주세요.' })
+    .min(1, '더치페이 인원은 1명 이상이어야 합니다.')
+    .max(20, '더치페이 인원은 20명 이하로 설정해주세요.')
+    .int('더치페이 인원은 정수여야 합니다.'),
+});
+
+// API 문서의 TransactionUpdateRequest에 맞는 스키마
+export const transactionUpdateSchema = z.object({
+  price: z
+    .number({ message: '올바른 금액을 입력해주세요.' })
+    .min(0, '금액은 0 이상이어야 합니다.')
     .int('금액은 정수여야 합니다.'),
   
   title: z
@@ -70,55 +123,21 @@ export const expenseFormSchema = z.object({
     .min(1, '은행명을 입력해주세요.')
     .max(50, '은행명은 50자 이하로 입력해주세요.'),
   
-  userUid: z
-    .string({ message: '사용자 정보가 필요합니다.' })
-    .min(1, '사용자 정보가 필요합니다.'),
+  splitCount: z
+    .number({ message: '분할 횟수를 입력해주세요.' })
+    .min(1, '분할 횟수는 1 이상이어야 합니다.')
+    .int('분할 횟수는 정수여야 합니다.'),
   
+  type: typeSchema.optional(),
   startAt: z
     .string()
     .datetime('올바른 날짜 형식이 아닙니다.')
     .optional(),
-  
-  type: z
-    .enum([EXPENSE_TYPES.OVER_EXPENSE, EXPENSE_TYPES.FIXED_EXPENSE, EXPENSE_TYPES.NONE] as const),
-  
-  category: z
-    .enum([
-      EXPENSE_CATEGORIES.FOOD,
-      EXPENSE_CATEGORIES.GROCERIES,
-      EXPENSE_CATEGORIES.TRANSPORT,
-      EXPENSE_CATEGORIES.CAR,
-      EXPENSE_CATEGORIES.HOUSING,
-      EXPENSE_CATEGORIES.UTILITIES,
-      EXPENSE_CATEGORIES.TELECOM,
-      EXPENSE_CATEGORIES.SUBSCRIPTIONS,
-      EXPENSE_CATEGORIES.SHOPPING,
-      EXPENSE_CATEGORIES.BEAUTY,
-      EXPENSE_CATEGORIES.HEALTHCARE,
-      EXPENSE_CATEGORIES.EDUCATION,
-      EXPENSE_CATEGORIES.ENTERTAINMENT,
-      EXPENSE_CATEGORIES.TRAVEL,
-      EXPENSE_CATEGORIES.PETS,
-      EXPENSE_CATEGORIES.GIFTS_OCCASIONS,
-      EXPENSE_CATEGORIES.INSURANCE,
-      EXPENSE_CATEGORIES.TAXES_FEES,
-      EXPENSE_CATEGORIES.DONATION,
-      EXPENSE_CATEGORIES.OTHER,
-    ] as const)
-    .optional(),
-  
-  // UI 전용 필드들
-  selectedDate: z.date({ message: '날짜를 선택해주세요.' }),
-  
-  dutchPayCount: z
-    .number({ message: '더치페이 인원을 입력해주세요.' })
-    .min(0, '더치페이 인원은 1명 이상이어야 합니다.')
-    .max(20, '더치페이 인원은 20명 이하로 설정해주세요.')
-    .int('더치페이 인원은 정수여야 합니다.'),
-  
-  app: z.string(),
+  memo: z.string().optional(),
+  category: categorySchema.optional(),
 });
 
 // 타입 추출
 export type TransactionCreateData = z.infer<typeof transactionCreateSchema>;
+export type TransactionUpdateData = z.infer<typeof transactionUpdateSchema>;
 export type ExpenseFormData = z.infer<typeof expenseFormSchema>;

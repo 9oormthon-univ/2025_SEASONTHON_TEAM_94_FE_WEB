@@ -6,7 +6,7 @@
 import { httpClient } from '@/shared/utils/httpClient';
 import { API_ENDPOINTS } from '@/shared/config/api';
 import {
-  type Transaction,
+  type TransactionResponse,
   type ExpenseType,
   type TransactionCreateRequest,
   type TransactionCreateByAlertRequest,
@@ -22,8 +22,8 @@ import type { ApiResponse } from '@/shared/types/api';
  */
 export async function fetchTransactions(
   filter: TransactionFilter
-): Promise<Transaction[]> {
-  const response = await httpClient.get<ApiResponse<Transaction[]>>(
+): Promise<TransactionResponse[]> {
+  const response = await httpClient.get<ApiResponse<TransactionResponse[]>>(
     API_ENDPOINTS.TRANSACTIONS,
     filter
   );
@@ -35,8 +35,8 @@ export async function fetchTransactions(
  */
 export async function fetchTransactionById(
   id: number
-): Promise<Transaction> {
-  const response = await httpClient.get<ApiResponse<Transaction>>(
+): Promise<TransactionResponse> {
+  const response = await httpClient.get<ApiResponse<TransactionResponse>>(
     API_ENDPOINTS.TRANSACTION_BY_ID(id)
   );
   return response.data;
@@ -47,8 +47,8 @@ export async function fetchTransactionById(
  */
 export async function createTransaction(
   transaction: TransactionCreateRequest
-): Promise<Transaction> {
-  const response = await httpClient.post<ApiResponse<Transaction>>(
+): Promise<TransactionResponse> {
+  const response = await httpClient.post<ApiResponse<TransactionResponse>>(
     API_ENDPOINTS.TRANSACTIONS,
     transaction
   );
@@ -60,8 +60,8 @@ export async function createTransaction(
  */
 export async function createTransactionByAlert(
   transaction: TransactionCreateByAlertRequest
-): Promise<Transaction> {
-  const response = await httpClient.post<ApiResponse<Transaction>>(
+): Promise<TransactionResponse> {
+  const response = await httpClient.post<ApiResponse<TransactionResponse>>(
     API_ENDPOINTS.TRANSACTIONS_ALARM,
     transaction
   );
@@ -74,8 +74,8 @@ export async function createTransactionByAlert(
 export async function updateTransaction(
   id: number,
   transaction: TransactionUpdateRequest
-): Promise<Transaction> {
-  const response = await httpClient.put<ApiResponse<Transaction>>(
+): Promise<TransactionResponse> {
+  const response = await httpClient.put<ApiResponse<TransactionResponse>>(
     API_ENDPOINTS.TRANSACTION_BY_ID(id),
     transaction
   );
@@ -88,7 +88,7 @@ export async function updateTransaction(
 export async function deleteTransaction(
   id: number
 ): Promise<void> {
-  await httpClient.delete<ApiResponse<Transaction>>(
+  await httpClient.delete<ApiResponse<TransactionResponse>>(
     API_ENDPOINTS.TRANSACTION_BY_ID(id)
   );
 }
@@ -118,13 +118,7 @@ export async function fetchCategories(): Promise<
   return response.data;
 }
 
-// 기존 호환성을 위한 별칭
-export const fetchAllExpenses = fetchTransactions;
-export const fetchExpenseById = fetchTransactionById;
-export const createExpense = createTransaction;
-export const createExpenseByAlert = createTransactionByAlert;
-export const updateExpense = updateTransaction;
-export const deleteExpense = deleteTransaction;
+
 
 // 호환성을 위한 타입별 총 금액 조회 함수 (Report API 사용)
 export async function fetchTotalPriceByType(

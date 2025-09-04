@@ -6,7 +6,7 @@ export interface UserResponse {
   role: string;
   username: string;
   nickname: string;
-  email: string; // 새로 추가된 필드
+  email: string;
 }
 
 // 사용자 업데이트 요청 타입 (Swagger 스펙: UserUpdateRequest)

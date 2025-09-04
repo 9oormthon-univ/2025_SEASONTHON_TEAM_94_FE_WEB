@@ -1,4 +1,6 @@
 import { Button } from '@/shared/components/ui/button';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
 
 interface NumberStepperProps {
   value: number;
@@ -6,6 +8,7 @@ interface NumberStepperProps {
   min?: number;
   max?: number;
   className?: string;
+  price?: number;
 }
 
 export function NumberStepper({ 
@@ -13,19 +16,26 @@ export function NumberStepper({
   onChange, 
   min = 1, 
   max = 20,
-  className = ""
+  className = "",
+  price = 0
 }: NumberStepperProps) {
-  const handleIncrement = () => {
+  const handleIncrement = useCallback(() => {
+    // 더치페이 증가 시 금액이 100원 미만인지 확인
+    if (value === 1 && price < 100) {
+      toast.info("더치페이는 금액 100원 이상부터 가능해요");
+      return;
+    }
+    
     if (value < max) {
       onChange(value + 1);
     }
-  };
+  }, [value, max, onChange, price]);
 
-  const handleDecrement = () => {
+  const handleDecrement = useCallback(() => {
     if (value > min) {
       onChange(value - 1);
     }
-  };
+  }, [value, min, onChange]);
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>

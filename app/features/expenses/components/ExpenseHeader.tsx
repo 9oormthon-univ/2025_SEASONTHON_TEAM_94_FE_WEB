@@ -30,9 +30,7 @@ export function ExpenseHeader({
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
-      <h1 className="text-base font-medium text-black tracking-[-0.165px]">
-        {title}
-      </h1>
+      <h1 className="justify-start text-black text-base font-bold">{title}</h1>
       <div className="w-8" /> {/* Spacer */}
     </div>
   );

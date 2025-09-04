@@ -8,7 +8,13 @@ export * from '@/features/expenses/hooks';
 // Components
 export * from '@/features/expenses/components/List/UncategorizedExpenseList';
 export * from '@/features/expenses/components/List/CategorizedExpenseList';
+export * from '@/features/expenses/components/List/CategorizedExpenseItem';
+export * from '@/features/expenses/components/List/FixedExpenseItem';
+export * from '@/features/expenses/components/List/OverExpenseItem';
 export * from '@/features/expenses/components/ExpenseDetail';
+export * from '@/features/expenses/components/ExpenseHeader';
+export * from '@/features/expenses/components/FixedExpenseStats';
+export * from '@/features/expenses/components/OverExpenseStats';
 export * from '@/features/expenses/components/Form/ExpenseForm';
 export * from '@/features/expenses/components/Form/ExpenseTypeSelector';
 export * from '@/features/expenses/components/Form/FormField';
@@ -21,8 +27,9 @@ export * from '@/features/expenses/pages/ExpenseUnclassified';
 
 // Utils
 export * from '@/features/expenses/utils/expenseUtils';
-export * from '@/features/expenses/_lib/validation';
-export * from '@/features/expenses/utils/formUtils';
+export * from '@/features/expenses/utils/dateUtils';
+export * from '@/features/expenses/utils/calculationUtils';
+export * from '@/features/expenses/utils/categoryUtils';
 
-// Types
-export * from '@/features/expenses/_lib/types';
+// Types & Validation
+export * from '@/features/expenses/_lib/validation';

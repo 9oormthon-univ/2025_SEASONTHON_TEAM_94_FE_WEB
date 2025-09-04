@@ -12,16 +12,13 @@ import {
 } from '@/shared/components/ui/drawer';
 import { Calendar } from '@/shared/components/ui/calendar';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
-import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/components';
 import { ExpenseTypeSelector } from './ExpenseTypeSelector';
 import { FormField } from './FormField';
 import { InputField } from './InputField';
 import { NumberStepper } from './NumberStepper';
 import { CategorySelector } from './CategorySelector';
-import {
-  formatDateForDisplay,
-  calculateDutchPayAmount,
-} from '@/features/expenses/utils/formUtils';
+import { formatDateForDisplay } from '@/features/expenses/utils/dateUtils';
+import { calculateDutchPayAmount } from '@/features/expenses/utils/calculationUtils';
 import { useExpenseForm } from '@/features/expenses/hooks/useExpenseForm';
 
 // 날짜 선택 핸들러 분리
@@ -47,7 +44,7 @@ const createDateSelectHandler = (
   };
 };
 
-interface ExpenseFormProps extends ExpenseHookFormProps {
+interface ExpenseFormProps {
   onSubmit: (data: ExpenseFormData) => void;
   defaultValues?: Partial<ExpenseFormData>;
   onValidationChange?: (isValid: boolean) => void;

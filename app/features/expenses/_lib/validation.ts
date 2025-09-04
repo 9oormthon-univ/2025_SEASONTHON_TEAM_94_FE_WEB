@@ -1,13 +1,23 @@
 import { z } from 'zod';
 import { EXPENSE_TYPES, EXPENSE_CATEGORIES } from '@/shared/types/expense';
 
+// Hook 관련 타입들
+export type {
+  Transaction,
+  TransactionCreateRequest,
+  TransactionUpdateRequest,
+  TransactionFilter,
+  ExpenseType,
+  ExpenseCategory,
+} from '@/shared/types/expense';
+
 // 공통 필드 스키마
 const baseTransactionSchema = z.object({
   price: z
     .number({ message: '올바른 금액을 입력해주세요.' })
     .min(1, '금액은 0 이상이어야 합니다.')
     .int('금액은 정수여야 합니다.'),
-  
+
   title: z
     .string({ message: '제목을 입력해주세요.' })
     .min(1, '제목을 입력해주세요.')
@@ -40,9 +50,9 @@ const categorySchema = z.enum([
 
 // 타입 enum 스키마
 const typeSchema = z.enum([
-  EXPENSE_TYPES.OVER_EXPENSE, 
-  EXPENSE_TYPES.FIXED_EXPENSE, 
-  EXPENSE_TYPES.NONE
+  EXPENSE_TYPES.OVER_EXPENSE,
+  EXPENSE_TYPES.FIXED_EXPENSE,
+  EXPENSE_TYPES.NONE,
 ] as const);
 
 // API 문서의 TransactionCreateRequest에 맞는 스키마
@@ -51,25 +61,22 @@ export const transactionCreateSchema = z.object({
     .number({ message: '올바른 금액을 입력해주세요.' })
     .min(0, '금액은 0 이상이어야 합니다.')
     .int('금액은 정수여야 합니다.'),
-  
+
   title: z
     .string({ message: '제목을 입력해주세요.' })
     .min(1, '제목을 입력해주세요.'),
-  
+
   bankName: z
     .string({ message: '은행명을 입력해주세요.' })
     .min(1, '은행명을 입력해주세요.'),
-  
+
   splitCount: z
     .number({ message: '분할 횟수를 입력해주세요.' })
     .min(1, '분할 횟수는 1 이상이어야 합니다.')
     .int('분할 횟수는 정수여야 합니다.'),
-  
-  startAt: z
-    .string()
-    .datetime('올바른 날짜 형식이 아닙니다.')
-    .optional(),
-  
+
+  startAt: z.string().datetime('올바른 날짜 형식이 아닙니다.').optional(),
+
   type: typeSchema.optional(),
   category: categorySchema.optional(),
   memo: z.string().optional(),
@@ -82,7 +89,7 @@ export const expenseFormSchema = z.object({
     .number({ message: '올바른 금액을 입력해주세요.' })
     .min(1, '금액은 1원 이상이어야 합니다.')
     .int('금액은 정수여야 합니다.'),
-  
+
   title: z
     .string({ message: '거래처를 입력해주세요.' })
     .min(1, '거래처를 입력해주세요.')
@@ -97,13 +104,10 @@ export const expenseFormSchema = z.object({
   selectedDate: z.date({ message: '지출일시를 선택해주세요.' }),
 
   // 선택 필드들
-  bankName: z
-    .string()
-    .optional()
-    .or(z.literal('')), // 빈 문자열 허용
+  bankName: z.string().optional().or(z.literal('')), // 빈 문자열 허용
 
   memo: z.string().optional(),
-  
+
   type: typeSchema,
   category: categorySchema.optional(),
 
@@ -121,27 +125,24 @@ export const transactionUpdateSchema = z.object({
     .number({ message: '올바른 금액을 입력해주세요.' })
     .min(0, '금액은 0 이상이어야 합니다.')
     .int('금액은 정수여야 합니다.'),
-  
+
   title: z
     .string({ message: '제목을 입력해주세요.' })
     .min(1, '제목을 입력해주세요.')
     .max(200, '제목은 200자 이하로 입력해주세요.'),
-  
+
   bankName: z
     .string({ message: '은행명을 입력해주세요.' })
     .min(1, '은행명을 입력해주세요.')
     .max(50, '은행명은 50자 이하로 입력해주세요.'),
-  
+
   splitCount: z
     .number({ message: '분할 횟수를 입력해주세요.' })
     .min(1, '분할 횟수는 1 이상이어야 합니다.')
     .int('분할 횟수는 정수여야 합니다.'),
-  
+
   type: typeSchema.optional(),
-  startAt: z
-    .string()
-    .datetime('올바른 날짜 형식이 아닙니다.')
-    .optional(),
+  startAt: z.string().datetime('올바른 날짜 형식이 아닙니다.').optional(),
   memo: z.string().optional(),
   category: categorySchema.optional(),
 });
@@ -151,39 +152,22 @@ export const transactionCreateByAlertSchema = z.object({
   price: z
     .number({ message: '올바른 금액을 입력해주세요.' })
     .int('금액은 정수여야 합니다.'),
-  
+
   title: z
     .string({ message: '제목을 입력해주세요.' })
     .min(1, '제목을 입력해주세요.'),
-  
+
   bankName: z
     .string({ message: '은행명을 입력해주세요.' })
     .min(1, '은행명을 입력해주세요.'),
-  
+
   userUid: z
     .string({ message: '사용자 UID를 입력해주세요.' })
     .min(1, '사용자 UID를 입력해주세요.'),
-  
-  startAt: z
-    .string()
-    .datetime('올바른 날짜 형식이 아닙니다.')
-    .optional(),
-  
+
+  startAt: z.string().datetime('올바른 날짜 형식이 아닙니다.').optional(),
+
   memo: z.string().optional(),
-});
-
-// Budget Goal 생성 요청 스키마 (BudgetGoalCreateRequest)
-export const budgetGoalCreateSchema = z.object({
-  price: z
-    .number({ message: '올바른 금액을 입력해주세요.' })
-    .int('금액은 정수여야 합니다.'),
-});
-
-// Budget Goal 업데이트 요청 스키마 (BudgetGoalUpdateRequest)
-export const budgetGoalUpdateSchema = z.object({
-  price: z
-    .number({ message: '올바른 금액을 입력해주세요.' })
-    .int('금액은 정수여야 합니다.'),
 });
 
 // 사용자 업데이트 요청 스키마 (UserUpdateRequest)
@@ -195,9 +179,9 @@ export const userUpdateSchema = z.object({
 
 // 타입 추출
 export type TransactionCreateData = z.infer<typeof transactionCreateSchema>;
-export type TransactionCreateByAlertData = z.infer<typeof transactionCreateByAlertSchema>;
+export type TransactionCreateByAlertData = z.infer<
+  typeof transactionCreateByAlertSchema
+>;
 export type TransactionUpdateData = z.infer<typeof transactionUpdateSchema>;
 export type ExpenseFormData = z.infer<typeof expenseFormSchema>;
-export type BudgetGoalCreateData = z.infer<typeof budgetGoalCreateSchema>;
-export type BudgetGoalUpdateData = z.infer<typeof budgetGoalUpdateSchema>;
 export type UserUpdateData = z.infer<typeof userUpdateSchema>;

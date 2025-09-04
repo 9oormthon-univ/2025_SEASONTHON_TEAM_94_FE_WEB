@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { Button } from '@/shared/components/ui/button';
 import type { Transaction } from '@/shared/types/expense';
-import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
 import { EXPENSE_TYPES } from '@/shared/types/expense';
+import { CategorizedExpenseItem } from './CategorizedExpenseItem';
 
 interface CategorizedExpenseListProps {
   expenses: Transaction[];
@@ -25,11 +25,14 @@ export function CategorizedExpenseList({
   const [isFixedExpenseExpanded, setIsFixedExpenseExpanded] = useState(false);
   const navigate = useNavigate();
 
-  const defaultEmptyState = useMemo(() => ({
-    icon: '📊',
-    title: '분류된 항목이 없습니다',
-    description: '',
-  }), []);
+  const defaultEmptyState = useMemo(
+    () => ({
+      icon: '📊',
+      title: '분류된 항목이 없습니다',
+      description: '',
+    }),
+    []
+  );
 
   const currentEmptyState = emptyState || defaultEmptyState;
 
@@ -37,25 +40,42 @@ export function CategorizedExpenseList({
     return (
       <div className="py-12 text-center">
         <div className="text-4xl mb-4">{currentEmptyState.icon}</div>
-        <h3 className="text-lg font-semibold mb-2">{currentEmptyState.title}</h3>
+        <h3 className="text-lg font-semibold mb-2">
+          {currentEmptyState.title}
+        </h3>
         {currentEmptyState.description && (
-          <p className="text-gray-500 text-sm">{currentEmptyState.description}</p>
+          <p className="text-gray-500 text-sm">
+            {currentEmptyState.description}
+          </p>
         )}
       </div>
     );
   }
 
   // 타입별로 그룹화
-  const { overExpenses, fixedExpenses } = useMemo(() => ({
-    overExpenses: expenses.filter(expense => expense.type === EXPENSE_TYPES.OVER_EXPENSE),
-    fixedExpenses: expenses.filter(expense => expense.type === EXPENSE_TYPES.FIXED_EXPENSE),
-  }), [expenses]);
+  const { overExpenses, fixedExpenses } = useMemo(
+    () => ({
+      overExpenses: expenses.filter(
+        expense => expense.type === EXPENSE_TYPES.OVER_EXPENSE
+      ),
+      fixedExpenses: expenses.filter(
+        expense => expense.type === EXPENSE_TYPES.FIXED_EXPENSE
+      ),
+    }),
+    [expenses]
+  );
 
   // 총 금액 계산
-  const { overTotal, fixedTotal } = useMemo(() => ({
-    overTotal: overExpenses.reduce((sum, expense) => sum + expense.price, 0),
-    fixedTotal: fixedExpenses.reduce((sum, expense) => sum + expense.price, 0),
-  }), [overExpenses, fixedExpenses]);
+  const { overTotal, fixedTotal } = useMemo(
+    () => ({
+      overTotal: overExpenses.reduce((sum, expense) => sum + expense.price, 0),
+      fixedTotal: fixedExpenses.reduce(
+        (sum, expense) => sum + expense.price,
+        0
+      ),
+    }),
+    [overExpenses, fixedExpenses]
+  );
 
   // 표시할 지출 항목 결정 (5개 제한)
   const ITEMS_PER_PAGE = 3;
@@ -173,7 +193,9 @@ export function CategorizedExpenseList({
             <div className="text-center mt-4">
               <Button
                 variant="ghost"
-                onClick={() => setIsFixedExpenseExpanded(!isFixedExpenseExpanded)}
+                onClick={() =>
+                  setIsFixedExpenseExpanded(!isFixedExpenseExpanded)
+                }
                 className="text-[#8e8e8e] text-[13px] tracking-[-0.26px] hover:text-sub-gray transition-colors duration-200 p-0 h-auto"
               >
                 {isFixedExpenseExpanded ? '접기' : `더보기`}
@@ -220,41 +242,6 @@ function ExpenseSectionHeader({
         {/* <svg className="w-3 h-3 ml-2" viewBox="0 0 12 12" fill="currentColor">
           <path d="M6 8.5L2.5 5 3.5 4L6 6.5L8.5 4L9.5 5L6 8.5Z" />
         </svg> */}
-      </div>
-    </div>
-  );
-}
-
-interface CategorizedExpenseItemProps {
-  expense: Transaction;
-  onUpdate?: () => void;
-  onClick?: () => void;
-}
-
-function CategorizedExpenseItem({
-  expense,
-  onUpdate,
-  onClick,
-}: CategorizedExpenseItemProps) {
-  const bankName = (expense.title ?? '').trim() || '은행';
-
-  return (
-    <div className="flex flex-col gap-1">
-      {/* Main Card */}
-      <div 
-        className="bg-white rounded-[10px] p-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-        onClick={onClick}
-      >
-        <div className="text-[12px] text-[#101010] mb-1 font-medium">
-          {formatExpenseDate(expense.startedAt)}
-        </div>
-        <div className="text-base text-[#101010] mb-3 font-medium">
-          <span className="text-black">{bankName}</span>
-          <span className="text-[#bfbfbf] ml-1">에서 온 알림</span>
-        </div>
-  <div className="text-2xl font-medium text-black">
-          - {expense.price.toLocaleString()}원
-        </div>
       </div>
     </div>
   );

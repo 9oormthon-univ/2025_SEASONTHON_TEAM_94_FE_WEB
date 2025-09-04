@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
 import { useUpdateExpense } from '@/features/expenses/hooks/useExpenseMutations';
+import { useBulkSelection } from '@/features/expenses/hooks/useBulkSelection';
 import { UncategorizedExpenseItem } from '@/features/expenses/components/List/UncategorizedExpenseItem';
 import emptyImage from '@/assets/empty.png';
 
@@ -24,8 +25,14 @@ export function UncategorizedExpenseList({
   onTransactionUpdate,
 }: UncategorizedExpenseListProps) {
   const [removingIds, setRemovingIds] = useState<Set<number>>(new Set());
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const updateExpenseMutation = useUpdateExpense();
+  const {
+    selectedIds,
+    hasSelection,
+    handleItemSelect,
+    getSelectedItems,
+    clearSelection,
+  } = useBulkSelection<Transaction>();
 
   const defaultEmptyState = useMemo(
     () => ({
@@ -40,27 +47,17 @@ export function UncategorizedExpenseList({
   // 체크박스 선택 핸들러
   const handleCheckboxChange = useCallback(
     (expenseId: number, checked: boolean) => {
-      setSelectedIds(prev => {
-        const newSet = new Set(prev);
-        if (checked) {
-          newSet.add(expenseId);
-        } else {
-          newSet.delete(expenseId);
-        }
-        return newSet;
-      });
+      handleItemSelect(expenseId, checked);
     },
-    []
+    [handleItemSelect]
   );
 
   // 일괄 수정 핸들러
   const handleBulkUpdate = useCallback(
     async (type: ExpenseType) => {
-      if (selectedIds.size === 0) return;
+      if (!hasSelection) return;
 
-      const selectedExpenses = expenses.filter(expense =>
-        selectedIds.has(expense.id)
-      );
+      const selectedExpenses = getSelectedItems(expenses);
 
       try {
         // 모든 선택된 항목을 병렬로 업데이트
@@ -81,7 +78,7 @@ export function UncategorizedExpenseList({
         );
 
         // 성공 시 선택 상태 초기화 및 부모 컴포넌트에 알림
-        setSelectedIds(new Set());
+        clearSelection();
         selectedExpenses.forEach(expense => {
           onTransactionUpdate?.(expense.id, type);
         });
@@ -89,7 +86,14 @@ export function UncategorizedExpenseList({
         console.error('일괄 수정 실패:', error);
       }
     },
-    [selectedIds, expenses, updateExpenseMutation, onTransactionUpdate]
+    [
+      hasSelection,
+      getSelectedItems,
+      expenses,
+      updateExpenseMutation,
+      onTransactionUpdate,
+      clearSelection,
+    ]
   );
 
   // ✅ 조건부 렌더링은 hooks 이후에 배치
@@ -153,7 +157,7 @@ export function UncategorizedExpenseList({
 
       {/* 하단 고정 버튼 - 선택된 항목이 있을 때만 표시 */}
       <AnimatePresence>
-        {selectedIds.size > 0 && (
+        {hasSelection && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

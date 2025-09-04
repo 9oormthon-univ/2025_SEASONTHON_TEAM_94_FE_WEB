@@ -1,56 +1,37 @@
-import React from 'react';
 import { motion } from 'motion/react';
-import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Badge } from '@/shared/components/ui/badge';
 import type { Transaction } from '@/shared/types/expense';
-import { formatExpenseDate } from '@/features/expenses/utils/dateUtils';
 import { getCategoryInfo } from '@/features/expenses/utils/categoryUtils';
+import { Badge } from '@/shared/components/ui/badge';
 
-interface UncategorizedExpenseItemProps {
+interface FixedExpenseItemProps {
   expense: Transaction;
-  isSelected: boolean;
-  onCheckboxChange: (expenseId: number, checked: boolean) => void;
+  onUpdate?: () => void;
+  onClick?: () => void;
 }
 
-export function UncategorizedExpenseItem({
+export function FixedExpenseItem({
   expense,
-  isSelected,
-  onCheckboxChange,
-}: UncategorizedExpenseItemProps) {
-  const handleCheckboxChange = (checked: boolean) => {
-    onCheckboxChange(expense.id, checked);
-  };
-
+  onUpdate,
+  onClick,
+}: FixedExpenseItemProps) {
   // 데이터에서 카테고리가 설정된 경우에만 표시
   const categoryInfo = getCategoryInfo(expense.category);
 
   return (
     <motion.div
       className="bg-white h-25 rounded-lg relative px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-      onClick={() => handleCheckboxChange(!isSelected)}
+      onClick={onClick}
       whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
-      <div className="flex flex-col gap-0.5 h-full">
-        {/* Date and Checkbox Row */}
-        <div className="flex items-end justify-between h-[18px]">
-          <div className="text-sub-gray justify-start text-sub-Color text-xs font-medium">
-            {formatExpenseDate(expense.startedAt)}
-          </div>
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={handleCheckboxChange}
-            className="w-[18px] h-[18px] border-[#bfbfbf] data-[state=checked]:bg-[#ff6200] data-[state=checked]:border-[#ff6200] pointer-events-none"
-          />
-        </div>
-
+      <div className="flex flex-col justify-center gap-0.5 h-full">
         {/* Merchant Name */}
         <div className="text-black justify-start text-base">
           {expense.title}
         </div>
 
         {/* Amount and Category Row */}
-        <div className="flex items-end justify-between">
+        <div className="flex items-center justify-between">
           <div className="justify-start text-black text-xl font-bold">
             -{expense.price.toLocaleString()}원
           </div>

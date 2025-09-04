@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -14,12 +14,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/shared/components/ui/alert-dialog';
-import { 
-  useExpenseDetail, 
-  useUpdateExpense, 
-  useDeleteExpense 
+import {
+  useExpenseDetail,
+  useUpdateExpense,
+  useDeleteExpense,
 } from '@/features/expenses/hooks';
-import { EXPENSE_TYPES, type TransactionUpdateRequest } from '@/shared/types/expense';
+import {
+  EXPENSE_TYPES,
+  type TransactionUpdateRequest,
+} from '@/shared/types/expense';
 import { ExpenseForm } from '@/features/expenses/components/Form/ExpenseForm';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 import { toLocalISOString } from '@/shared/utils/utils';
@@ -32,7 +35,11 @@ export function ExpenseDetailPage() {
   const expenseIdNum = expenseId ? Number(expenseId) : 0;
 
   // TanStack Query 훅들 사용
-  const { data: expense, isLoading: loading, error } = useExpenseDetail(expenseIdNum);
+  const {
+    data: expense,
+    isLoading: loading,
+    error,
+  } = useExpenseDetail(expenseIdNum);
   const updateExpenseMutation = useUpdateExpense();
   const deleteExpenseMutation = useDeleteExpense();
 
@@ -47,6 +54,7 @@ export function ExpenseDetailPage() {
       selectedDate: new Date(expense.startedAt),
       type: expense.type,
       category: expense.category,
+      memo: expense.memo || '', // 메모 필드 추가
       app: '', // API에서 app 정보가 없으므로 빈 문자열
       dutchPayCount: 1, // 기본값
     };
@@ -71,6 +79,7 @@ export function ExpenseDetailPage() {
         splitCount: formData.dutchPayCount,
         type: formData.type,
         category: formData.category,
+        memo: formData.memo || '', // 메모 필드 추가
       };
 
       await updateExpenseMutation.mutateAsync({
@@ -79,7 +88,8 @@ export function ExpenseDetailPage() {
       });
 
       // 성공 시 목록으로 돌아가기
-      const nextTab = formData.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
+      const nextTab =
+        formData.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
       navigate(`/expenses?tab=${nextTab}`);
     } catch (error) {
       // 에러는 mutation 훅에서 toast로 처리됨
@@ -95,7 +105,8 @@ export function ExpenseDetailPage() {
       await deleteExpenseMutation.mutateAsync(expense.id);
 
       // 성공 시 목록으로 돌아가기
-      const nextTab = expense.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
+      const nextTab =
+        expense.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
       navigate(`/expenses?tab=${nextTab}`);
     } catch (error) {
       // 에러는 mutation 훅에서 toast로 처리됨
@@ -118,9 +129,13 @@ export function ExpenseDetailPage() {
       <div className="bg-white min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 mb-4">
-            {error instanceof Error ? error.message : '지출을 불러오는데 실패했습니다.'}
+            {error instanceof Error
+              ? error.message
+              : '지출을 불러오는데 실패했습니다.'}
           </p>
-          <Button onClick={() => navigate('/expenses')}>목록으로 돌아가기</Button>
+          <Button onClick={() => navigate('/expenses')}>
+            목록으로 돌아가기
+          </Button>
         </div>
       </div>
     );
@@ -132,14 +147,16 @@ export function ExpenseDetailPage() {
       <div className="bg-white min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-500 mb-4">지출 정보를 찾을 수 없습니다.</p>
-          <Button onClick={() => navigate('/expenses')}>목록으로 돌아가기</Button>
+          <Button onClick={() => navigate('/expenses')}>
+            목록으로 돌아가기
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -177,23 +194,23 @@ export function ExpenseDetailPage() {
                   삭제
                 </Button>
               </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>지출 삭제</AlertDialogTitle>
-                <AlertDialogDescription>
-                  이 지출을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>취소</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={handleDelete}
-                  className="bg-red-500 hover:bg-red-600 transition-colors"
-                >
-                  삭제
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>지출 삭제</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    이 지출을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-red-500 hover:bg-red-600 transition-colors"
+                  >
+                    삭제
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
             </AlertDialog>
           </motion.div>
 

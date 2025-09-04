@@ -17,6 +17,7 @@ export * from '@/features/expenses/components/Form/FormField';
 export * from '@/features/expenses/pages/ExpensesPage';
 export * from '@/features/expenses/pages/ExpenseDetailPage';
 export * from '@/features/expenses/pages/ExpenseAddPage';
+export * from '@/features/expenses/pages/ExpenseUnclassified';
 
 // Utils
 export * from '@/features/expenses/utils/expenseUtils';

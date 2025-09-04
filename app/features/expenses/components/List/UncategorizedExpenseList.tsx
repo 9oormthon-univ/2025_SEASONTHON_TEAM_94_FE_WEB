@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
-import { formatExpenseDate } from '@/features/expenses/utils/expenseUtils';
 import { useUpdateExpense } from '@/features/expenses/hooks/useExpenseMutations';
+import { UncategorizedExpenseItem } from '@/features/expenses/components/List/UncategorizedExpenseItem';
+import emptyImage from '@/assets/empty.png';
 
 const ANIMATION_DELAY_MS = 300;
 
@@ -23,68 +24,91 @@ export function UncategorizedExpenseList({
   onTransactionUpdate,
 }: UncategorizedExpenseListProps) {
   const [removingIds, setRemovingIds] = useState<Set<number>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const updateExpenseMutation = useUpdateExpense();
 
-  const defaultEmptyState = useMemo(() => ({
-    icon: '🔍',
-    title: '미분류 지출이 없어요',
-    description: '모든 지출이 분류되었습니다!',
-  }), []);
+  const defaultEmptyState = useMemo(
+    () => ({
+      icon: emptyImage,
+      title: '아직 미분류된 지출이 없어요',
+      description: '금융 거래는 앱 알림을 통해 자동으로 추적된답니다!',
+    }),
+    []
+  );
 
   const currentEmptyState = emptyState || defaultEmptyState;
+  // 체크박스 선택 핸들러
+  const handleCheckboxChange = useCallback(
+    (expenseId: number, checked: boolean) => {
+      setSelectedIds(prev => {
+        const newSet = new Set(prev);
+        if (checked) {
+          newSet.add(expenseId);
+        } else {
+          newSet.delete(expenseId);
+        }
+        return newSet;
+      });
+    },
+    []
+  );
 
-  const handleTransactionUpdate = useCallback(
-    async (expenseId: number, type: ExpenseType) => {
-      setRemovingIds(prev => new Set([...prev, expenseId]));
+  // 일괄 수정 핸들러
+  const handleBulkUpdate = useCallback(
+    async (type: ExpenseType) => {
+      if (selectedIds.size === 0) return;
+
+      const selectedExpenses = expenses.filter(expense =>
+        selectedIds.has(expense.id)
+      );
 
       try {
-        const expense = expenses.find(e => e.id === expenseId);
-        if (expense) {
-          await updateExpenseMutation.mutateAsync({
-            id: expenseId,
-            data: {
-              price: expense.price,
-              title: expense.title,
-              bankName: expense.bankName,
-              splitCount: expense.splitCount,
-              type,
-              category: expense.category,
-            },
-          });
+        // 모든 선택된 항목을 병렬로 업데이트
+        await Promise.all(
+          selectedExpenses.map(expense =>
+            updateExpenseMutation.mutateAsync({
+              id: expense.id,
+              data: {
+                price: expense.price,
+                title: expense.title,
+                bankName: expense.bankName,
+                splitCount: expense.splitCount,
+                type,
+                category: expense.category,
+              },
+            })
+          )
+        );
 
-          // 애니메이션 완료 후 부모 컴포넌트에 알림
-          setTimeout(() => {
-            onTransactionUpdate?.(expenseId, type);
-          }, ANIMATION_DELAY_MS);
-        }
-      } catch (error) {
-        // 실패 시 removing 상태 제거
-        setRemovingIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(expenseId);
-          return newSet;
+        // 성공 시 선택 상태 초기화 및 부모 컴포넌트에 알림
+        setSelectedIds(new Set());
+        selectedExpenses.forEach(expense => {
+          onTransactionUpdate?.(expense.id, type);
         });
+      } catch (error) {
+        console.error('일괄 수정 실패:', error);
       }
     },
-    [expenses, onTransactionUpdate, updateExpenseMutation]
+    [selectedIds, expenses, updateExpenseMutation, onTransactionUpdate]
   );
 
   // ✅ 조건부 렌더링은 hooks 이후에 배치
   if (expenses.length === 0) {
     return (
-      <div className="py-12 text-center">
-        <div className="text-4xl mb-4">{currentEmptyState.icon}</div>
-        <h3 className="text-lg font-semibold mb-2">{currentEmptyState.title}</h3>
-        <p className="text-gray-500 text-sm">{currentEmptyState.description}</p>
-      </div>
-    );
-  }
-
-  if (expenses.length === 0) {
-    return (
-      <div className="py-12 text-center">
-        <div className="text-4xl mb-4">📝</div>
-        <p className="text-gray-500 text-base">미분류 항목이 없습니다.</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <div className="mb-4 flex justify-center">
+          <img
+            src={currentEmptyState.icon}
+            alt="빈 상태"
+            className="w-[150px] h-[150px] object-contain"
+          />
+        </div>
+        <h3 className="text-center justify-start text-xl font-bold mb-1">
+          {currentEmptyState.title}
+        </h3>
+        <p className="text-center justify-start text-xs font-normal">
+          {currentEmptyState.description}
+        </p>
       </div>
     );
   }
@@ -94,93 +118,91 @@ export function UncategorizedExpenseList({
   );
 
   return (
-    <div className="space-y-6 pb-32">
-      <AnimatePresence mode="popLayout">
-        {visibleExpenses.map(expense => (
+    <div className="relative">
+      <div className="space-y-2.5 pb-20">
+        <AnimatePresence mode="popLayout">
+          {visibleExpenses.map(expense => (
+            <motion.div
+              key={expense.id}
+              layout
+              initial={{ opacity: 1, y: 0 }}
+              exit={{
+                opacity: 0,
+                x: -100,
+                transition: {
+                  duration: ANIMATION_DELAY_MS / 1000,
+                  ease: 'easeInOut',
+                },
+              }}
+              transition={{
+                layout: {
+                  duration: ANIMATION_DELAY_MS / 1000,
+                  ease: 'easeInOut',
+                },
+              }}
+            >
+              <UncategorizedExpenseItem
+                expense={expense}
+                isSelected={selectedIds.has(expense.id)}
+                onCheckboxChange={handleCheckboxChange}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* 하단 고정 버튼 - 선택된 항목이 있을 때만 표시 */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
           <motion.div
-            key={expense.id}
-            layout
-            initial={{ opacity: 1, y: 0 }}
-            exit={{
-              opacity: 0,
-              x: -100,
-              transition: {
-                duration: ANIMATION_DELAY_MS / 1000,
-                ease: 'easeInOut',
-              },
-            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             transition={{
-              layout: {
-                duration: ANIMATION_DELAY_MS / 1000,
-                ease: 'easeInOut',
-              },
+              duration: 0.2,
+              ease: 'easeOut',
             }}
+            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 py-4 z-50"
           >
-            <UncategorizedExpenseItem
-              expense={expense}
-              onUpdate={handleTransactionUpdate}
-            />
+            <div className="flex gap-3">
+              {/* 고정지출 버튼 */}
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1 }}
+                className="flex-1"
+              >
+                <Button
+                  variant="outline"
+                  onClick={() => handleBulkUpdate('FIXED_EXPENSE')}
+                  disabled={updateExpenseMutation.isPending}
+                  className="w-full h-[52px] text-base font-bold text-main-orange border-main-orange hover:bg-orange-50 transition-colors rounded-[10px]"
+                >
+                  고정지출
+                </Button>
+              </motion.div>
+
+              {/* 초과지출 버튼 */}
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1 }}
+                className="flex-1"
+              >
+                <Button
+                  onClick={() => handleBulkUpdate('OVER_EXPENSE')}
+                  disabled={updateExpenseMutation.isPending}
+                  className={`w-full h-[52px] text-white text-base font-bold rounded-[10px] transition-colors ${
+                    updateExpenseMutation.isPending
+                      ? 'bg-[#EDEDED] text-gray-400 cursor-not-allowed'
+                      : 'bg-main-orange hover:bg-main-orange/90'
+                  }`}
+                >
+                  {updateExpenseMutation.isPending ? '처리 중...' : '초과지출'}
+                </Button>
+              </motion.div>
+            </div>
           </motion.div>
-        ))}
+        )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-interface UncategorizedExpenseItemProps {
-  expense: Transaction;
-  onUpdate: (expenseId: number, type: ExpenseType) => void;
-}
-
-function UncategorizedExpenseItem({
-  expense,
-  onUpdate,
-}: UncategorizedExpenseItemProps) {
-  const bankName = (expense.title ?? '').trim() || '은행';
-
-  const handleFixedExpenseClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onUpdate(expense.id, 'FIXED_EXPENSE');
-  };
-
-  const handleOverExpenseClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onUpdate(expense.id, 'OVER_EXPENSE');
-  };
-
-  return (
-    <div className="w-full flex flex-col gap-2">
-      {/* Main Card */}
-      <div className="bg-white rounded-[10px] p-4 mb-1.5 flex flex-col">
-        <div className="text-[12px] text-[#101010] mb-1 font-medium">
-          {formatExpenseDate(expense.startedAt)}
-        </div>
-        <div className="text-base text-[#101010] mb-3 font-medium">
-          <span className="text-black">{bankName}</span>
-          <span className="text-[#bfbfbf] ml-1">에서 온 알림</span>
-        </div>
-        <div className={`text-2xl font-medium 'text-black'}`}>
-          - {expense.price.toLocaleString()}원
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex space-x-1.5">
-        <Button
-          variant="outline"
-          onClick={handleFixedExpenseClick}
-          className="flex-1 h-[45px] border-main-orange text-main-orange bg-white rounded-[10px] text-[16px] font-bold hover:bg-main-orange/5 transition-colors duration-200"
-        >
-          고정지출
-        </Button>
-
-        <Button
-          onClick={handleOverExpenseClick}
-          className="flex-1 h-[45px] bg-main-orange text-[#fffefb] rounded-[10px] text-[16px] font-bold hover:bg-main-orange/90 transition-colors duration-200"
-        >
-          초과지출
-        </Button>
-      </div>
     </div>
   );
 }

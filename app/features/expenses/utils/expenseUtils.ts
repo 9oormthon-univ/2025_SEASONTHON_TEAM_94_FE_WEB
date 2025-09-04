@@ -4,7 +4,9 @@ import type { TransactionCreateRequest } from '@/shared/types/expense';
 /**
  * 폼 데이터를 API 요청 데이터로 변환합니다
  */
-export function convertFormDataToApiRequest(formData: ExpenseFormData): TransactionCreateRequest {
+export function convertFormDataToApiRequest(
+  formData: ExpenseFormData
+): TransactionCreateRequest {
   return {
     price: formData.price,
     title: formData.title,
@@ -67,9 +69,9 @@ export function formatExpenseDate(dateStr: string): string {
     ][date.getDay()];
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+    // const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return `${month}월 ${day}일 ${dayOfWeek} ${hours}:${minutes}:${seconds}`;
+    return `${month}월 ${day}일 ${dayOfWeek} ${hours}:${minutes}`;
   } catch {
     return dateStr;
   }

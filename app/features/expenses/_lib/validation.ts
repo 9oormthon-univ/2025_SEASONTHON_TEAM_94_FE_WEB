@@ -46,7 +46,20 @@ const typeSchema = z.enum([
 ] as const);
 
 // API 문서의 TransactionCreateRequest에 맞는 스키마
-export const transactionCreateSchema = baseTransactionSchema.extend({
+export const transactionCreateSchema = z.object({
+  price: z
+    .number({ message: '올바른 금액을 입력해주세요.' })
+    .min(0, '금액은 0 이상이어야 합니다.')
+    .int('금액은 정수여야 합니다.'),
+  
+  title: z
+    .string({ message: '제목을 입력해주세요.' })
+    .min(1, '제목을 입력해주세요.'),
+  
+  bankName: z
+    .string({ message: '은행명을 입력해주세요.' })
+    .min(1, '은행명을 입력해주세요.'),
+  
   splitCount: z
     .number({ message: '분할 횟수를 입력해주세요.' })
     .min(1, '분할 횟수는 1 이상이어야 합니다.')
@@ -54,16 +67,12 @@ export const transactionCreateSchema = baseTransactionSchema.extend({
   
   startAt: z
     .string()
-    .datetime('올바른 날짜 형식이 아닙니다.'),
-  
-  bankName: z
-    .string()
-    .optional()
-    .or(z.literal('')), // 빈 문자열 허용
+    .datetime('올바른 날짜 형식이 아닙니다.')
+    .optional(),
   
   type: typeSchema.optional(),
   category: categorySchema.optional(),
-  memo: z.string().optional(), // 메모 필드 추가
+  memo: z.string().optional(),
 });
 
 // 폼에서 사용할 스키마 (UI 전용 필드 포함)
@@ -137,7 +146,58 @@ export const transactionUpdateSchema = z.object({
   category: categorySchema.optional(),
 });
 
+// 알림으로 지출 생성 요청 스키마 (TransactionCreateByAlertRequest)
+export const transactionCreateByAlertSchema = z.object({
+  price: z
+    .number({ message: '올바른 금액을 입력해주세요.' })
+    .int('금액은 정수여야 합니다.'),
+  
+  title: z
+    .string({ message: '제목을 입력해주세요.' })
+    .min(1, '제목을 입력해주세요.'),
+  
+  bankName: z
+    .string({ message: '은행명을 입력해주세요.' })
+    .min(1, '은행명을 입력해주세요.'),
+  
+  userUid: z
+    .string({ message: '사용자 UID를 입력해주세요.' })
+    .min(1, '사용자 UID를 입력해주세요.'),
+  
+  startAt: z
+    .string()
+    .datetime('올바른 날짜 형식이 아닙니다.')
+    .optional(),
+  
+  memo: z.string().optional(),
+});
+
+// Budget Goal 생성 요청 스키마 (BudgetGoalCreateRequest)
+export const budgetGoalCreateSchema = z.object({
+  price: z
+    .number({ message: '올바른 금액을 입력해주세요.' })
+    .int('금액은 정수여야 합니다.'),
+});
+
+// Budget Goal 업데이트 요청 스키마 (BudgetGoalUpdateRequest)
+export const budgetGoalUpdateSchema = z.object({
+  price: z
+    .number({ message: '올바른 금액을 입력해주세요.' })
+    .int('금액은 정수여야 합니다.'),
+});
+
+// 사용자 업데이트 요청 스키마 (UserUpdateRequest)
+export const userUpdateSchema = z.object({
+  nickname: z
+    .string({ message: '닉네임을 입력해주세요.' })
+    .min(1, '닉네임을 입력해주세요.'),
+});
+
 // 타입 추출
 export type TransactionCreateData = z.infer<typeof transactionCreateSchema>;
+export type TransactionCreateByAlertData = z.infer<typeof transactionCreateByAlertSchema>;
 export type TransactionUpdateData = z.infer<typeof transactionUpdateSchema>;
 export type ExpenseFormData = z.infer<typeof expenseFormSchema>;
+export type BudgetGoalCreateData = z.infer<typeof budgetGoalCreateSchema>;
+export type BudgetGoalUpdateData = z.infer<typeof budgetGoalUpdateSchema>;
+export type UserUpdateData = z.infer<typeof userUpdateSchema>;

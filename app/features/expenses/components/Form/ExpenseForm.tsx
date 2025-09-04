@@ -18,8 +18,34 @@ import { FormField } from './FormField';
 import { InputField } from './InputField';
 import { NumberStepper } from './NumberStepper';
 import { CategorySelector } from './CategorySelector';
-import { formatDateForDisplay, calculateDutchPayAmount } from '@/features/expenses/utils/formUtils';
+import {
+  formatDateForDisplay,
+  calculateDutchPayAmount,
+} from '@/features/expenses/utils/formUtils';
 import { useExpenseForm } from '@/features/expenses/hooks/useExpenseForm';
+
+// 날짜 선택 핸들러 분리
+const createDateSelectHandler = (
+  currentDate: Date,
+  onChange: (date: Date) => void,
+  onClose: () => void
+) => {
+  return (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      const newDate = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        currentDate.getHours(),
+        currentDate.getMinutes(),
+        currentDate.getSeconds(),
+        currentDate.getMilliseconds()
+      );
+      onChange(newDate);
+      onClose();
+    }
+  };
+};
 
 interface ExpenseFormProps extends ExpenseHookFormProps {
   onSubmit: (data: ExpenseFormData) => void;
@@ -32,14 +58,15 @@ export function ExpenseForm({
   defaultValues,
   onValidationChange,
 }: ExpenseFormProps) {
-  const {
-    form,
-    watchedValues,
-    calendarHandlers,
-    dutchPayHandlers,
-  } = useExpenseForm({ defaultValues, onValidationChange });
+  const { form, watchedValues, calendarHandlers, dutchPayHandlers } =
+    useExpenseForm({ defaultValues, onValidationChange });
 
-  const { control, handleSubmit, setValue, formState: { errors } } = form;
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = form;
   const { dutchPayCount, price } = watchedValues;
 
   return (
@@ -49,11 +76,7 @@ export function ExpenseForm({
 
       {/* Price Input */}
       <div className="px-4 sm:px-6 py-4">
-        <InputField 
-          label="금액" 
-          error={errors.price?.message}
-          htmlFor="price"
-        >
+        <InputField label="금액" error={errors.price?.message} htmlFor="price">
           <Controller
             name="price"
             control={control}
@@ -65,7 +88,7 @@ export function ExpenseForm({
                 autoComplete="off"
                 placeholder="금액을 입력하세요."
                 value={field.value ? field.value.toLocaleString() : ''}
-                onChange={(e) => {
+                onChange={e => {
                   const numericValue = e.target.value.replace(/[^\d]/g, '');
                   field.onChange(numericValue ? parseInt(numericValue, 10) : 0);
                 }}
@@ -79,8 +102,8 @@ export function ExpenseForm({
       {/* Form Fields */}
       <div className="px-4 sm:px-6 space-y-6">
         {/* Merchant */}
-        <InputField 
-          label="거래처" 
+        <InputField
+          label="거래처"
           error={errors.title?.message}
           htmlFor="title"
         >
@@ -100,10 +123,7 @@ export function ExpenseForm({
         </InputField>
 
         {/* Dutch Pay */}
-        <FormField 
-          label="더치페이"
-          error={errors.dutchPayCount?.message}
-        >
+        <FormField label="더치페이" error={errors.dutchPayCount?.message}>
           <div className="flex items-center gap-2 justify-end">
             <Controller
               name="dutchPayCount"
@@ -111,7 +131,7 @@ export function ExpenseForm({
               render={({ field }) => (
                 <NumberStepper
                   value={field.value}
-                  onChange={(value) => {
+                  onChange={value => {
                     field.onChange(value);
                     setValue('splitCount', value); // splitCount도 함께 업데이트
                     dutchPayHandlers.setInput(String(value));
@@ -131,15 +151,15 @@ export function ExpenseForm({
         </FormField>
 
         {/* Date */}
-        <InputField 
-          label="지출일시" 
-          error={errors.selectedDate?.message}
-        >
+        <InputField label="지출일시" error={errors.selectedDate?.message}>
           <Controller
             name="selectedDate"
             control={control}
             render={({ field }) => (
-              <Drawer open={calendarHandlers.isOpen} onOpenChange={calendarHandlers.setIsOpen}>
+              <Drawer
+                open={calendarHandlers.isOpen}
+                onOpenChange={calendarHandlers.setIsOpen}
+              >
                 <DrawerTrigger asChild>
                   <Button
                     variant="outline"
@@ -152,28 +172,19 @@ export function ExpenseForm({
                 <DrawerContent className="w-auto overflow-hidden p-0">
                   <DrawerHeader className="sr-only">
                     <DrawerTitle>날짜 선택</DrawerTitle>
-                    <DrawerDescription>지출 날짜를 선택하세요</DrawerDescription>
+                    <DrawerDescription>
+                      지출 날짜를 선택하세요
+                    </DrawerDescription>
                   </DrawerHeader>
                   <div className="flex flex-col">
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={(date) => {
-                        if (date) {
-                          const currentDate = field.value;
-                          const newDate = new Date(
-                            date.getFullYear(),
-                            date.getMonth(), 
-                            date.getDate(),
-                            currentDate.getHours(),
-                            currentDate.getMinutes(),
-                            currentDate.getSeconds(),
-                            currentDate.getMilliseconds()
-                          );
-                          field.onChange(newDate);
-                          calendarHandlers.setIsOpen(false);
-                        }
-                      }}
+                      onSelect={createDateSelectHandler(
+                        field.value,
+                        field.onChange,
+                        () => calendarHandlers.setIsOpen(false)
+                      )}
                       captionLayout="dropdown"
                       className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)] border-none"
                     />
@@ -182,9 +193,17 @@ export function ExpenseForm({
                       <div className="relative">
                         <Input
                           type="time"
-                          value={`${String(field.value.getHours()).padStart(2, '0')}:${String(field.value.getMinutes()).padStart(2, '0')}`}
-                          onChange={(e) => {
-                            const [hours, minutes] = e.target.value.split(':').map(Number);
+                          value={`${String(field.value.getHours()).padStart(
+                            2,
+                            '0'
+                          )}:${String(field.value.getMinutes()).padStart(
+                            2,
+                            '0'
+                          )}`}
+                          onChange={e => {
+                            const [hours, minutes] = e.target.value
+                              .split(':')
+                              .map(Number);
                             const newDate = new Date(field.value);
                             newDate.setHours(hours || 0);
                             newDate.setMinutes(minutes || 0);
@@ -203,11 +222,7 @@ export function ExpenseForm({
         </InputField>
 
         {/* Memo */}
-        <InputField 
-          label="메모" 
-          error={errors.memo?.message}
-          htmlFor="memo"
-        >
+        <InputField label="메모" error={errors.memo?.message} htmlFor="memo">
           <Controller
             name="memo"
             control={control}

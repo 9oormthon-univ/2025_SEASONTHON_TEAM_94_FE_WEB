@@ -7,7 +7,11 @@ interface ExpenseHeaderProps {
   backPath?: string;
 }
 
-export function ExpenseHeader({ title, onBackClick, backPath = '/expenses' }: ExpenseHeaderProps) {
+export function ExpenseHeader({
+  title,
+  onBackClick,
+  backPath = '/expenses',
+}: ExpenseHeaderProps) {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
@@ -19,7 +23,7 @@ export function ExpenseHeader({ title, onBackClick, backPath = '/expenses' }: Ex
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-6">
+    <div className="flex items-center justify-between px-4 py-4 bg-white">
       <button
         onClick={handleBackClick}
         className="cursor-pointer p-1 rounded-full hover:bg-gray-100 transition-colors"

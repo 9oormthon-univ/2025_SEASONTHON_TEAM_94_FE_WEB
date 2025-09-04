@@ -2,6 +2,8 @@
 export * from '@/shared/types/expense';
 export * from '@/shared/types/api';
 export * from '@/shared/types/auth';
+export * from '@/shared/types/budget';
+export * from '@/shared/types/user';
 
 // Utils
 export * from '@/shared/utils/httpClient';

@@ -6,7 +6,6 @@ import {
   updateBudgetGoal,
 } from '@/features/more/api/budgetGoals';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
-import { MOCK_USER_UID } from '@/shared/config/api';
 
 interface UseBudgetGoalOptions {
   date?: string;
@@ -14,7 +13,6 @@ interface UseBudgetGoalOptions {
 }
 
 export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
-  const userUid = MOCK_USER_UID; 
   const { date, idFromRoute } = opts;
 
   const [loading, setLoading] = useState(true);
@@ -38,7 +36,7 @@ export function useBudgetGoal(opts: UseBudgetGoalOptions = {}) {
         setLoading(false);
       }
     })();
-  }, [userUid, date]);
+  }, [ date]);
 
   async function save() {
     if (!Number.isFinite(price) || price < 0) return;

@@ -1,37 +1,39 @@
 // features/reports/api/reportApi.ts
 import { httpClient } from '@/shared/utils/httpClient';
-import { API_ENDPOINTS, MOCK_USER_UID } from '@/shared/config/api';
+import { API_ENDPOINTS } from '@/shared/config/api';
 import type { ApiResponse } from '@/shared/types/api';
-import type { Transaction } from '@/shared/types/expense';
+import type { TransactionReportResponse, ExpenseType } from '@/shared/types/expense';
 
-/** 내부: 트랜잭션 배열을 안전하게 가져오고, 실패 시 [] 반환 */
-async function fetchTxArray(params: Record<string, any>) {
-  try {
-    const res = await httpClient.get<ApiResponse<Transaction[]>>(
-      API_ENDPOINTS.TRANSACTIONS,
-      params
-    );
-    return Array.isArray(res?.data) ? res.data : [];
-  } catch {
-    return [];
-  }
+type FetchReportArgs = {
+  type: ExpenseType;       
+  startAt: Date;
+  endAt: Date;
+  signal?: AbortSignal;
+};
+
+const toDate = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+export async function fetchTransactionReportByType({ type, startAt, endAt, signal }: FetchReportArgs) {
+  const params = { type, startAt: toDate(startAt), endAt: toDate(endAt) };
+  const res = await httpClient.get<ApiResponse<TransactionReportResponse>>(
+    API_ENDPOINTS.TRANSACTIONS_REPORT,
+    params,
+    { ...(signal ? ({ signal } as any) : {}) }
+  );
+  return res.data;
 }
 
-/** over/fixed 각각 조회하되, 하나라도 비면 all을 불러 폴백 */
-export async function fetchOverAndFixed() {
-  let [over, fixed] = await Promise.all([
-    fetchTxArray({ type: 'OVER_EXPENSE' }),
-    fetchTxArray({ type: 'FIXED_EXPENSE' }),
+export async function fetchMonthlyReportSum(args: Omit<FetchReportArgs, 'type'>) {
+  const [over, fixed] = await Promise.all([
+    fetchTransactionReportByType({ ...args, type: 'OVER_EXPENSE' }),
+    fetchTransactionReportByType({ ...args, type: 'FIXED_EXPENSE' }),
   ]);
 
-  // userUid는 더 이상 필요하지 않으므로 제거
-  if (over.length === 0 || fixed.length === 0) {
-    // 전체 조회는 NONE 타입으로 대체하거나 둘을 합쳐서 처리
-    const allOver = await fetchTxArray({ type: 'OVER_EXPENSE' });
-    const allFixed = await fetchTxArray({ type: 'FIXED_EXPENSE' });
-    if (over.length === 0) over = allOver;
-    if (fixed.length === 0) fixed = allFixed;
-  }
-
-  return { over, fixed };
+  return {
+    totalPrice: (over?.totalPrice ?? 0) + (fixed?.totalPrice ?? 0),
+    totalCount: (over?.totalCount ?? 0) + (fixed?.totalCount ?? 0),
+    startAt: `${toDate(args.startAt)}T00:00:00`,
+    endAt:   `${toDate(args.endAt)}T23:59:59`,
+  } satisfies TransactionReportResponse;
 }

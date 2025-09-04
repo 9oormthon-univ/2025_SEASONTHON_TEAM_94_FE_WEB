@@ -1,10 +1,6 @@
-import ReportPage from '@/features/reports/pages/ReportsPage';
-import { AuthGuard } from '@/features/auth';
+// app/routes/report.tsx
+import { Navigate } from 'react-router-dom';
 
-export default function Report() {
-  return (
-    <AuthGuard>
-      <ReportPage />
-    </AuthGuard>
-  );
+export default function ReportRedirect() {
+  return <Navigate to="/home" replace />;
 }

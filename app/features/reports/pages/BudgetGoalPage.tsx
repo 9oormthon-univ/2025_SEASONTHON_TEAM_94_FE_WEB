@@ -14,14 +14,14 @@ function useQuery() {
 
 export default function BudgetGoalPage() {
   useHideNav();
-  useHideNavigation(); // 더 강력한 숨김 효과를 위해 추가
+  useHideNavigation(); 
   const q = useQuery();
   const navigate = useNavigate();
 
   const id = q.get('id');
   const date = q.get('date') || undefined;
 
-  const { loading, goal, price, setPrice, hasExisting, saving, save } =
+  const { loading, goal, price, setPrice, saving, save } =
     useBudgetGoal({ date, idFromRoute: id ? Number(id) : undefined });
 
   const title = '목표 초과지출 설정';

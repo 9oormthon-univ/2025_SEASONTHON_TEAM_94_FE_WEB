@@ -1,73 +1,55 @@
 // features/reports/hooks/useReport.ts
 import { useEffect, useState } from 'react';
-import { inThisMonth, monthEnd, monthStart, today, ym } from '../utils/date';
-import { fmt } from '../utils/number';
-
-import { fetchOverAndFixed } from '../api/reportApi';
+import { monthEnd, monthStart, today, ym } from '../utils/date';
 import { getBudgetGoalByDate } from '@/features/more/api/budgetGoals';
+import { fetchMonthlyReportSum } from '../api/reportApi';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
-import type { Transaction } from '@/shared/types/expense';
+import type { TransactionReportResponse } from '@/shared/types/expense';
 
-const USER_UID = 'a';
-
-async function fetchMonthlyGoal(): Promise<number> {
+async function fetchMonthlyGoal() {
   try {
     const res = await getBudgetGoalByDate({ date: new Date().toISOString().split('T')[0] });
     const goal: BudgetGoalResponse | null = res.data;
     const price = goal?.price;
     return Number.isFinite(price) ? Math.max(0, price) : 0;
-  } catch {
-    return 0;
-  }
+  } catch { return 0; }
 }
 
 export function useReport() {
-  const [overList, setOverList]   = useState<Transaction[]>([]);
-  const [fixedList, setFixedList] = useState<Transaction[]>([]);
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
+  const [monthlyGoal, setMonthlyGoal] = useState(0);
+  const [report, setReport] = useState<TransactionReportResponse | null>(null);
+
+  useEffect(() => { fetchMonthlyGoal().then(setMonthlyGoal).catch(() => setMonthlyGoal(0)); }, []);
 
   useEffect(() => {
-    fetchMonthlyGoal()
-      .then(setMonthlyGoal)
-      .catch(() => setMonthlyGoal(0));
-  }, []);
-
-  useEffect(() => {
+    const ctrl = new AbortController();
     (async () => {
-      const { over, fixed } = await fetchOverAndFixed();
-      setOverList(over);
-      setFixedList(fixed);
+      try {
+        const r = await fetchMonthlyReportSum({
+          startAt: monthStart,
+          endAt: monthEnd,
+          signal: ctrl.signal,
+        });
+        setReport(r);
+      } catch {
+        setReport(null);
+      }
     })();
-  }, []);
+    return () => ctrl.abort();
+  }, [monthStart, monthEnd]);
 
-  const monthOver  = overList.filter(t => inThisMonth(t.createdAt || (t as any).startAt));
-  const monthFixed = fixedList.filter(t => inThisMonth(t.createdAt || (t as any).startAt));
-
-  const overSum  = monthOver.reduce((s, t) => s + (t.price || 0), 0);
-  const fixedSum = monthFixed.reduce((s, t) => s + (t.price || 0), 0);
-  const total    = overSum + fixedSum;
-
-  const rawPercent = monthlyGoal > 0 ? (total / monthlyGoal) * 100 : 100;
-  const barPercent = Math.max(0, Math.min(100, rawPercent));
-  const percentCenterLeft = Math.max(0, Math.min(100, barPercent / 2));
-
-  const diff   = monthlyGoal > 0 ? monthlyGoal - total : -overSum;
+  const total = Math.max(0, report?.totalPrice ?? 0);
+  const totalCount = report?.totalCount ?? 0;
   const isOver = monthlyGoal > 0 && total > monthlyGoal;
-  const barLabel = monthlyGoal > 0
-    ? (isOver ? `+ ${fmt(Math.abs(diff))}` : `- ${fmt(Math.abs(diff))}`)
-    : `- ${fmt(overSum)}`;
 
-  const labelTransform =
-    barPercent <= 12 || barPercent >= 92
-      ? 'translateX(calc(-100% - 6px))'
-      : 'translateX(-50%)';
+  const serverStart = report?.startAt ? new Date(report.startAt) : monthStart;
+  const serverEnd   = report?.endAt   ? new Date(report.endAt)   : monthEnd;
 
   return {
-    // 날짜 관련
     ym, today, monthStart, monthEnd,
-    // 목록/합계
-    monthOver, monthFixed, overSum, fixedSum, total,
-    // 목표/바/라벨
-    monthlyGoal, barPercent, percentCenterLeft, barLabel, labelTransform, isOver,
+    total, totalCount,
+    reportStart: serverStart,
+    reportEnd: serverEnd,
+    monthlyGoal, isOver,
   };
 }

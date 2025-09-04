@@ -63,7 +63,7 @@ export function ExpenseFixedPage() {
   return (
     <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <ExpenseHeader title="고정 지출" />
+      <ExpenseHeader title="고정지출 내역" />
 
       {/* Date Filter */}
       <div className="bg-white pt-2">

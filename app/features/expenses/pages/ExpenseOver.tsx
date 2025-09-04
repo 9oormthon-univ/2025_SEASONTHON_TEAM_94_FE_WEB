@@ -65,7 +65,7 @@ export function ExpenseOverPage() {
   return (
     <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <ExpenseHeader title="지출 내여" />
+      <ExpenseHeader title="지출 내역" />
 
       {/* Date Filter */}
       <div className="bg-white pt-2">
@@ -111,10 +111,12 @@ export function ExpenseOverPage() {
                   />
                 </div>
                 <h3 className="text-center justify-start text-xl font-bold mb-1">
-                  아직 초과 지출이 없어요
+                  아직 내역이 없어요
                 </h3>
                 <p className="text-center justify-start text-xs font-normal">
-                  이 기간에는 초과 지출이 없습니다.
+                  미분류 내역에서 분류를 진행하거나
+                  <br />
+                  새로운 내역을 추가해주세요!
                 </p>
               </div>
             ) : (

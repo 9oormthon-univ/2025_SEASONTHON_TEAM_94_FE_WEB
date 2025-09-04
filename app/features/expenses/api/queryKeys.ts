@@ -9,19 +9,21 @@ import type { ExpenseType, TransactionFilter } from '@/shared/types/expense';
 export const expenseKeys = {
   // 모든 지출 관련 쿼리
   all: ['expenses'] as const,
-  
+
   // 지출 목록 쿼리들
   lists: () => [...expenseKeys.all, 'list'] as const,
-  list: (filter: TransactionFilter) => [...expenseKeys.lists(), filter] as const,
-  
+  list: (filter: TransactionFilter) =>
+    [...expenseKeys.lists(), filter] as const,
+
   // 개별 지출 상세 쿼리들
   details: () => [...expenseKeys.all, 'detail'] as const,
   detail: (id: number) => [...expenseKeys.details(), id] as const,
-    
+
   // 리포트 관련 쿼리들
   reports: () => [...expenseKeys.all, 'report'] as const,
-  report: (filter: TransactionFilter) => [...expenseKeys.reports(), filter] as const,
-    
+  report: (filter: TransactionFilter) =>
+    [...expenseKeys.reports(), filter] as const,
+
   // 카테고리 관련 쿼리들
   categories: () => [...expenseKeys.all, 'categories'] as const,
 } as const;
@@ -31,12 +33,12 @@ export const expenseQueries = {
   // 지출 목록 조회를 위한 옵션
   list: (filter: TransactionFilter) => ({
     queryKey: expenseKeys.list(filter),
-    staleTime: 1000 * 60 * 5, // 5분
+    staleTime: 1000 * 60 * 3, // 3분
     meta: {
       errorMessage: '지출 목록을 불러오는데 실패했습니다.',
     },
   }),
-  
+
   // 개별 지출 상세 조회를 위한 옵션
   detail: (id: number) => ({
     queryKey: expenseKeys.detail(id),
@@ -45,7 +47,7 @@ export const expenseQueries = {
       errorMessage: '지출 상세 정보를 불러오는데 실패했습니다.',
     },
   }),
-  
+
   // 리포트 조회를 위한 옵션
   report: (filter: TransactionFilter) => ({
     queryKey: expenseKeys.report(filter),
@@ -54,7 +56,7 @@ export const expenseQueries = {
       errorMessage: '지출 리포트를 불러오는데 실패했습니다.',
     },
   }),
-  
+
   // 카테고리 목록 조회를 위한 옵션
   categories: () => ({
     queryKey: expenseKeys.categories(),

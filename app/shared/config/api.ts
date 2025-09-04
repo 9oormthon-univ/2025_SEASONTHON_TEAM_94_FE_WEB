@@ -24,11 +24,6 @@ export const AUTH_CONFIG = {
 } as const;
 
 /**
- * 개발 환경에서 사용할 Mock 사용자 UID
- */
-export const MOCK_USER_UID = 'a';
-
-/**
  * API 엔드포인트 상수 (Swagger 스펙 기준)
  */
 export const API_ENDPOINTS = {

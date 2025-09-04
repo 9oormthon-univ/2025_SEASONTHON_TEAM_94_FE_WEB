@@ -12,7 +12,7 @@ import {
 } from '@/features/expenses/api/expenseApi';
 import { expenseKeys, expenseQueries } from '@/features/expenses/api/queryKeys';
 import type {
-  Transaction,
+  TransactionResponse,
   TransactionFilter,
   TransactionReportResponse,
   TransactionCategoryResponse,

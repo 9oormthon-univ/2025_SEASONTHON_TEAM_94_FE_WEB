@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { Button } from '@/shared/components/ui/button';
@@ -25,42 +25,37 @@ export function CategorizedExpenseList({
   const [isFixedExpenseExpanded, setIsFixedExpenseExpanded] = useState(false);
   const navigate = useNavigate();
 
-  if (expenses.length === 0 && emptyState) {
-    return (
-      <div className="py-12 text-center">
-        <div className="text-4xl mb-4">{emptyState.icon}</div>
-        <h3 className="text-lg font-semibold mb-2">{emptyState.title}</h3>
-        <p className="text-gray-500 text-sm">{emptyState.description}</p>
-      </div>
-    );
-  }
+  const defaultEmptyState = useMemo(() => ({
+    icon: '📊',
+    title: '분류된 항목이 없습니다',
+    description: '',
+  }), []);
+
+  const currentEmptyState = emptyState || defaultEmptyState;
 
   if (expenses.length === 0) {
     return (
       <div className="py-12 text-center">
-        <div className="text-4xl mb-4">📊</div>
-        <p className="text-gray-500 text-base">분류된 항목이 없습니다.</p>
+        <div className="text-4xl mb-4">{currentEmptyState.icon}</div>
+        <h3 className="text-lg font-semibold mb-2">{currentEmptyState.title}</h3>
+        {currentEmptyState.description && (
+          <p className="text-gray-500 text-sm">{currentEmptyState.description}</p>
+        )}
       </div>
     );
   }
 
   // 타입별로 그룹화
-  const overExpenses = expenses.filter(
-    expense => expense.type === EXPENSE_TYPES.OVER_EXPENSE
-  );
-  const fixedExpenses = expenses.filter(
-    expense => expense.type === EXPENSE_TYPES.FIXED_EXPENSE
-  );
+  const { overExpenses, fixedExpenses } = useMemo(() => ({
+    overExpenses: expenses.filter(expense => expense.type === EXPENSE_TYPES.OVER_EXPENSE),
+    fixedExpenses: expenses.filter(expense => expense.type === EXPENSE_TYPES.FIXED_EXPENSE),
+  }), [expenses]);
 
   // 총 금액 계산
-  const overTotal = overExpenses.reduce(
-    (sum, expense) => sum + expense.price,
-    0
-  );
-  const fixedTotal = fixedExpenses.reduce(
-    (sum, expense) => sum + expense.price,
-    0
-  );
+  const { overTotal, fixedTotal } = useMemo(() => ({
+    overTotal: overExpenses.reduce((sum, expense) => sum + expense.price, 0),
+    fixedTotal: fixedExpenses.reduce((sum, expense) => sum + expense.price, 0),
+  }), [overExpenses, fixedExpenses]);
 
   // 표시할 지출 항목 결정 (5개 제한)
   const ITEMS_PER_PAGE = 3;

@@ -1,16 +1,16 @@
 // shared/types/budget.ts
 export interface BudgetGoalResponse {
-  id: number;
-  price: number;
+  id: number; // int64
+  price: number; // int64
   userUid: string;
-  createdAt: string; // LocalDateTime
-  updatedAt: string; // LocalDateTime
+  createdAt: string; // date-time format
+  updatedAt: string; // date-time format
 }
 
 export interface BudgetGoalCreateRequest {
-  price: number; // required
+  price: number; // int64, required
 }
 
 export interface BudgetGoalUpdateRequest {
-  price: number; // required
+  price: number; // int64, required
 }

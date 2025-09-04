@@ -33,21 +33,24 @@ export const EXPENSE_CATEGORIES = {
 export type ExpenseCategory =
   (typeof EXPENSE_CATEGORIES)[keyof typeof EXPENSE_CATEGORIES];
 
-// 실제 API 응답 구조에 맞는 Transaction 타입 (Swagger 스펙 기준)
-export interface Transaction {
-  id: number;
-  price: number; // API에서는 integer이지만 JavaScript에서는 number
+// API 응답 구조에 맞는 TransactionResponse 타입 (Swagger 스펙 기준)
+export interface TransactionResponse {
+  id: number; // int64
+  price: number; // int64
   title: string;
-  bankName: string; // 새로 추가된 필드
-  memo?: string; // 새로 추가된 필드
-  splitCount: number; // 새로 추가된 필드
+  bankName: string;
+  memo?: string;
+  splitCount: number; // int32
   type: ExpenseType;
   userUid: string;
-  category: ExpenseCategory;
+  category?: ExpenseCategory;
   createdAt: string; // date-time format
   updatedAt: string; // date-time format
   startedAt: string; // date-time format (API 응답에서 startedAt로 옴)
 }
+
+// 기존 호환성을 위한 별칭
+export interface Transaction extends TransactionResponse {}
 
 // 카테고리 응답 타입
 export interface TransactionCategoryResponse {
@@ -57,30 +60,31 @@ export interface TransactionCategoryResponse {
 
 // 생성 요청 타입 (Swagger 스펙 기준)
 export interface TransactionCreateRequest {
-  price: number; // minimum: 0, integer format
+  price: number; // minimum: 0, int64 format
   startAt?: string; // date-time format, optional
   title: string; // required
   bankName: string; // required
-  splitCount: number; // required
+  splitCount: number; // int32, required
   type?: ExpenseType; // optional - OVER_EXPENSE, FIXED_EXPENSE, NONE
   category?: ExpenseCategory; // optional - 카테고리 enum
+  memo?: string; // optional - 메모 필드 추가
 }
 
 // 수정 요청 타입 (Swagger 스펙 기준)
 export interface TransactionUpdateRequest {
-  price: number; // minimum: 0, integer format, required
+  price: number; // minimum: 0, int64 format, required
   type?: ExpenseType; // optional
   startAt?: string; // date-time format, optional
   title: string; // required
   bankName: string; // required
-  splitCount: number; // required
+  splitCount: number; // int32, required
   memo?: string; // optional
   category?: ExpenseCategory; // optional
 }
 
 // 알림으로 생성 요청 타입 (Swagger 스펙 기준)
 export interface TransactionCreateByAlertRequest {
-  price: number; // integer format, required
+  price: number; // int64 format, required
   startAt?: string; // date-time format, optional
   title: string; // required
   bankName: string; // required
@@ -90,8 +94,8 @@ export interface TransactionCreateByAlertRequest {
 
 // Report 응답 타입 (Swagger 스펙 기준)
 export interface TransactionReportResponse {
-  totalPrice: number; // integer format
-  totalCount: number; // integer format
+  totalPrice: number; // int64
+  totalCount: number; // int64
   startAt: string; // date-time format
   endAt: string; // date-time format
 }
@@ -105,4 +109,3 @@ export interface TransactionFilter extends Record<string, string | number | bool
 
 // 기존 호환성을 위한 별칭
 export type Expense = Transaction;
-export type ExpenseCategory_Legacy = 'unclassified' | 'fixed' | 'additional';

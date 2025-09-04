@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
@@ -24,6 +24,14 @@ export function UncategorizedExpenseList({
 }: UncategorizedExpenseListProps) {
   const [removingIds, setRemovingIds] = useState<Set<number>>(new Set());
   const updateExpenseMutation = useUpdateExpense();
+
+  const defaultEmptyState = useMemo(() => ({
+    icon: '🔍',
+    title: '미분류 지출이 없어요',
+    description: '모든 지출이 분류되었습니다!',
+  }), []);
+
+  const currentEmptyState = emptyState || defaultEmptyState;
 
   const handleTransactionUpdate = useCallback(
     async (expenseId: number, type: ExpenseType) => {
@@ -62,12 +70,12 @@ export function UncategorizedExpenseList({
   );
 
   // ✅ 조건부 렌더링은 hooks 이후에 배치
-  if (expenses.length === 0 && emptyState) {
+  if (expenses.length === 0) {
     return (
       <div className="py-12 text-center">
-        <div className="text-4xl mb-4">{emptyState.icon}</div>
-        <h3 className="text-lg font-semibold mb-2">{emptyState.title}</h3>
-        <p className="text-gray-500 text-sm">{emptyState.description}</p>
+        <div className="text-4xl mb-4">{currentEmptyState.icon}</div>
+        <h3 className="text-lg font-semibold mb-2">{currentEmptyState.title}</h3>
+        <p className="text-gray-500 text-sm">{currentEmptyState.description}</p>
       </div>
     );
   }

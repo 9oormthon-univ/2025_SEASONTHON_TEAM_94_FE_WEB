@@ -1,3 +1,22 @@
+import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
+import type { TransactionCreateRequest } from '@/shared/types/expense';
+
+/**
+ * 폼 데이터를 API 요청 데이터로 변환합니다
+ */
+export function convertFormDataToApiRequest(formData: ExpenseFormData): TransactionCreateRequest {
+  return {
+    price: formData.price,
+    title: formData.title,
+    bankName: formData.bankName,
+    splitCount: formData.dutchPayCount, // dutchPayCount를 splitCount로 매핑
+    type: formData.type,
+    category: formData.category,
+    startAt: formData.selectedDate.toISOString(),
+    // memo는 TransactionCreateRequest에 없으므로 제외
+  };
+}
+
 /**
  * 날짜를 한국어 형식으로 포맷팅합니다
  */

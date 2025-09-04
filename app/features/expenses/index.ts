@@ -11,7 +11,6 @@ export * from '@/features/expenses/components/List/CategorizedExpenseList';
 export * from '@/features/expenses/components/ExpenseDetail';
 export * from '@/shared/components/Header';
 export * from '@/features/expenses/components/Form/ExpenseForm';
-export * from '@/features/expenses/components/Form/PriceInput';
 export * from '@/features/expenses/components/Form/ExpenseTypeSelector';
 export * from '@/features/expenses/components/Form/FormField';
 

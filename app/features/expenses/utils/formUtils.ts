@@ -4,7 +4,7 @@ export const formatDateForDisplay = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}년 ${month}월 ${day}일 | ${hours}:${minutes}`;
+  return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}`;
 };
 
 export const calculateDutchPayAmount = (price: number, dutchPayCount: number) => {

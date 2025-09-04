@@ -26,7 +26,7 @@ export function ExpenseHeader({ title, onBackClick, backPath = '/expenses' }: Ex
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
-      <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
+      <h1 className="text-base font-medium text-black tracking-[-0.165px]">
         {title}
       </h1>
       <div className="w-8" /> {/* Spacer */}

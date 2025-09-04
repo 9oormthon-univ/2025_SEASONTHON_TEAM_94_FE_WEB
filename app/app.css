@@ -1,4 +1,11 @@
-@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('@/assets/fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -8,7 +15,7 @@
   /* Custom Brand Colors */
   --main-orange: #FF6200;
   --sub-blue: #002B5B;
-  --sub-gray: #757575;
+  --sub-gray: #BFBFBF;
   
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -27,7 +34,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --input: var(--sub-gray);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -63,7 +70,7 @@
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
+  --input: var(--sub-gray);
   --ring: oklch(0.439 0 0);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -131,7 +138,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
 }
 

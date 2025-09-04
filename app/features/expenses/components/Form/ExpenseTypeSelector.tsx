@@ -23,11 +23,11 @@ export function ExpenseTypeSelector({ control, errors }: ExpenseTypeSelectorProp
             className="w-full"
           >
             <TabsList 
-              className="bg-[#e6e6e6] rounded-[10px] h-[45px] w-full p-1 relative border-none shadow-none flex items-center justify-center"
+              className="bg-[#FFE4D3] rounded-[10px] h-[50px] w-full p-1 relative border-none shadow-none flex items-center justify-center"
             >
               <div
                 className={cn(
-                  'absolute top-1 left-1 h-[37px] bg-main-orange rounded-[8px] transition-all duration-300 ease-in-out shadow-sm w-[calc(50%-2px)]',
+                  'absolute top-[2px] left-1 h-[46px] bg-main-orange rounded-[8px] transition-all duration-300 ease-in-out shadow-sm w-[calc(50%-2px)]',
                   field.value === EXPENSE_TYPES.FIXED_EXPENSE
                     ? 'translate-x-full'
                     : 'translate-x-0'
@@ -36,13 +36,13 @@ export function ExpenseTypeSelector({ control, errors }: ExpenseTypeSelectorProp
               
               <TabsTrigger 
                 value={EXPENSE_TYPES.OVER_EXPENSE}
-                className="h-[37px] rounded-[8px] text-[16px] font-bold min-h-[37px] min-w-auto relative z-10 bg-transparent transition-colors duration-300 flex-1 flex items-center justify-center self-center data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
+                className="h-[46px] rounded-[8px] text-[16px] text-base font-semibold min-h-[46px] min-w-auto relative z-10 bg-transparent transition-colors duration-300 flex-1 flex items-center justify-center self-center data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=inactive]:text-black"
               >
                 초과지출
               </TabsTrigger>
               <TabsTrigger 
                 value={EXPENSE_TYPES.FIXED_EXPENSE}
-                className="h-[37px] rounded-[8px] text-[16px] font-bold min-h-[37px] min-w-auto relative z-10 bg-transparent transition-colors duration-300 flex-1 flex items-center justify-center self-center data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
+                className="h-[46px] rounded-[8px] text-[16px] text-base font-semibold min-h-[46px] min-w-auto relative z-10 bg-transparent transition-colors duration-300 flex-1 flex items-center justify-center self-center data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=inactive]:text-black"
               >
                 고정지출
               </TabsTrigger>

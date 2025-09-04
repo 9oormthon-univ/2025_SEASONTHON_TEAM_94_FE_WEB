@@ -147,11 +147,15 @@ export async function deleteTransaction(
 export async function fetchTransactionReport(
   filter: TransactionFilter
 ): Promise<TransactionReportResponse> {
-  const response = await httpClient.get<ApiResponse<TransactionReportResponse>>(
-    API_ENDPOINTS.TRANSACTIONS_REPORT,
-    filter
-  );
-  return response.data;
+  try {
+    const response = await httpClient.get<ApiResponse<TransactionReportResponse>>(
+      API_ENDPOINTS.TRANSACTIONS_REPORT,
+      filter
+    );
+    return response.data;
+  } catch (error) {
+    handleApiError(error, '지출 리포트를 불러오는데 실패했습니다.', 'FETCH_TRANSACTION_REPORT_FAILED');
+  }
 }
 
 /**
@@ -160,24 +164,32 @@ export async function fetchTransactionReport(
 export async function fetchCategories(): Promise<
   TransactionCategoryResponse[]
 > {
-  const response = await httpClient.get<
-    ApiResponse<TransactionCategoryResponse[]>
-  >(API_ENDPOINTS.CATEGORIES);
-  return response.data;
+  try {
+    const response = await httpClient.get<
+      ApiResponse<TransactionCategoryResponse[]>
+    >(API_ENDPOINTS.CATEGORIES);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, '카테고리 목록을 불러오는데 실패했습니다.', 'FETCH_CATEGORIES_FAILED');
+  }
 }
 
-
-
-// 호환성을 위한 타입별 총 금액 조회 함수 (Report API 사용)
+/**
+ * 호환성을 위한 타입별 총 금액 조회 함수 (Report API 사용)
+ */
 export async function fetchTotalPriceByType(
   type: ExpenseType,
   startAt?: string,
   endAt?: string
 ): Promise<number> {
-  const reportData = await fetchTransactionReport({
-    type,
-    startAt,
-    endAt,
-  });
-  return reportData.totalPrice;
+  try {
+    const reportData = await fetchTransactionReport({
+      type,
+      startAt,
+      endAt,
+    });
+    return reportData.totalPrice;
+  } catch (error) {
+    handleApiError(error, '총 금액을 불러오는데 실패했습니다.', 'FETCH_TOTAL_PRICE_FAILED');
+  }
 }

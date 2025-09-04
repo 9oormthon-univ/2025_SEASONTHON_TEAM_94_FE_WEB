@@ -7,10 +7,9 @@ export * from '@/features/expenses/hooks';
 
 // Components
 export * from '@/features/expenses/components/List/UncategorizedExpenseList';
-export * from '@/features/expenses/components/List/CategorizedExpenseList';
-export * from '@/features/expenses/components/List/CategorizedExpenseItem';
 export * from '@/features/expenses/components/List/FixedExpenseItem';
 export * from '@/features/expenses/components/List/OverExpenseItem';
+export * from '@/features/expenses/components/List/BulkActionButtons';
 export * from '@/features/expenses/components/ExpenseDetail';
 export * from '@/features/expenses/components/ExpenseHeader';
 export * from '@/features/expenses/components/FixedExpenseStats';
@@ -18,6 +17,9 @@ export * from '@/features/expenses/components/OverExpenseStats';
 export * from '@/features/expenses/components/Form/ExpenseForm';
 export * from '@/features/expenses/components/Form/ExpenseTypeSelector';
 export * from '@/features/expenses/components/Form/FormField';
+export * from '@/features/expenses/components/Form/DutchPayField';
+export * from '@/features/expenses/components/Form/DatePickerField';
+export * from '@/features/expenses/components/ExpenseErrorBoundary';
 
 // Pages
 export * from '@/features/expenses/pages/ExpensesPage';

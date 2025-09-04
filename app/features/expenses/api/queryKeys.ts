@@ -14,26 +14,16 @@ export const expenseKeys = {
   lists: () => [...expenseKeys.all, 'list'] as const,
   list: (filter: TransactionFilter) => [...expenseKeys.lists(), filter] as const,
   
-  // 특정 타입별 지출 목록
-  listByType: (type: ExpenseType) => 
-    [...expenseKeys.lists(), { type }] as const,
-  
   // 개별 지출 상세 쿼리들
   details: () => [...expenseKeys.all, 'detail'] as const,
-  detail: (id: number) => 
-    [...expenseKeys.details(), id] as const,
+  detail: (id: number) => [...expenseKeys.details(), id] as const,
     
   // 리포트 관련 쿼리들
   reports: () => [...expenseKeys.all, 'report'] as const,
-  report: (filter: TransactionFilter) => 
-    [...expenseKeys.reports(), filter] as const,
+  report: (filter: TransactionFilter) => [...expenseKeys.reports(), filter] as const,
     
   // 카테고리 관련 쿼리들
   categories: () => [...expenseKeys.all, 'categories'] as const,
-  
-  // 타입별 총 금액 쿼리
-  totalByType: (type: ExpenseType, startAt?: string, endAt?: string) =>
-    [...expenseKeys.all, 'total', { type, startAt, endAt }] as const,
 } as const;
 
 // Query Option 팩토리 함수들

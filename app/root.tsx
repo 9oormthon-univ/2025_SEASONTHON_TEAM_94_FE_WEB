@@ -68,7 +68,6 @@ export default function App() {
 
   // 바텀 탭이 필요한 경로들 정의
   const bottomNavPaths = [
-    '/expenses/add',
     // '/expenses',
     '/report',
     '/more',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Badge } from '@/shared/components/ui/badge';
@@ -12,17 +12,20 @@ interface UncategorizedExpenseItemProps {
   onCheckboxChange: (expenseId: number, checked: boolean) => void;
 }
 
-export function UncategorizedExpenseItem({
+export const UncategorizedExpenseItem = React.memo<UncategorizedExpenseItemProps>(({
   expense,
   isSelected,
   onCheckboxChange,
-}: UncategorizedExpenseItemProps) {
-  const handleCheckboxChange = (checked: boolean) => {
+}) => {
+  const handleCheckboxChange = useCallback((checked: boolean) => {
     onCheckboxChange(expense.id, checked);
-  };
+  }, [expense.id, onCheckboxChange]);
 
   // 데이터에서 카테고리가 설정된 경우에만 표시
-  const categoryInfo = getCategoryInfo(expense.category);
+  const categoryInfo = useMemo(
+    () => getCategoryInfo(expense.category),
+    [expense.category]
+  );
 
   return (
     <motion.div
@@ -75,4 +78,4 @@ export function UncategorizedExpenseItem({
       </div>
     </motion.div>
   );
-}
+});

@@ -185,3 +185,44 @@ export type TransactionCreateByAlertData = z.infer<
 export type TransactionUpdateData = z.infer<typeof transactionUpdateSchema>;
 export type ExpenseFormData = z.infer<typeof expenseFormSchema>;
 export type UserUpdateData = z.infer<typeof userUpdateSchema>;
+
+// 검증 결과 타입
+export interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+// 검증 헬퍼 함수
+export function validateExpenseForm(data: ExpenseFormData): ValidationResult {
+  try {
+    expenseFormSchema.parse(data);
+    return { isValid: true, errors: {} };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errors: Record<string, string> = {};
+      error.errors.forEach((err) => {
+        if (err.path.length > 0) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      return { isValid: false, errors };
+    }
+    return { isValid: false, errors: { general: '알 수 없는 오류가 발생했습니다.' } };
+  }
+}
+
+// 개별 필드 검증 함수
+export function validateField<T>(
+  value: T,
+  schema: z.ZodSchema<T>
+): { isValid: boolean; error?: string } {
+  try {
+    schema.parse(value);
+    return { isValid: true };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { isValid: false, error: error.errors[0]?.message };
+    }
+    return { isValid: false, error: '알 수 없는 오류가 발생했습니다.' };
+  }
+}

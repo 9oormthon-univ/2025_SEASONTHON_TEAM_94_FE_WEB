@@ -1,10 +1,10 @@
 import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button } from '@/shared/components/ui/button';
 import type { Transaction, ExpenseType } from '@/shared/types/expense';
-import { useUpdateExpense } from '@/features/expenses/hooks/useExpenseMutations';
+import { useBulkUpdateExpense } from '@/features/expenses/hooks/useExpenseMutations';
 import { useBulkSelection } from '@/features/expenses/hooks/useBulkSelection';
-import { UncategorizedExpenseItem } from '@/features/expenses/components/List/UncategorizedExpenseItem';
+import { UncategorizedExpenseItem } from './UncategorizedExpenseItem';
+import { BulkActionButtons } from './BulkActionButtons';
 import emptyImage from '@/assets/empty.png';
 
 const ANIMATION_DELAY_MS = 300;
@@ -25,7 +25,7 @@ export function UncategorizedExpenseList({
   onTransactionUpdate,
 }: UncategorizedExpenseListProps) {
   const [removingIds, setRemovingIds] = useState<Set<number>>(new Set());
-  const updateExpenseMutation = useUpdateExpense();
+  const bulkUpdateExpenseMutation = useBulkUpdateExpense();
   const {
     selectedIds,
     hasSelection,
@@ -60,22 +60,20 @@ export function UncategorizedExpenseList({
       const selectedExpenses = getSelectedItems(expenses);
 
       try {
-        // 모든 선택된 항목을 병렬로 업데이트
-        await Promise.all(
-          selectedExpenses.map(expense =>
-            updateExpenseMutation.mutateAsync({
-              id: expense.id,
-              data: {
-                price: expense.price,
-                title: expense.title,
-                bankName: expense.bankName,
-                splitCount: expense.splitCount,
-                type,
-                category: expense.category,
-              },
-            })
-          )
-        );
+        // 일괄 업데이트 실행
+        await bulkUpdateExpenseMutation.mutateAsync({
+          updates: selectedExpenses.map(expense => ({
+            id: expense.id,
+            data: {
+              price: expense.price,
+              title: expense.title,
+              bankName: expense.bankName,
+              splitCount: expense.splitCount,
+              type,
+              category: expense.category,
+            },
+          })),
+        });
 
         // 성공 시 선택 상태 초기화 및 부모 컴포넌트에 알림
         clearSelection();
@@ -90,7 +88,7 @@ export function UncategorizedExpenseList({
       hasSelection,
       getSelectedItems,
       expenses,
-      updateExpenseMutation,
+      bulkUpdateExpenseMutation,
       onTransactionUpdate,
       clearSelection,
     ]
@@ -155,58 +153,11 @@ export function UncategorizedExpenseList({
         </AnimatePresence>
       </div>
 
-      {/* 하단 고정 버튼 - 선택된 항목이 있을 때만 표시 */}
-      <AnimatePresence>
-        {hasSelection && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{
-              duration: 0.2,
-              ease: 'easeOut',
-            }}
-            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 py-4 z-50"
-          >
-            <div className="flex gap-3">
-              {/* 고정지출 버튼 */}
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.1 }}
-                className="flex-1"
-              >
-                <Button
-                  variant="outline"
-                  onClick={() => handleBulkUpdate('FIXED_EXPENSE')}
-                  disabled={updateExpenseMutation.isPending}
-                  className="w-full h-[52px] text-base font-bold text-main-orange border-main-orange hover:bg-orange-50 transition-colors rounded-[10px]"
-                >
-                  고정지출
-                </Button>
-              </motion.div>
-
-              {/* 초과지출 버튼 */}
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.1 }}
-                className="flex-1"
-              >
-                <Button
-                  onClick={() => handleBulkUpdate('OVER_EXPENSE')}
-                  disabled={updateExpenseMutation.isPending}
-                  className={`w-full h-[52px] text-white text-base font-bold rounded-[10px] transition-colors ${
-                    updateExpenseMutation.isPending
-                      ? 'bg-[#EDEDED] text-gray-400 cursor-not-allowed'
-                      : 'bg-main-orange hover:bg-main-orange/90'
-                  }`}
-                >
-                  {updateExpenseMutation.isPending ? '처리 중...' : '초과지출'}
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <BulkActionButtons
+        hasSelection={hasSelection}
+        onBulkUpdate={handleBulkUpdate}
+        isLoading={bulkUpdateExpenseMutation.isPending}
+      />
     </div>
   );
 }

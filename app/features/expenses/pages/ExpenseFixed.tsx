@@ -17,7 +17,7 @@ import {
   WheelPicker,
   WheelPickerWrapper,
 } from '@/shared/components/wheel-picker';
-import { formatDateHeader } from '@/features/expenses/utils/dateUtils';
+import { formatDateHeader } from '@/features/expenses';
 import emptyImage from '@/assets/empty.png';
 
 export function ExpenseFixedPage() {

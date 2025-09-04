@@ -160,7 +160,10 @@ export function ExpenseFixedPage() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-xs w-full max-w-[300px]">
+        <DialogContent
+          className="sm:max-w-xs w-full max-w-[300px]"
+          showCloseButton={false}
+        >
           <DialogHeader>
             <DialogTitle className="text-center justify-center text-2xl font-bold">
               기간 선택

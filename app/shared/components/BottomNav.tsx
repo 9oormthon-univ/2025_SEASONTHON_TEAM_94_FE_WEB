@@ -12,14 +12,14 @@ export default function BottomNav() {
       <Link
         to="/expenses"
         className={`flex flex-col items-center py-1 px-4 ${
-          location.pathname.startsWith('/expenses')
+          location.pathname.startsWith('/home')
             ? 'text-[#1F2937]'
             : 'text-[#9CA3AF]'
         }`}
       >
         <HomeIcon
           className={`w-6 h-6 mb-2 ${
-            location.pathname.startsWith('/expenses')
+            location.pathname.startsWith('/home')
               ? 'text-[#1F2937]'
               : 'text-[#9CA3AF]'
           }`}
@@ -29,14 +29,14 @@ export default function BottomNav() {
       <Link
         to="/home"
         className={`flex flex-col items-center py-1 px-4 ${
-          location.pathname.startsWith('/home')
+          location.pathname.startsWith('/calendar')
             ? 'text-[#1F2937]'
             : 'text-[#9CA3AF]'
         }`}
       >
         <Calendar
           className={`w-6 h-6 mb-2 ${
-            location.pathname.startsWith('/home')
+            location.pathname.startsWith('/calendar')
               ? 'text-[#1F2937]'
               : 'text-[#9CA3AF]'
           }`}

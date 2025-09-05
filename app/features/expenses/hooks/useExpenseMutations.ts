@@ -34,9 +34,8 @@ export function useCreateExpense() {
       toast.success('지출이 성공적으로 저장되었습니다!');
     },
     onError: (error, variables, context) => {
-      const message = error instanceof Error 
-        ? error.message 
-        : '지출 저장에 실패했습니다.';
+      const message =
+        error instanceof Error ? error.message : '지출 저장에 실패했습니다.';
       toast.error(message);
     },
     onSettled: () => {
@@ -58,10 +57,11 @@ export function useCreateExpenseByAlert() {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       toast.success('알림을 통해 지출이 저장되었습니다!');
     },
-    onError: (error) => {
-      const message = error instanceof Error 
-        ? error.message 
-        : '알림을 통한 지출 저장에 실패했습니다.';
+    onError: error => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : '알림을 통한 지출 저장에 실패했습니다.';
       toast.error(message);
     },
   });
@@ -74,25 +74,29 @@ export function useUpdateExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: {
+    mutationFn: ({
+      id,
+      data,
+    }: {
       id: number;
       data: TransactionUpdateRequest;
     }) => updateTransaction(id, data),
+
     onMutate: async ({ id, data }) => {
       // 관련 쿼리들 취소
       await queryClient.cancelQueries({ queryKey: expenseKeys.all });
 
       // 이전 데이터 백업
-      const previousExpenses = queryClient.getQueriesData({ 
-        queryKey: expenseKeys.all 
+      const previousData = queryClient.getQueriesData({
+        queryKey: expenseKeys.all,
       });
 
-      // 낙관적 업데이트
+      // 낙관적 업데이트 - 목록 쿼리들
       queryClient.setQueriesData(
         { queryKey: expenseKeys.lists() },
         (old: TransactionResponse[] | undefined) =>
-          old?.map(expense => 
-            expense.id === id 
+          old?.map(expense =>
+            expense.id === id
               ? { ...expense, ...data, updatedAt: new Date().toISOString() }
               : expense
           )
@@ -102,31 +106,34 @@ export function useUpdateExpense() {
       const detailQueryKey = expenseKeys.detail(id);
       queryClient.setQueryData(
         detailQueryKey,
-        (old: TransactionResponse | undefined) => 
+        (old: TransactionResponse | undefined) =>
           old ? { ...old, ...data, updatedAt: new Date().toISOString() } : old
       );
 
-      return { previousExpenses };
+      return { previousData };
     },
+
     onSuccess: (data, variables) => {
       // 성공 시 관련 쿼리들 무효화
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       toast.success('지출이 성공적으로 수정되었습니다!');
     },
+
     onError: (error, variables, context) => {
       // 실패 시 롤백
-      if (context?.previousExpenses) {
-        context.previousExpenses.forEach(([queryKey, data]) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
 
-      const message = error instanceof Error 
-        ? error.message 
-        : '지출 수정에 실패했습니다.';
+      const message =
+        error instanceof Error ? error.message : '지출 수정에 실패했습니다.';
       toast.error(message);
     },
+
     onSettled: () => {
+      // 항상 최신 데이터로 동기화
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
     },
   });
@@ -139,15 +146,15 @@ export function useDeleteExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => 
-      deleteTransaction(id),
+    mutationFn: (id: number) => deleteTransaction(id),
+
     onMutate: async (id: number) => {
       // 관련 쿼리들 취소
       await queryClient.cancelQueries({ queryKey: expenseKeys.all });
 
       // 이전 데이터 백업
-      const previousExpenses = queryClient.getQueriesData({ 
-        queryKey: expenseKeys.all 
+      const previousData = queryClient.getQueriesData({
+        queryKey: expenseKeys.all,
       });
 
       // 낙관적 업데이트: 해당 지출 제거
@@ -159,32 +166,119 @@ export function useDeleteExpense() {
 
       // 상세 쿼리도 제거
       queryClient.removeQueries({
-        queryKey: expenseKeys.detail(id)
+        queryKey: expenseKeys.detail(id),
       });
 
-      return { previousExpenses };
+      return { previousData };
     },
+
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       toast.success('지출이 성공적으로 삭제되었습니다!');
     },
+
     onError: (error, variables, context) => {
       // 실패 시 롤백
-      if (context?.previousExpenses) {
-        context.previousExpenses.forEach(([queryKey, data]) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
 
-      const message = error instanceof Error 
-        ? error.message 
-        : '지출 삭제에 실패했습니다.';
+      const message =
+        error instanceof Error ? error.message : '지출 삭제에 실패했습니다.';
       toast.error(message);
     },
+
     onSettled: () => {
+      // 항상 최신 데이터로 동기화
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
     },
   });
 }
 
+/**
+ * 일괄 지출 수정 훅 (toast 중복 방지)
+ */
+export function useBulkUpdateExpense() {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: async ({
+      updates,
+    }: {
+      updates: Array<{
+        id: number;
+        data: TransactionUpdateRequest;
+      }>;
+    }) => {
+      // 모든 업데이트를 병렬로 실행
+      return Promise.all(
+        updates.map(({ id, data }) => updateTransaction(id, data))
+      );
+    },
+
+    onMutate: async ({ updates }) => {
+      // 관련 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: expenseKeys.all });
+
+      // 이전 데이터 백업
+      const previousData = queryClient.getQueriesData({
+        queryKey: expenseKeys.all,
+      });
+
+      // 낙관적 업데이트 - 목록 쿼리들
+      queryClient.setQueriesData(
+        { queryKey: expenseKeys.lists() },
+        (old: TransactionResponse[] | undefined) =>
+          old?.map(expense => {
+            const update = updates.find(u => u.id === expense.id);
+            return update
+              ? {
+                  ...expense,
+                  ...update.data,
+                  updatedAt: new Date().toISOString(),
+                }
+              : expense;
+          })
+      );
+
+      // 개별 상세 쿼리들도 업데이트
+      updates.forEach(({ id, data }) => {
+        const detailQueryKey = expenseKeys.detail(id);
+        queryClient.setQueryData(
+          detailQueryKey,
+          (old: TransactionResponse | undefined) =>
+            old ? { ...old, ...data, updatedAt: new Date().toISOString() } : old
+        );
+      });
+
+      return { previousData };
+    },
+
+    onSuccess: (data, variables) => {
+      // 성공 시 관련 쿼리들 무효화
+      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+      const count = variables.updates.length;
+      toast.success(`${count}개의 지출이 성공적으로 수정되었습니다!`);
+    },
+
+    onError: (error, variables, context) => {
+      // 실패 시 롤백
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      const message =
+        error instanceof Error ? error.message : '지출 수정에 실패했습니다.';
+      toast.error(message);
+    },
+
+    onSettled: () => {
+      // 항상 최신 데이터로 동기화
+      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+    },
+  });
+}

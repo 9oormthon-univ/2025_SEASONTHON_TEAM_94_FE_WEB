@@ -1,140 +1,66 @@
-import { useSearchParams, Link } from 'react-router';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { useUncategorizedExpenses, useCategorizedExpenses } from '@/features/expenses/hooks';
+import { Link } from 'react-router';
 import { Header } from '@/shared/components/Header';
-import { UncategorizedExpenseList } from '@/features/expenses/components/List/UncategorizedExpenseList';
-import { CategorizedExpenseList } from '@/features/expenses/components/List/CategorizedExpenseList';
-import ArrowDownIcon from '@/assets/keyboard_arrow_down.svg?react';
 import PlusIcon from '@/assets/plus.svg?react';
 
 export function ExpensesPage() {
-  const [searchParams] = useSearchParams();
-  const activeTab =
-    (searchParams.get('tab') as 'unclassified' | 'classified') ||
-    'unclassified';
-  const [selectedMonth, setSelectedMonth] = useState('8월 1일 - 8월 28일');
-
-  // TanStack Query 훅을 사용하여 데이터 가져오기
-  const uncategorizedQuery = useUncategorizedExpenses();
-  const categorizedQuery = useCategorizedExpenses();
-
-  // 현재 활성 탭에 따라 적절한 쿼리 선택
-  const currentQuery = activeTab === 'unclassified' ? uncategorizedQuery : categorizedQuery;
-  const expenses = currentQuery.data || [];
-  const loading = currentQuery.isLoading;
-  const error = currentQuery.error;
-
-  // 트랜잭션 업데이트 핸들러 (삭제 등의 경우)
-  const handleTransactionUpdateWithParams = (id: number) => {
-    // TanStack Query는 mutation 후 자동으로 캐시를 업데이트하므로
-    // 별도의 상태 업데이트가 필요 없음
-    currentQuery.refetch();
-  };
-
-  // 트랜잭션 일반 업데이트 핸들러
-  const handleTransactionUpdate = () => {
-    currentQuery.refetch();
-  };
-
-  const renderContent = () => {
-    if (activeTab === 'unclassified') {
-      return (
-        <UncategorizedExpenseList
-          expenses={expenses}
-          onTransactionUpdate={handleTransactionUpdateWithParams}
-        />
-      );
-    } else {
-      return (
-        <CategorizedExpenseList
-          expenses={expenses}
-          onExpenseUpdate={handleTransactionUpdate}
-        />
-      );
-    }
-  };
-
-  if (error) {
-    return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-500 mb-4">
-            {error instanceof Error ? error.message : '데이터를 불러오는데 실패했습니다.'}
-          </p>
-          <button
-            onClick={() => currentQuery.refetch()}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            다시 시도
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const menuItems = [
+    {
+      title: '미분류 지출',
+      description: '미분류 지출 페이지',
+      path: '/expenses/unclassified',
+      color: 'bg-blue-50 text-blue-600',
+    },
+    {
+      title: '고정 지출',
+      description: '고정 지출 페이지',
+      path: '/expenses/fixed',
+      color: 'bg-green-50 text-green-600',
+    },
+    {
+      title: '초과 지출',
+      description: '초과 지출 페이지',
+      path: '/expenses/over',
+      color: 'bg-red-50 text-red-600',
+    },
+    {
+      title: '홈',
+      description: '홈 페이지',
+      path: '/home',
+      color: 'bg-blue-50 text-blue-600',
+    },
+    {
+      title: '지출달력',
+      description: '지출달력 페이지',
+      path: '/calendar',
+      color: 'bg-blue-50 text-blue-600',
+    },
+    {
+      title: '프로필',
+      description: '프로필 페이지',
+      path: '/profile',
+      color: 'bg-blue-50 text-blue-600',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
       <Header />
 
-      {/* Tabs with Plus Button */}
+      {/* Page Title with Plus Button */}
       <div className="bg-white h-[60px]">
-        <div className="flex items-center justify-between px-6">
-          <div className="flex">
-            <div className="relative">
-              <Link
-                to="/expenses?tab=unclassified"
-                className={`py-2 text-2xl font-bold transition-colors duration-200 ${
-                  activeTab === 'unclassified'
-                    ? 'text-sub-blue'
-                    : 'text-[#bfbfbf]'
-                }`}
-              >
-                미분류
-              </Link>
-              {activeTab === 'unclassified' && (
-                <motion.div
-                  layoutId="tabIndicator"
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-sub-blue"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 500,
-                    damping: 30,
-                  }}
-                />
-              )}
-            </div>
-            <div className="relative ml-6">
-              <Link
-                to="/expenses?tab=classified"
-                className={`py-2 text-2xl font-bold transition-colors duration-200 ${
-                  activeTab === 'classified'
-                    ? 'text-sub-blue'
-                    : 'text-[#bfbfbf]'
-                }`}
-              >
-                분류
-              </Link>
-              {activeTab === 'classified' && (
-                <motion.div
-                  layoutId="tabIndicator"
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-sub-blue"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 500,
-                    damping: 30,
-                  }}
-                />
-              )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center flex-col justify-center px-6">
+            <h1 className="py-2 text-2xl font-bold text-sub-blue">
+              페이지 연결
+            </h1>
+            <div className="text-sm text-gray-600">
+              지출 페이지 작업은 끝났으나 아직 메인쪽 페이지가 안나와서 임시로
+              만든 페이지입니다.
             </div>
           </div>
 
-          {/* Plus Button - 탭과 같은 라인 */}
-          <Link 
+          {/* Plus Button */}
+          <Link
             to="/expenses/add"
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
@@ -143,33 +69,31 @@ export function ExpensesPage() {
         </div>
       </div>
 
-      {/* Date Filter */}
-      <div className="text-sm text-sub-gray px-6 pt-4 pb-2 flex items-center">
-        {selectedMonth}
-        <ArrowDownIcon className="w-3 h-3 ml-2" />
-      </div>
-
-      <div className="px-6 pt-2">
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-main-orange"></div>
-          </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{
-                duration: 0.3,
-                ease: [0.4, 0.0, 0.2, 1],
-              }}
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
-        )}
+      {/* Menu Items */}
+      <div className="px-6 pt-10 space-y-4">
+        {menuItems.map((item, index) => (
+          <Link
+            key={index}
+            to={item.path}
+            className="block bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-600">{item.description}</p>
+              </div>
+              <div
+                className={`w-12 h-12 rounded-full ${item.color} flex items-center justify-center ml-4`}
+              >
+                <span className="text-xl font-bold">
+                  {item.title.charAt(0)}
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

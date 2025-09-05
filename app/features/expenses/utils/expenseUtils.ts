@@ -1,14 +1,19 @@
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
-import type { TransactionCreateRequest } from '@/shared/types/expense';
+import type {
+  TransactionCreateRequest,
+  Transaction,
+} from '@/shared/types/expense';
 
 /**
  * 폼 데이터를 API 요청 데이터로 변환합니다
  */
-export function convertFormDataToApiRequest(formData: ExpenseFormData): TransactionCreateRequest {
+export function convertFormDataToApiRequest(
+  formData: ExpenseFormData
+): TransactionCreateRequest {
   return {
     price: formData.price,
     title: formData.title,
-    bankName: formData.bankName,
+    bankName: formData.bankName || '',
     splitCount: formData.dutchPayCount, // dutchPayCount를 splitCount로 매핑
     type: formData.type,
     category: formData.category,
@@ -18,69 +23,29 @@ export function convertFormDataToApiRequest(formData: ExpenseFormData): Transact
 }
 
 /**
- * 날짜를 한국어 형식으로 포맷팅합니다
+ * 지출 목록을 날짜별로 그룹화합니다
+ * @param expenses 지출 목록
+ * @returns 날짜별로 그룹화된 지출 목록 (최신 날짜가 위로)
  */
-export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    month: 'numeric',
-    day: 'numeric',
+export function groupExpensesByDate(expenses: Transaction[]) {
+  const groups: { [key: string]: Transaction[] } = {};
+
+  expenses.forEach(expense => {
+    const dateKey = expense.startedAt.split('T')[0]; // YYYY-MM-DD 형식
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(expense);
   });
-}
 
-/**
- * 날짜와 시간을 한국어 형식으로 포맷팅합니다
- */
-export function formatDateTime(dateString: string): string {
-  const date = new Date(dateString);
-  return (
-    date.toLocaleDateString('ko-KR', {
-      month: 'numeric',
-      day: 'numeric',
-    }) +
-    ' ' +
-    date.toLocaleTimeString('ko-KR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })
-  );
-}
-
-/**
- * 지출 목록에서 사용하는 상세한 날짜 포맷팅 함수
- * 형식: "월일 요일 시:분:초"
- */
-export function formatExpenseDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const dayOfWeek = [
-      '일요일',
-      '월요일',
-      '화요일',
-      '수요일',
-      '목요일',
-      '금요일',
-      '토요일',
-    ][date.getDay()];
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${month}월 ${day}일 ${dayOfWeek} ${hours}:${minutes}:${seconds}`;
-  } catch {
-    return dateStr;
-  }
-}
-
-/**
- * 오늘 날짜를 YYYY-MM-DD 형식으로 반환합니다
- */
-export function getTodayYMD(): string {
-  const d = new Date();
-  const m = `${d.getMonth() + 1}`.padStart(2, '0');
-  const day = `${d.getDate()}`.padStart(2, '0');
-  return `${d.getFullYear()}-${m}-${day}`;
+  // 날짜 순으로 정렬 (최신 날짜가 위로)
+  return Object.entries(groups)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([date, expenses]) => ({
+      date,
+      expenses: expenses.sort(
+        (a, b) =>
+          new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+      ),
+    }));
 }

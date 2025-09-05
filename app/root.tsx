@@ -6,16 +6,14 @@ import {
   Scripts,
   ScrollRestoration,
 } from 'react-router';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 
 import type { Route } from './+types/root';
 import '@/app.css';
 import { QueryProvider } from '@/shared/providers/QueryProvider';
 import { Toaster } from '@/shared/components/ui/sonner';
-
-import HomeIcon from '@/assets/home.svg?react';
-import ReportIcon from '@/assets/report.svg?react';
-import MoreIcon from '@/assets/more.svg?react';
+import BottomNav from '@/shared/components/BottomNav';
+import { AuthGuard } from '@/features/auth/components/AuthGuard';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -67,6 +65,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const location = useLocation();
+
+  // 바텀 탭이 필요한 경로들 정의
+  const bottomNavPaths = [
+    // '/expenses',
+    '/report',
+    '/more',
+    '/home',
+    '/calendar',
+  ];
+  const shouldShowBottomNav = bottomNavPaths.some(path =>
+    location.pathname.startsWith(path)
+  );
+
+  // 인증이 필요하지 않은 경로들 정의
+  const publicPaths = ['/auth', '/auth/callback', '/auth/onboarding'];
+  const isPublicPath = publicPaths.some(path =>
+    location.pathname.startsWith(path)
+  );
 
   // useEffect(() => {
   //   // 웹뷰에서 확대/축소 방지
@@ -145,61 +161,15 @@ export default function App() {
     <QueryProvider>
       <div className="app-container">
         <main className="content">
-          <Outlet />
+          {isPublicPath ? (
+            <Outlet />
+          ) : (
+            <AuthGuard>
+              <Outlet />
+            </AuthGuard>
+          )}
         </main>
-  <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-1 bottom-nav">
-          <Link
-            to="/expenses"
-            className={`flex flex-col items-center py-1 px-4 ${
-              location.pathname.startsWith('/expenses')
-                ? 'text-[#1F2937]'
-                : 'text-[#9CA3AF]'
-            }`}
-          >
-            <HomeIcon
-              className={`w-6 h-6 mb-1 ${
-                location.pathname.startsWith('/expenses')
-                  ? 'text-[#1F2937]'
-                  : 'text-[#9CA3AF]'
-              }`}
-            />
-            <span className="text-xs">홈</span>
-          </Link>
-          <Link
-            to="/report"
-            className={`flex flex-col items-center py-1 px-4 ${
-              location.pathname.startsWith('/report')
-                ? 'text-[#1F2937]'
-                : 'text-[#9CA3AF]'
-            }`}
-          >
-            <ReportIcon
-              className={`w-6 h-6 mb-1 ${
-                location.pathname.startsWith('/report')
-                  ? 'text-[#1F2937]'
-                  : 'text-[#9CA3AF]'
-              }`}
-            />
-            <span className="text-xs">리포트</span>
-          </Link>
-          <Link
-            to="/profile"
-            className={`flex flex-col items-center py-1 px-4 ${
-              location.pathname.startsWith('/profile')
-                ? 'text-[#1F2937]'
-                : 'text-[#9CA3AF]'
-            }`}
-          >
-            <MoreIcon
-              className={`w-6 h-6 mb-1 ${
-                location.pathname.startsWith('/profile')
-                  ? 'text-[#1F2937]'
-                  : 'text-[#9CA3AF]'
-              }`}
-            />
-            <span className="text-xs">더보기</span>
-          </Link>
-        </nav>
+        {shouldShowBottomNav && <BottomNav />}
         <Toaster richColors position="top-center" />
       </div>
     </QueryProvider>

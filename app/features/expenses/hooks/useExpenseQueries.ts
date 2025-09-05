@@ -35,7 +35,7 @@ export function useExpenses(filter: TransactionFilter) {
  */
 export function useExpensesByType(type: ExpenseType) {
   const filter: TransactionFilter = { type };
-  
+
   return useQuery({
     ...expenseQueries.list(filter),
     queryFn: () => fetchTransactions(filter),
@@ -111,25 +111,23 @@ export function useCategorizedExpenses() {
   return {
     // 로딩 상태: 둘 중 하나라도 로딩 중이면 true
     isLoading: overExpenses.isLoading || fixedExpenses.isLoading,
-    
+
     // 에러 상태: 둘 중 하나라도 에러가 있으면 해당 에러
     error: overExpenses.error || fixedExpenses.error,
-    
+
     // 데이터: 두 타입을 합쳐서 반환
-    data: overExpenses.data && fixedExpenses.data 
-      ? [...overExpenses.data, ...fixedExpenses.data] 
-      : undefined,
-      
+    data:
+      overExpenses.data && fixedExpenses.data
+        ? [...overExpenses.data, ...fixedExpenses.data]
+        : undefined,
+
     // 개별 쿼리 상태도 노출
     overExpenses,
     fixedExpenses,
-    
+
     // 리페치 함수
     refetch: async () => {
-      await Promise.all([
-        overExpenses.refetch(),
-        fixedExpenses.refetch(),
-      ]);
+      await Promise.all([overExpenses.refetch(), fixedExpenses.refetch()]);
     },
   };
 }

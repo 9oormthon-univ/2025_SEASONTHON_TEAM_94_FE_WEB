@@ -6,17 +6,17 @@
   src: url('@/assets/fonts/PretendardVariable.woff2') format('woff2-variations');
 }
 
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
   /* Custom Brand Colors */
-  --main-orange: #FF6200;
-  --sub-blue: #002B5B;
-  --sub-gray: #BFBFBF;
-  
+  --main-orange: #ff6200;
+  --sub-blue: #002b5b;
+  --sub-gray: #bfbfbf;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -92,7 +92,7 @@
   --color-main-orange: var(--main-orange);
   --color-sub-blue: var(--sub-blue);
   --color-sub-gray: var(--sub-gray);
-  
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -138,7 +138,8 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
+      system-ui, sans-serif;
   }
 }
 
@@ -147,7 +148,7 @@
   /* Firefox & legacy Edge */
   * {
     -ms-overflow-style: none; /* IE/Edge */
-    scrollbar-width: none;    /* Firefox */
+    scrollbar-width: none; /* Firefox */
   }
 
   /* WebView/mobile friendly defaults */

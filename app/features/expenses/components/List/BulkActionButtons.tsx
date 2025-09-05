@@ -54,7 +54,7 @@ export function BulkActionButtons({
                 disabled={isLoading}
                 className={`w-full h-[52px] text-white text-base font-bold rounded-[10px] transition-colors ${
                   isLoading
-                    ? 'bg-[#EDEDED] text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-main-orange hover:bg-main-orange/90'
                 }`}
               >

@@ -86,7 +86,7 @@ export function ExpenseAddPage() {
             className={`flex-1 h-[58px] text-white text-[15px] font-medium rounded-[10px] disabled:opacity-50 transition-colors ${
               isFormValid && !createExpenseMutation.isPending
                 ? 'bg-main-orange '
-                : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200'
             }`}
           >
             {createExpenseMutation.isPending ? '저장 중...' : '저장'}

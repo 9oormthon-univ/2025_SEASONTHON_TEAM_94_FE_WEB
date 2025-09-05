@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router';
-import { useAuthCheck } from '../hooks/useAuthCheck';
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck';
 
 interface AuthGuardProps {
   children: ReactNode;

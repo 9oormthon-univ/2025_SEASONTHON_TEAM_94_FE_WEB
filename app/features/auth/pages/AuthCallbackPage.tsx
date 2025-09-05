@@ -1,5 +1,5 @@
-import { useAuthCallback } from '../hooks/useAuthCallback';
-import { AuthLogo } from '../components/AuthLogo';
+import { useAuthCallback } from '@/features/auth/hooks/useAuthCallback';
+import { AuthLogo } from '@/features/auth/components/AuthLogo';
 
 export default function AuthCallbackPage() {
   const { status } = useAuthCallback();
@@ -41,9 +41,7 @@ export default function AuthCallbackPage() {
               </svg>
             </div>
             <h2 className="text-lg font-semibold text-white">로그인 성공!</h2>
-            <p className="text-sm text-white/80">
-              페이지를 이동하고 있습니다...
-            </p>
+            <p className="text-sm text-white/80">연동 중입니다...</p>
           </>
         )}
 

@@ -1,10 +1,13 @@
 // features/profile/hooks/useNickname.ts
 import { useEffect, useMemo, useState } from 'react';
-import { getMe, updateNickname as putNickname } from '../api/user';
+import {
+  getMe,
+  updateNickname as putNickname,
+} from '@/features/profile/api/user';
 
 export function useNickname() {
   const [loading, setLoading] = useState(false);
-  const [saving,  setSaving]  = useState(false);
+  const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState('');
   const [name, setName] = useState('');
 
@@ -13,7 +16,7 @@ export function useNickname() {
       setLoading(true);
       try {
         const me = await getMe();
-        const initial = (me.nickname?.trim() || me.username?.trim() || '');
+        const initial = me.nickname?.trim() || me.username?.trim() || '';
         setOriginal(initial);
         setName(initial);
       } catch {
@@ -33,7 +36,8 @@ export function useNickname() {
     setSaving(true);
     try {
       const updated = await putNickname(name.trim());
-      const finalName = updated.nickname?.trim() || updated.username?.trim() || '';
+      const finalName =
+        updated.nickname?.trim() || updated.username?.trim() || '';
       setOriginal(finalName);
       setName(finalName);
 

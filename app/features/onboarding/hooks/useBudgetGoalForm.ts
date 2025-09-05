@@ -4,7 +4,7 @@ import {
   handleNumericKeyInput,
   handleBackspaceKeyInput,
   handleFocusRestriction,
-} from '../utils/amountUtils';
+} from '@/features/onboarding/utils/amountUtils';
 
 /**
  * 예산 목표 폼 상태와 입력 처리를 관리하는 훅

@@ -87,10 +87,14 @@ export function ExpenseDetailPage() {
         data: updateData,
       });
 
-      // 성공 시 목록으로 돌아가기
-      const nextTab =
-        formData.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
-      navigate(`/expenses?tab=${nextTab}`);
+      // 성공 시 type에 따라 적절한 경로로 이동
+      if (formData.type === EXPENSE_TYPES.FIXED_EXPENSE) {
+        navigate('/expenses/fixed');
+      } else if (formData.type === EXPENSE_TYPES.OVER_EXPENSE) {
+        navigate('/expenses/over');
+      } else {
+        navigate('/expenses/unclassified');
+      }
     } catch (error) {
       // 에러는 mutation 훅에서 toast로 처리됨
       console.error('지출 수정 실패:', error);
@@ -104,10 +108,14 @@ export function ExpenseDetailPage() {
     try {
       await deleteExpenseMutation.mutateAsync(expense.id);
 
-      // 성공 시 목록으로 돌아가기
-      const nextTab =
-        expense.type === EXPENSE_TYPES.NONE ? 'unclassified' : 'classified';
-      navigate(`/expenses?tab=${nextTab}`);
+      // 성공 시 type에 따라 적절한 경로로 이동
+      if (expense.type === EXPENSE_TYPES.FIXED_EXPENSE) {
+        navigate('/expenses/fixed');
+      } else if (expense.type === EXPENSE_TYPES.OVER_EXPENSE) {
+        navigate('/expenses/over');
+      } else {
+        navigate('/expenses/unclassified');
+      }
     } catch (error) {
       // 에러는 mutation 훅에서 toast로 처리됨
       console.error('지출 삭제 실패:', error);
@@ -176,7 +184,7 @@ export function ExpenseDetailPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="px-4 sm:px-6 py-4 mt-auto mb-16">
+      <div className="px-4 sm:px-6 py-4 mt-auto mb-4">
         <div className="flex gap-3">
           {/* 삭제 버튼 */}
           <motion.div
@@ -227,7 +235,7 @@ export function ExpenseDetailPage() {
               className={`w-full h-[52px] text-white text-base font-bold rounded-[10px] disabled:opacity-50 transition-colors ${
                 isFormValid && !updateExpenseMutation.isPending
                   ? 'bg-main-orange'
-                  : 'bg-[#EDEDED] text-gray-400 cursor-not-allowed hover:bg-[#EDEDED]'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200'
               }`}
             >
               {updateExpenseMutation.isPending ? '수정 중...' : '수정'}

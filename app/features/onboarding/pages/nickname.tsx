@@ -10,10 +10,10 @@ import {
 } from '@/shared/components/ui/dialog';
 import { Header } from '@/features/expenses';
 import AlertIcon from '@/assets/alert.svg?react';
-import { OnboardingHeader } from '../components/OnboardingHeader';
-import { useNicknameForm } from '../hooks/useNicknameForm';
-import { useNicknameMutation } from '../hooks/useNicknameMutation';
-import { useAlertTimer } from '../hooks/useAlertTimer';
+import { OnboardingHeader } from '@/features/onboarding/components/OnboardingHeader';
+import { useNicknameForm } from '@/features/onboarding/hooks/useNicknameForm';
+import { useNicknameMutation } from '@/features/onboarding/hooks/useNicknameMutation';
+import { useAlertTimer } from '@/features/onboarding/hooks/useAlertTimer';
 
 export function NicknamePage() {
   const {
@@ -41,7 +41,7 @@ export function NicknamePage() {
       className="bg-white h-screen max-w-md mx-auto relative flex flex-col"
     >
       {/* Header */}
-      <Header title="닉네임 입력/수정" />
+      <Header title="닉네임 입력/수정" backPath="/home" />
 
       <div className="px-5 py-8 text-start flex flex-col justify-between h-full">
         <div>
@@ -61,7 +61,7 @@ export function NicknamePage() {
                   onChange={e => handleNicknameChange(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="닉네임을 입력하세요"
-                  className="w-full h-14 text-base bg-[#F7F9FA] border-0 rounded-xl focus:border-main-orange focus:ring-0 transition-colors"
+                  className="w-full h-14 text-base bg-gray-50 border-0 rounded-xl focus:border-main-orange focus:ring-0 transition-colors"
                 />
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-sm text-gray-500">

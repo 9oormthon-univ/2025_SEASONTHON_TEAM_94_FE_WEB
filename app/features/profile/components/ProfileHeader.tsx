@@ -15,13 +15,13 @@ export default function ProfileHeader({ nickname, email }: ProfileHeaderProps) {
 
       {emailText && (
         <span
-            className="mt-2 inline-flex h-6 items-center justify-center px-3
-                    rounded-[6px] bg-[#FF6200] text-white text-[14px]
+          className="mt-2 inline-flex h-6 items-center justify-center px-3
+                    rounded-[6px] bg-main-orange text-white text-[14px]
                     whitespace-nowrap"
         >
-            {emailText}
+          {emailText}
         </span>
-        )}
+      )}
     </div>
   );
 }

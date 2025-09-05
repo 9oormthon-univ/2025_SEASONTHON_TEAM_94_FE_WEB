@@ -2,8 +2,8 @@ import { useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
-import BudgetGoalForm from '../components/BudgetGoalForm';
-import { useBudgetGoal } from '../hooks/useBudgetGoal';
+import BudgetGoalForm from '@/features/reports/components/BudgetGoalForm';
+import { useBudgetGoal } from '@/features/reports/hooks/useBudgetGoal';
 import { useHideNav, useHideNavigation } from '@/shared/hooks/useHideNav';
 import { toast } from 'sonner';
 
@@ -14,15 +14,17 @@ function useQuery() {
 
 export default function BudgetGoalPage() {
   useHideNav();
-  useHideNavigation(); 
+  useHideNavigation();
   const q = useQuery();
   const navigate = useNavigate();
 
   const id = q.get('id');
   const date = q.get('date') || undefined;
 
-  const { loading, goal, price, setPrice, saving, save } =
-    useBudgetGoal({ date, idFromRoute: id ? Number(id) : undefined });
+  const { loading, goal, price, setPrice, saving, save } = useBudgetGoal({
+    date,
+    idFromRoute: id ? Number(id) : undefined,
+  });
 
   const title = '목표 초과지출 설정';
   const original = goal?.price ?? 0;
@@ -34,7 +36,9 @@ export default function BudgetGoalPage() {
     style.id = id;
     style.innerHTML = `nav.fixed.bottom-0.left-0.right-0{ display:none !important; }`;
     document.head.appendChild(style);
-    return () => { document.getElementById(id)?.remove(); };
+    return () => {
+      document.getElementById(id)?.remove();
+    };
   }, []);
 
   return (
@@ -69,16 +73,16 @@ export default function BudgetGoalPage() {
             try {
               const ok = await save();
               if (ok) {
-                toast.success("목표 초과지출이 저장되었어요!");
-                navigate("/report");
+                toast.success('목표 초과지출이 저장되었어요!');
+                navigate('/report');
               } else {
-                toast.error("저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+                toast.error('저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
               }
             } catch (err: any) {
               const msg =
                 err?.response?.data?.message ||
                 err?.message ||
-                "저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                '저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
               toast.error(msg);
             }
           }}

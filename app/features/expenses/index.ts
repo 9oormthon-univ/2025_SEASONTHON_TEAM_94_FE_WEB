@@ -22,7 +22,6 @@ export * from '@/features/expenses/components/Form/DatePickerField';
 export * from '@/features/expenses/components/ExpenseErrorBoundary';
 
 // Pages
-export * from '@/features/expenses/pages/ExpensesPage';
 export * from '@/features/expenses/pages/ExpenseDetailPage';
 export * from '@/features/expenses/pages/ExpenseAddPage';
 export * from '@/features/expenses/pages/ExpenseUnclassified';

@@ -37,8 +37,8 @@ export function useAuthCallback() {
 
           const userData = response.data;
 
-          // 네이티브 앱에 사용자 정보 전달
-          sendAuthDataToNative({
+          // Flutter에 사용자 정보 전달
+          await sendAuthDataToNative({
             uid: userData.id || 'unknown',
             username: userData.username || userData.nickname || 'unknown',
           });

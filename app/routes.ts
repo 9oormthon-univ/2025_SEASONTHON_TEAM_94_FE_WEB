@@ -29,4 +29,7 @@ export default [
   route('report', 'routes/report.tsx'),
   route('reports/budget-goal', 'features/reports/pages/BudgetGoalPage.tsx'),
   route('profile/nickname', 'features/profile/pages/NicknamePage.tsx'),
+
+  // 404 페이지
+  route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

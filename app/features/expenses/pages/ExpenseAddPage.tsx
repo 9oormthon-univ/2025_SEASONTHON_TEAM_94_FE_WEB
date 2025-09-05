@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import {
   EXPENSE_TYPES,
   type TransactionCreateRequest,
@@ -18,17 +18,20 @@ export function ExpenseAddPage() {
   const [isFormValid, setIsFormValid] = useState(false);
 
   // 생성 시 고정된 시간 사용
-  const defaultValues = useMemo(() => ({
-    title: '', // 거래처 필드
-    price: 0, // 금액 필드
-    bankName: '', // 은행명 (선택사항)
-    selectedDate: new Date(), // 지출일시
-    dutchPayCount: 1, // 더치페이 인원 (기본값 1)
-    splitCount: 1, // API 전송용 splitCount (dutchPayCount와 동일)
-    memo: '', // 메모 (선택사항)
-    type: EXPENSE_TYPES.OVER_EXPENSE,
-    category: undefined, // 카테고리 (선택사항)
-  }), []);
+  const defaultValues = useMemo(
+    () => ({
+      title: '', // 거래처 필드
+      price: 0, // 금액 필드
+      bankName: '', // 은행명 (선택사항)
+      selectedDate: new Date(), // 지출일시
+      dutchPayCount: 1, // 더치페이 인원 (기본값 1)
+      splitCount: 1, // API 전송용 splitCount (dutchPayCount와 동일)
+      memo: '', // 메모 (선택사항)
+      type: EXPENSE_TYPES.OVER_EXPENSE,
+      category: undefined, // 카테고리 (선택사항)
+    }),
+    []
+  );
 
   const handleFormSubmit = async (formData: ExpenseFormData) => {
     try {
@@ -54,7 +57,7 @@ export function ExpenseAddPage() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -62,7 +65,7 @@ export function ExpenseAddPage() {
       className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
-      <ExpenseHeader title="지출 추가" />
+      <Header title="지출 추가" />
 
       {/* Form */}
       <div className="flex-1">

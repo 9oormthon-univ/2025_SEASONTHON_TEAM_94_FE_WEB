@@ -11,7 +11,7 @@ export * from '@/features/expenses/components/List/FixedExpenseItem';
 export * from '@/features/expenses/components/List/OverExpenseItem';
 export * from '@/features/expenses/components/List/BulkActionButtons';
 export * from '@/features/expenses/components/ExpenseDetail';
-export * from '@/features/expenses/components/ExpenseHeader';
+export * from '@/shared/components/Header';
 export * from '@/features/expenses/components/FixedExpenseStats';
 export * from '@/features/expenses/components/OverExpenseStats';
 export * from '@/features/expenses/components/Form/ExpenseForm';

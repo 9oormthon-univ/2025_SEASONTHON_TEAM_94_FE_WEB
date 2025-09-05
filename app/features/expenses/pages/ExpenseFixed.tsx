@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { useFixedExpenses } from '@/features/expenses/hooks/useFixedExpenses';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import { FixedExpenseStats } from '@/features/expenses/components/FixedExpenseStats';
 import { FixedExpenseItem } from '@/features/expenses/components/List/FixedExpenseItem';
 import ChevronDown from '@/assets/Chevron_down.svg?react';
@@ -63,7 +63,7 @@ export function ExpenseFixedPage() {
   return (
     <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <ExpenseHeader title="고정지출 내역" />
+      <Header title="고정지출 내역" />
 
       {/* Date Filter */}
       <div className="bg-white pt-2">

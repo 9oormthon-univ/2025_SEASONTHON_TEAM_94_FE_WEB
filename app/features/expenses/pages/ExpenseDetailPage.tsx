@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router';
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -164,7 +164,7 @@ export function ExpenseDetailPage() {
       className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
-      <ExpenseHeader title="지출 수정" />
+      <Header title="지출 수정" />
 
       {/* Form */}
       <div className="flex-1">

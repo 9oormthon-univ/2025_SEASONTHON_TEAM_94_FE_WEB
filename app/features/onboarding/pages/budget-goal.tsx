@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { ExpenseHeader } from '@/features/expenses';
+import { Header } from '@/features/expenses';
 import { useBudgetGoalForm } from '../hooks/useBudgetGoalForm';
 import { useBudgetGoalMutation } from '../hooks/useBudgetGoalMutation';
 import { OnboardingHeader } from '../components/OnboardingHeader';
@@ -24,7 +24,7 @@ export function BudgetGoalPage() {
       className="bg-white h-screen max-w-md mx-auto relative flex flex-col"
     >
       {/* Header */}
-      <ExpenseHeader title="지출 생성" />
+      <Header title="목표 지출 설정" />
 
       <div className="px-5 py-8 text-start flex flex-col justify-between h-full">
         <div>

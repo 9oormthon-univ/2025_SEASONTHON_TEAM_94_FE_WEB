@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
-import { Header } from '@/shared/components/Header';
 import PlusIcon from '@/assets/plus.svg?react';
+import logoSvg from '@/assets/logo.svg';
 
 export function ExpensesPage() {
   const menuItems = [
@@ -44,7 +44,12 @@ export function ExpensesPage() {
 
   return (
     <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto">
-      <Header />
+      <div className="bg-white">
+        {/* Logo Header - 가운데 정렬 */}
+        <div className="flex justify-center px-6 pt-6 pb-6">
+          <img src={logoSvg} alt="그만써" className="h-[25px]" />
+        </div>
+      </div>
 
       {/* Page Title with Plus Button */}
       <div className="bg-white h-[60px]">

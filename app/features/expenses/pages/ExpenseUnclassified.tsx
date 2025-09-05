@@ -7,7 +7,7 @@ import {
 } from '@/features/expenses/hooks';
 import { UncategorizedExpenseList } from '@/features/expenses/components/List/UncategorizedExpenseList';
 import ChevronDown from '@/assets/Chevron_down.svg?react';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import {
   Dialog,
   DialogContent,
@@ -96,7 +96,7 @@ export function ExpenseUnclassifiedPage() {
   return (
     <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <ExpenseHeader title="미분류된 지출" />
+      <Header title="미분류된 지출" />
 
       {/* Date Filter */}
       <button

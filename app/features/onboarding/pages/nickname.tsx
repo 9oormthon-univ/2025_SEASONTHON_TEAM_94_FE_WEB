@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/shared/components/ui/dialog';
-import { ExpenseHeader } from '@/features/expenses';
+import { Header } from '@/features/expenses';
 import AlertIcon from '@/assets/alert.svg?react';
 import { OnboardingHeader } from '../components/OnboardingHeader';
 import { useNicknameForm } from '../hooks/useNicknameForm';
@@ -41,7 +41,7 @@ export function NicknamePage() {
       className="bg-white h-screen max-w-md mx-auto relative flex flex-col"
     >
       {/* Header */}
-      <ExpenseHeader title="닉네임 입력/수정" />
+      <Header title="닉네임 입력/수정" />
 
       <div className="px-5 py-8 text-start flex flex-col justify-between h-full">
         <div>

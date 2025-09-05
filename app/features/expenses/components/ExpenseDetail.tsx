@@ -39,17 +39,15 @@ export function ExpenseDetail({
       price: expense.price,
       title: expense.title,
       bankName: expense.bankName,
-      userUid: expense.userUid,
       selectedDate: new Date(expense.startedAt),
       type: expense.type,
       category: expense.category,
       dutchPayCount: expense.splitCount || 1,
-      app: '', // 기본값 (Transaction에 app 필드가 없으므로)
     };
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -80,10 +78,7 @@ export function ExpenseDetail({
       </div>
 
       {/* Form */}
-      <ExpenseForm
-        onSubmit={onSave}
-        defaultValues={getDefaultValues()}
-      />
+      <ExpenseForm onSubmit={onSave} defaultValues={getDefaultValues()} />
 
       {/* Action Buttons */}
       <div className="fixed bottom-16 left-0 right-0 px-4 sm:px-6 max-w-md mx-auto">
@@ -92,7 +87,7 @@ export function ExpenseDetail({
             onClick={onCancel}
             className="flex-1 h-[45px] border-sub-blue text-sub-blue text-[15px] font-medium rounded-[10px] hover:bg-sub-blue/5 transition-colors"
           >
-             삭제
+            삭제
           </Button>
           <Button
             form="expense-form"

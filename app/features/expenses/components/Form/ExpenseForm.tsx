@@ -12,16 +12,18 @@ import {
 } from '@/shared/components/ui/drawer';
 import { Calendar } from '@/shared/components/ui/calendar';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
-import type { ExpenseHookFormProps } from '@/features/expenses/_lib/types/components';
 import { ExpenseTypeSelector } from './ExpenseTypeSelector';
 import { FormField } from './FormField';
 import { InputField } from './InputField';
 import { NumberStepper } from './NumberStepper';
 import { CategorySelector } from './CategorySelector';
-import { formatDateForDisplay, calculateDutchPayAmount } from '@/features/expenses/utils/formUtils';
+import { DatePickerField } from './DatePickerField';
+import { DutchPayField } from './DutchPayField';
+import { formatDateForDisplay } from '@/features/expenses/utils/dateUtils';
+import { calculateDutchPayAmount } from '@/features/expenses/utils/calculationUtils';
 import { useExpenseForm } from '@/features/expenses/hooks/useExpenseForm';
 
-interface ExpenseFormProps extends ExpenseHookFormProps {
+interface ExpenseFormProps {
   onSubmit: (data: ExpenseFormData) => void;
   defaultValues?: Partial<ExpenseFormData>;
   onValidationChange?: (isValid: boolean) => void;
@@ -32,15 +34,21 @@ export function ExpenseForm({
   defaultValues,
   onValidationChange,
 }: ExpenseFormProps) {
-  const {
-    form,
-    watchedValues,
-    calendarHandlers,
-    dutchPayHandlers,
-  } = useExpenseForm({ defaultValues, onValidationChange });
+  const { form, watchedValues, calendarHandlers, dutchPayHandlers } =
+    useExpenseForm({ defaultValues, onValidationChange });
 
-  const { control, handleSubmit, setValue, formState: { errors } } = form;
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = form;
   const { dutchPayCount, price } = watchedValues;
+
+  const handleDutchPayChange = (value: number) => {
+    setValue('splitCount', value); // splitCount도 함께 업데이트
+    dutchPayHandlers.setInput(String(value));
+  };
 
   return (
     <form id="expense-form" onSubmit={handleSubmit(onSubmit)}>
@@ -49,11 +57,7 @@ export function ExpenseForm({
 
       {/* Price Input */}
       <div className="px-4 sm:px-6 py-4">
-        <InputField 
-          label="금액" 
-          error={errors.price?.message}
-          htmlFor="price"
-        >
+        <InputField label="금액" error={errors.price?.message} htmlFor="price">
           <Controller
             name="price"
             control={control}
@@ -65,7 +69,7 @@ export function ExpenseForm({
                 autoComplete="off"
                 placeholder="금액을 입력하세요."
                 value={field.value ? field.value.toLocaleString() : ''}
-                onChange={(e) => {
+                onChange={e => {
                   const numericValue = e.target.value.replace(/[^\d]/g, '');
                   field.onChange(numericValue ? parseInt(numericValue, 10) : 0);
                 }}
@@ -79,8 +83,8 @@ export function ExpenseForm({
       {/* Form Fields */}
       <div className="px-4 sm:px-6 space-y-6">
         {/* Merchant */}
-        <InputField 
-          label="거래처" 
+        <InputField
+          label="거래처"
           error={errors.title?.message}
           htmlFor="title"
         >
@@ -100,114 +104,24 @@ export function ExpenseForm({
         </InputField>
 
         {/* Dutch Pay */}
-        <FormField 
-          label="더치페이"
-          error={errors.dutchPayCount?.message}
-        >
-          <div className="flex items-center gap-2 justify-end">
-            <Controller
-              name="dutchPayCount"
-              control={control}
-              render={({ field }) => (
-                <NumberStepper
-                  value={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    setValue('splitCount', value); // splitCount도 함께 업데이트
-                    dutchPayHandlers.setInput(String(value));
-                  }}
-                  min={1}
-                  max={20}
-                  price={price}
-                />
-              )}
-            />
-            {dutchPayCount > 1 && price && (
-              <div className="text-sm text-[#BFBFBF] transition-opacity duration-200">
-                (1인당: {calculateDutchPayAmount(price, dutchPayCount)}원)
-              </div>
-            )}
-          </div>
-        </FormField>
+        <DutchPayField
+          control={control}
+          errors={errors}
+          price={price}
+          dutchPayCount={dutchPayCount}
+          onDutchPayChange={handleDutchPayChange}
+        />
 
         {/* Date */}
-        <InputField 
-          label="지출일시" 
-          error={errors.selectedDate?.message}
-        >
-          <Controller
-            name="selectedDate"
-            control={control}
-            render={({ field }) => (
-              <Drawer open={calendarHandlers.isOpen} onOpenChange={calendarHandlers.setIsOpen}>
-                <DrawerTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-between text-base text-[#3d3d3d] font-normal h-[60px] border-sub-gray"
-                  >
-                    {formatDateForDisplay(field.value)}
-                    <CalendarIcon className="w-4 h-4" />
-                  </Button>
-                </DrawerTrigger>
-                <DrawerContent className="w-auto overflow-hidden p-0">
-                  <DrawerHeader className="sr-only">
-                    <DrawerTitle>날짜 선택</DrawerTitle>
-                    <DrawerDescription>지출 날짜를 선택하세요</DrawerDescription>
-                  </DrawerHeader>
-                  <div className="flex flex-col">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => {
-                        if (date) {
-                          const currentDate = field.value;
-                          const newDate = new Date(
-                            date.getFullYear(),
-                            date.getMonth(), 
-                            date.getDate(),
-                            currentDate.getHours(),
-                            currentDate.getMinutes(),
-                            currentDate.getSeconds(),
-                            currentDate.getMilliseconds()
-                          );
-                          field.onChange(newDate);
-                          calendarHandlers.setIsOpen(false);
-                        }
-                      }}
-                      captionLayout="dropdown"
-                      className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)] border-none"
-                    />
-                    {/* Time Picker */}
-                    <div className="px-4 py-4 border-t border-gray-200 mb-4">
-                      <div className="relative">
-                        <Input
-                          type="time"
-                          value={`${String(field.value.getHours()).padStart(2, '0')}:${String(field.value.getMinutes()).padStart(2, '0')}`}
-                          onChange={(e) => {
-                            const [hours, minutes] = e.target.value.split(':').map(Number);
-                            const newDate = new Date(field.value);
-                            newDate.setHours(hours || 0);
-                            newDate.setMinutes(minutes || 0);
-                            field.onChange(newDate);
-                          }}
-                          className="w-full h-[50px] text-base text-[#3d3d3d] font-normal text-center pr-10 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                        />
-                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-                </DrawerContent>
-              </Drawer>
-            )}
-          />
-        </InputField>
+        <DatePickerField
+          control={control}
+          errors={errors}
+          isCalendarOpen={calendarHandlers.isOpen}
+          onCalendarOpenChange={calendarHandlers.setIsOpen}
+        />
 
         {/* Memo */}
-        <InputField 
-          label="메모" 
-          error={errors.memo?.message}
-          htmlFor="memo"
-        >
+        <InputField label="메모" error={errors.memo?.message} htmlFor="memo">
           <Controller
             name="memo"
             control={control}

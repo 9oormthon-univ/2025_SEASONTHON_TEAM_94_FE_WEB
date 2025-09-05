@@ -1,12 +1,18 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { httpClient } from '@/shared/utils/httpClient';
 import { API_ENDPOINTS } from '@/shared/config/api';
 import type { ApiResponse } from '@/shared/types/api';
 
-const KAKAO_LOGIN_URL = 'https://api.stopusing.klr.kr/oauth2/authorization/kakao';
+const KAKAO_LOGIN_URL =
+  'https://api.stopusing.klr.kr/oauth2/authorization/kakao';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -16,7 +22,7 @@ export default function AuthPage() {
     (async () => {
       try {
         await httpClient.get<ApiResponse<any>>(API_ENDPOINTS.USERS_ME);
-        navigate('/expenses', { replace: true });
+        navigate('/home', { replace: true });
       } catch {
         // not authed → stay
       }
@@ -56,11 +62,7 @@ export default function AuthPage() {
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-medium py-3 rounded-lg flex items-center justify-center space-x-2"
               size="lg"
             >
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3z" />
               </svg>
               <span>카카오로 시작하기</span>
@@ -71,7 +73,8 @@ export default function AuthPage() {
         {/* 추가 정보 */}
         <div className="text-center text-xs text-gray-500">
           <p>
-            로그인 시 서비스 이용약관 및 개인정보처리방침에 동의한 것으로 간주됩니다.
+            로그인 시 서비스 이용약관 및 개인정보처리방침에 동의한 것으로
+            간주됩니다.
           </p>
         </div>
       </div>

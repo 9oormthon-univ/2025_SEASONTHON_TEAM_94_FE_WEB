@@ -7,7 +7,9 @@ export default [
   // 인증 관련 페이지들 (바텀 탭 없음)
   route('auth', 'routes/auth.tsx'),
   route('auth/callback', 'routes/auth.callback.tsx'),
-  route('auth/onboarding', 'routes/auth.onboarding.tsx'),
+
+  route('onboarding/nickname', 'routes/onboarding.nickname.tsx'),
+  route('onboarding/budget-goal', 'routes/onboarding.budgetGoal.tsx'),
 
   // 지출 관련 페이지
   route('expenses', 'routes/expenses._index.tsx'),
@@ -25,4 +27,5 @@ export default [
   route('profile', 'routes/profile.tsx'),
   route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx"),
   route("profile/nickname", "features/profile/pages/NicknamePage.tsx")
+
 ] satisfies RouteConfig;

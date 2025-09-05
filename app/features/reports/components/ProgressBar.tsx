@@ -32,7 +32,7 @@ export default function ProgressBar({
           transform: 'translate(-50%, -10px)',
         }}
       >
-        <div className="text-xs font-semibold" style={{ color: themeColor }}>
+        <div className="text-sm font-semibold" style={{ color: themeColor }}>
           {pct === 0 || pct === 100 ? `${Math.round(pct)}%` : `${pct.toFixed(2)}%`}
         </div>
         <div

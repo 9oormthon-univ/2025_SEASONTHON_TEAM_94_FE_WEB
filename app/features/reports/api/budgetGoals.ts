@@ -1,4 +1,4 @@
-// features/more/api/budgetGoals.ts
+// features/reports/api/budgetGoals.ts
 import { httpClient } from '@/shared/utils/httpClient';
 import { API_ENDPOINTS } from '@/shared/config/api';
 import type { ApiResponse } from '@/shared/types/api';
@@ -32,10 +32,7 @@ export function getBudgetGoalByDate(params?: { date?: string }) {
 }
 
 // 4) 수정
-export function updateBudgetGoal(
-  id: number,
-  body: BudgetGoalUpdateRequest
-) {
+export function updateBudgetGoal(id: number, body: BudgetGoalUpdateRequest) {
   return httpClient.put<ApiResponse<BudgetGoalResponse>>(
     API_ENDPOINTS.BUDGET_GOAL_BY_ID(id),
     body

@@ -183,16 +183,16 @@ export default function App() {
             <span className="text-xs">리포트</span>
           </Link>
           <Link
-            to="/more"
+            to="/profile"
             className={`flex flex-col items-center py-1 px-4 ${
-              location.pathname.startsWith('/more')
+              location.pathname.startsWith('/profile')
                 ? 'text-[#1F2937]'
                 : 'text-[#9CA3AF]'
             }`}
           >
             <MoreIcon
               className={`w-6 h-6 mb-1 ${
-                location.pathname.startsWith('/more')
+                location.pathname.startsWith('/profile')
                   ? 'text-[#1F2937]'
                   : 'text-[#9CA3AF]'
               }`}

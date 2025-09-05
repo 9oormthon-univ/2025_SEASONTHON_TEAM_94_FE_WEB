@@ -8,7 +8,7 @@ import { Calendar } from '@/shared/components/ui/calendar';
 import { OverExpenseItem, formatDateHeader } from '@/features/expenses';
 import PlusIcon from '@/assets/plus.svg?react';
 import emptyImage from '@/assets/empty.png';
-import { useCalendarExpenses } from '../hooks/useCalendarExpenses';
+import { useCalendarExpenses } from '@/features/calendar/hooks/useCalendarExpenses';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
 
@@ -32,7 +32,10 @@ export default function ExpensesCalendarPage() {
       <div className="bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 mb-4">데이터를 불러오는데 실패했습니다.</p>
-          <button onClick={handleTransactionUpdate} className="px-4 py-2 bg-blue-500 text-white rounded">
+          <button
+            onClick={handleTransactionUpdate}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
             다시 시도
           </button>
         </div>
@@ -41,11 +44,11 @@ export default function ExpensesCalendarPage() {
   }
 
   // 선택된 날짜 총액(0이면 숨김)을 CSS 변수로 내려보냄
-  const selectedTotal = stats.totalAmount !== 0 ? `'-${won(Math.abs(stats.totalAmount))}원'` : `''`;
+  const selectedTotal =
+    stats.totalAmount !== 0 ? `'-${won(Math.abs(stats.totalAmount))}원'` : `''`;
 
   return (
-    <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
-
+    <div className="bg-slate-50 relative w-full max-w-md mx-auto min-h-screen">
       <div className="bg-white px-4 pt-2 pb-4">
         {/* 캘린더 커스텀 스타일 */}
         <style>{`
@@ -67,7 +70,7 @@ export default function ExpensesCalendarPage() {
 
           .calendar-wrapper [data-selected-single="true"]{
             background: transparent !important;
-            color: #FF6200 !important;
+            color: var(--main-orange) !important;
             box-shadow: none !important;
           }
 
@@ -93,13 +96,17 @@ export default function ExpensesCalendarPage() {
 
         <div
           className="calendar-wrapper flex justify-center"
-          style={{ ['--selected-total' as any]: selectedTotal } as React.CSSProperties}
+          style={
+            {
+              ['--selected-total' as any]: selectedTotal,
+            } as React.CSSProperties
+          }
         >
           <Calendar
             locale={ko}
             formatters={{
-              formatCaption: (month) => format(month, 'M월', { locale: ko }),
-              formatWeekdayName: (date) => format(date, 'EEEEE', { locale: ko }),
+              formatCaption: month => format(month, 'M월', { locale: ko }),
+              formatWeekdayName: date => format(date, 'EEEEE', { locale: ko }),
             }}
             mode="single"
             selected={selectedDate}
@@ -129,17 +136,22 @@ export default function ExpensesCalendarPage() {
             {expenses.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[320px] text-center">
                 <div className="mb-4 flex justify-center">
-                  <img src={emptyImage} alt="빈 상태" className="w-[150px] h-[150px] object-contain" />
+                  <img
+                    src={emptyImage}
+                    alt="빈 상태"
+                    className="w-[150px] h-[150px] object-contain"
+                  />
                 </div>
                 <h3 className="text-xl font-bold mb-1">아직 내역이 없어요</h3>
                 <p className="text-xs font-normal">
                   미분류 내역에서 분류를 진행하거나
-                  <br />새로운 내역을 추가해주세요!
+                  <br />
+                  새로운 내역을 추가해주세요!
                 </p>
               </div>
             ) : (
               <div className="space-y-3 pb-28">
-                {expenses.map((expense) => (
+                {expenses.map(expense => (
                   <OverExpenseItem
                     key={expense.id}
                     expense={expense}

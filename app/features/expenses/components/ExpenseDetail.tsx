@@ -22,7 +22,7 @@ export function ExpenseDetail({
 }: ExpenseDetailProps) {
   if (!expense) {
     return (
-      <div className="bg-white min-h-screen max-w-md mx-2 relative pb-20">
+      <div className="bg-white min-h-screen max-w-md mx-2 relative pb-10">
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center text-gray-500">
             <div className="text-4xl mb-4">💸</div>
@@ -52,7 +52,7 @@ export function ExpenseDetail({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
-      className="bg-white min-h-screen max-w-md mx-2 relative pb-20"
+      className="bg-white min-h-screen max-w-md mx-2 relative pb-10"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-4">

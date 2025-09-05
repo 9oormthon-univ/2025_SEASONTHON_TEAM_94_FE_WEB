@@ -94,16 +94,16 @@ export function ExpenseUnclassifiedPage() {
   }
 
   return (
-    <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
+    <div className="bg-slate-50 relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <Header title="미분류된 지출" />
+      <Header title="미분류된 지출" backPath="/home" />
 
       {/* Date Filter */}
       <button
         onClick={handleDateFilterClick}
         className="flex items-center gap-1 px-[19px] mt-4 hover:bg-gray-100 rounded-lg py-2 transition-colors"
       >
-        <div className="text-[#bfbfbf] text-[14px] font-medium">
+        <div className="text-sub-gray text-[14px] font-medium">
           {displayDateRange}
         </div>
         <ChevronDown className="w-4 h-4" />

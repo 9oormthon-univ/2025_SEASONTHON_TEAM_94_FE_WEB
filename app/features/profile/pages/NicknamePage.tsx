@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
-import NicknameForm from '../components/NicknameForm';
-import { useNickname } from '../hooks/useNickname';
+import NicknameForm from '@/features/profile/components/NicknameForm';
+import { useNickname } from '@/features/profile/hooks/useNickname';
 import { useHideNav } from '@/shared/hooks/useHideNav';
 import { toast } from 'sonner';
 
@@ -18,11 +18,13 @@ export default function NicknamePage() {
     if (!el) return;
     const prevDisplay = el.style.display;
     el.style.display = 'none';
-    return () => { el.style.display = prevDisplay; };
+    return () => {
+      el.style.display = prevDisplay;
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-white relative max-w-md mx-auto pb-20">
+    <div className="min-h-screen bg-white relative max-w-md mx-auto pb-10">
       <div className="relative px-4 pt-4 pb-2">
         <motion.div
           className="absolute left-4 top-4 p-1 -m-1 rounded hover:bg-black/5 active:bg-black/10"
@@ -32,7 +34,9 @@ export default function NicknamePage() {
         >
           <ChevronLeft className="w-6 h-6" />
         </motion.div>
-        <h1 className="text-center text-[15px] font-medium text-black">닉네임 입력/수정</h1>
+        <h1 className="text-center text-[15px] font-medium text-black">
+          닉네임 입력/수정
+        </h1>
       </div>
 
       <motion.div
@@ -51,16 +55,16 @@ export default function NicknamePage() {
             try {
               const ok = await save();
               if (ok) {
-                toast.success("닉네임이 변경되었습니다.");
-                navigate("/more");
+                toast.success('닉네임이 변경되었습니다.');
+                navigate('/more');
               } else {
-                toast.error("닉네임 변경에 실패했습니다. 다시 시도해주세요.");
+                toast.error('닉네임 변경에 실패했습니다. 다시 시도해주세요.');
               }
             } catch (err: any) {
               const msg =
                 err?.response?.data?.message ||
                 err?.message ||
-                "닉네임 저장 중 오류가 발생했습니다.";
+                '닉네임 저장 중 오류가 발생했습니다.';
               toast.error(msg);
             }
           }}

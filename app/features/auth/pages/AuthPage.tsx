@@ -1,5 +1,5 @@
 import { Button } from '@/shared/components/ui/button';
-import { AuthLogo } from '../components/AuthLogo';
+import { AuthLogo } from '@/features/auth/components/AuthLogo';
 import KakaoIcon from '@/assets/kakao.svg?react';
 import GoogleIcon from '@/assets/google.svg?react';
 

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { createBudgetGoal } from '../api/onboardingApi';
+import { createBudgetGoal } from '@/features/onboarding/api/onboardingApi';
 
 /**
  * 예산 목표 생성 뮤테이션을 관리하는 훅

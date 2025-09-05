@@ -63,9 +63,9 @@ export function ExpenseOverPage() {
   }
 
   return (
-    <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
+    <div className="bg-slate-50 relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <Header title="지출 내역" />
+      <Header title="지출 내역" backPath="/home" />
 
       {/* Date Filter */}
       <div className="bg-white pt-2">
@@ -73,7 +73,7 @@ export function ExpenseOverPage() {
           onClick={handleDateFilterClick}
           className="flex items-center gap-1 px-5 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          <div className="text-[#bfbfbf] text-[14px] font-medium">
+          <div className="text-sub-gray text-[14px] font-medium">
             {displayDateRange}
           </div>
           <ChevronDown className="w-4 h-4" />
@@ -120,7 +120,7 @@ export function ExpenseOverPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-6 pb-32">
+              <div className="space-y-6 pb-12">
                 {groupedExpenses.map(({ date, expenses }) => (
                   <div key={date}>
                     {/* 날짜 헤더 */}

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { updateUserNickname } from '../api/onboardingApi';
+import { updateUserNickname } from '@/features/onboarding/api/onboardingApi';
 
 /**
  * 닉네임 업데이트 뮤테이션을 관리하는 훅

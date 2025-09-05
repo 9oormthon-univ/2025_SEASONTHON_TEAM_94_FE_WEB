@@ -8,11 +8,12 @@ export default [
   route('auth', 'routes/auth.tsx'),
   route('auth/callback', 'routes/auth.callback.tsx'),
 
+  // 온보딩 관련 페이지
   route('onboarding/nickname', 'routes/onboarding.nickname.tsx'),
   route('onboarding/budget-goal', 'routes/onboarding.budgetGoal.tsx'),
 
   // 지출 관련 페이지
-  route('expenses', 'routes/expenses._index.tsx'),
+  // route('expenses', 'routes/expenses._index.tsx'),
   route('expenses/:expenseId', 'routes/expenses.$expenseId.tsx'),
   route('expenses/add', 'routes/expenses.add.tsx'),
   route('expenses/unclassified', 'routes/expenses.unclassified.tsx'),
@@ -20,12 +21,12 @@ export default [
   route('expenses/over', 'routes/expenses.over.tsx'),
 
   // 바텀 탭에서 이동 가능한 페이지들
-  route('report', 'routes/report.tsx'),
   route('home', 'features/home/pages/HomePage.tsx'),
   route('calendar', 'features/calendar/pages/ExpensesCalendarPage.tsx'),
-  
   route('profile', 'routes/profile.tsx'),
-  route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx"),
-  route("profile/nickname", "features/profile/pages/NicknamePage.tsx")
 
+  // 설정 관련 페이지
+  route('report', 'routes/report.tsx'),
+  route('reports/budget-goal', 'features/reports/pages/BudgetGoalPage.tsx'),
+  route('profile/nickname', 'features/profile/pages/NicknamePage.tsx'),
 ] satisfies RouteConfig;

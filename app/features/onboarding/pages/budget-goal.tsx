@@ -2,9 +2,9 @@ import { motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Header } from '@/features/expenses';
-import { useBudgetGoalForm } from '../hooks/useBudgetGoalForm';
-import { useBudgetGoalMutation } from '../hooks/useBudgetGoalMutation';
-import { OnboardingHeader } from '../components/OnboardingHeader';
+import { useBudgetGoalForm } from '@/features/onboarding/hooks/useBudgetGoalForm';
+import { useBudgetGoalMutation } from '@/features/onboarding/hooks/useBudgetGoalMutation';
+import { OnboardingHeader } from '@/features/onboarding/components/OnboardingHeader';
 
 export function BudgetGoalPage() {
   const { budgetAmount, isFormValid, formattedAmount, handleKeyDown } =
@@ -24,7 +24,7 @@ export function BudgetGoalPage() {
       className="bg-white h-screen max-w-md mx-auto relative flex flex-col"
     >
       {/* Header */}
-      <Header title="목표 지출 설정" />
+      <Header title="목표 지출 설정" backPath="/onboarding/nickname" />
 
       <div className="px-5 py-8 text-start flex flex-col justify-between h-full">
         <div>
@@ -45,7 +45,7 @@ export function BudgetGoalPage() {
                   value={formattedAmount}
                   onKeyDown={handleKeyDown}
                   placeholder="목표 지출 금액을 입력하세요."
-                  className="w-full h-14 text-base bg-[#F7F9FA] border-0 rounded-xl focus:border-main-orange focus:ring-0 transition-colors"
+                  className="w-full h-14 text-base bg-gray-50 border-0 rounded-xl focus:border-main-orange focus:ring-0 transition-colors"
                 />
               </div>
             </div>

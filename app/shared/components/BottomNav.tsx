@@ -13,15 +13,15 @@ export default function BottomNav() {
         to="/home"
         className={`flex flex-col items-center py-1 px-4 ${
           location.pathname.startsWith('/home')
-            ? 'text-[#1F2937]'
-            : 'text-[#9CA3AF]'
+            ? 'text-gray-800'
+            : 'text-gray-400'
         }`}
       >
         <HomeIcon
           className={`w-6 h-6 mb-2 ${
             location.pathname.startsWith('/home')
-              ? 'text-[#1F2937]'
-              : 'text-[#9CA3AF]'
+              ? 'text-gray-800'
+              : 'text-gray-400'
           }`}
         />
         <span className="text-xs">홈</span>
@@ -30,15 +30,15 @@ export default function BottomNav() {
         to="/calendar"
         className={`flex flex-col items-center py-1 px-4 ${
           location.pathname.startsWith('/calendar')
-            ? 'text-[#1F2937]'
-            : 'text-[#9CA3AF]'
+            ? 'text-gray-800'
+            : 'text-gray-400'
         }`}
       >
         <Calendar
           className={`w-6 h-6 mb-2 ${
             location.pathname.startsWith('/calendar')
-              ? 'text-[#1F2937]'
-              : 'text-[#9CA3AF]'
+              ? 'text-gray-800'
+              : 'text-gray-400'
           }`}
         />
         <span className="text-xs">지출달력</span>
@@ -47,15 +47,15 @@ export default function BottomNav() {
         to="/profile"
         className={`flex flex-col items-center py-1 px-4 ${
           location.pathname.startsWith('/profile')
-            ? 'text-[#1F2937]'
-            : 'text-[#9CA3AF]'
+            ? 'text-gray-800'
+            : 'text-gray-400'
         }`}
       >
         <ProfileIcon
           className={`w-6 h-6 mb-2 ${
             location.pathname.startsWith('/profile')
-              ? 'text-[#1F2937]'
-              : 'text-[#9CA3AF]'
+              ? 'text-gray-800'
+              : 'text-gray-400'
           }`}
         />
         <span className="text-xs">프로필</span>

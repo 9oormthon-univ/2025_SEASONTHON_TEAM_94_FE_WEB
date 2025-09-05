@@ -2,8 +2,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getMe, updateNickname as putNickname } from '../api/user';
 
-const USER_UID = 'a'; 
-
 export function useNickname() {
   const [loading, setLoading] = useState(false);
   const [saving,  setSaving]  = useState(false);

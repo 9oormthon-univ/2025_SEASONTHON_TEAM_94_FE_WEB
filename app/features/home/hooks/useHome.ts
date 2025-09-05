@@ -1,7 +1,7 @@
 // features/home/hooks/useHome.ts
 import { useEffect, useMemo, useState } from 'react';
 import { monthEnd, monthStart, today, ym } from '@/features/reports/utils/date';
-import { getBudgetGoalByDate } from '@/features/more/api/budgetGoals';
+import { getBudgetGoalByDate } from '@/features/reports/api/budgetGoals';
 import { fetchMonthlyReportSum } from '@/features/reports/api/reportApi';
 import { getMe } from '@/features/profile/api/user';
 import type { BudgetGoalResponse } from '@/shared/types/budget';

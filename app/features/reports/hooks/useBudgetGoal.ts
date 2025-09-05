@@ -4,7 +4,7 @@ import {
   getBudgetGoalByDate,
   createBudgetGoal,
   updateBudgetGoal,
-} from '@/features/more/api/budgetGoals';
+} from '@/features/reports/api/budgetGoals';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
 
 interface UseBudgetGoalOptions {

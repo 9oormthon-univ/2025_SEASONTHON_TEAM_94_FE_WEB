@@ -49,37 +49,34 @@ export default function ExpensesCalendarPage() {
       <div className="bg-white px-4 pt-2 pb-4">
         {/* 캘린더 커스텀 스타일 */}
         <style>{`
-          .calendar-wrapper .rdp-month { position: relative; }  /* 기준 컨테이너 */
+          .calendar-wrapper .rdp-month { position: relative; }  
           .calendar-wrapper .rdp-nav{
             position: absolute !important;
-            top: calc(var(--cell-size) / 2) !important;   /* 캡션 줄의 중앙 */
+            top: calc(var(--cell-size) / 2) !important;   
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 96px;                                   /* < > 간격 — 더 붙이려면 더 줄이세요 */
+            width: 96px;                                 
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            z-index: 5;                                    /* 캡션 위로 */
+            z-index: 5;                                   
             pointer-events: auto;
           }
-          /* 캡션이 클릭을 먹지 않게 */
           .calendar-wrapper .rdp-caption_label { pointer-events: none; }
 
-          /* 선택된 날짜: 배경 제거 + 숫자만 주황 */
           .calendar-wrapper [data-selected-single="true"]{
             background: transparent !important;
             color: #FF6200 !important;
             box-shadow: none !important;
           }
 
-          /* 숫자가 위로 튀는 현상 방지: 라벨을 절대 배치 */
           .calendar-wrapper .rdp-day_button{ position: relative; }
           .calendar-wrapper [data-selected-single="true"]::after{
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            bottom: 3px;                 /* 숫자 아래 고정 */
+            bottom: 3px;                
             margin-top: 0;
             content: var(--selected-total);
             display: block;
@@ -88,7 +85,6 @@ export default function ExpensesCalendarPage() {
             color: #ff3b30;
           }
 
-          /* 3) 달력 전체 볼드 처리 */
           .calendar-wrapper .rdp-caption_label { font-weight: 700; }
           .calendar-wrapper .rdp-weekday { font-weight: 600; }
           .calendar-wrapper .rdp-day_button { font-weight: 600; }
@@ -102,9 +98,7 @@ export default function ExpensesCalendarPage() {
           <Calendar
             locale={ko}
             formatters={{
-              // 월: "M월" (년도 제거)
               formatCaption: (month) => format(month, 'M월', { locale: ko }),
-              // 요일: 한 글자(일월화수목금토)
               formatWeekdayName: (date) => format(date, 'EEEEE', { locale: ko }),
             }}
             mode="single"
@@ -116,12 +110,10 @@ export default function ExpensesCalendarPage() {
         </div>
       </div>
 
-      {/* 선택 날짜 헤더 (예: 9월 4일 목요일) */}
       <div className="px-5 pt-3 text-sub-gray text-sm font-medium">
         {formatDateHeader(ymd)}
       </div>
 
-      {/* 리스트/빈 상태 + 모션 */}
       <div className="px-5 py-4">
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -161,7 +153,6 @@ export default function ExpensesCalendarPage() {
         )}
       </div>
 
-      {/* 플로팅 추가 버튼 */}
       <button
         onClick={() => navigate('/expenses/add')}
         className="fixed bottom-6 right-6 w-10 h-10 bg-main-orange rounded-full shadow-lg hover:bg-main-orange/90 transition-colors flex items-center justify-center z-50"

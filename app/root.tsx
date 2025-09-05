@@ -26,10 +26,6 @@ export const links: Route.LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
-  {
-    rel: 'stylesheet',
-    href: '//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css',
-  },
 ];
 
 export async function loader() {
@@ -73,14 +69,9 @@ export default function App() {
     '/more',
     '/home',
     '/calendar',
+    '/profile',
   ];
   const shouldShowBottomNav = bottomNavPaths.some(path =>
-    location.pathname.startsWith(path)
-  );
-
-  // 인증이 필요하지 않은 경로들 정의
-  const publicPaths = ['/auth', '/auth/callback', '/auth/onboarding'];
-  const isPublicPath = publicPaths.some(path =>
     location.pathname.startsWith(path)
   );
 
@@ -161,13 +152,9 @@ export default function App() {
     <QueryProvider>
       <div className="app-container">
         <main className="content">
-          {isPublicPath ? (
+          <AuthGuard>
             <Outlet />
-          ) : (
-            <AuthGuard>
-              <Outlet />
-            </AuthGuard>
-          )}
+          </AuthGuard>
         </main>
         {shouldShowBottomNav && <BottomNav />}
         <Toaster richColors position="top-center" />

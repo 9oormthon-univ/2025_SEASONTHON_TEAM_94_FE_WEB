@@ -33,7 +33,7 @@ function WheelPicker({
       classNames={{
         optionItem: 'text-sub-gray dark:text-sub-gray',
         highlightWrapper:
-          'bg-[#FDE1D2] text-main-orange dark:bg-[#FDE1D2] dark:text-main-orange',
+          'bg-orange-100 text-main-orange dark:bg-orange-100 dark:text-main-orange',
         ...classNames,
       }}
       {...props}

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { useFixedExpenses } from '@/features/expenses/hooks/useFixedExpenses';
-import { ExpenseHeader } from '@/features/expenses/components/ExpenseHeader';
+import { Header } from '@/shared/components/Header';
 import { FixedExpenseStats } from '@/features/expenses/components/FixedExpenseStats';
 import { FixedExpenseItem } from '@/features/expenses/components/List/FixedExpenseItem';
 import ChevronDown from '@/assets/Chevron_down.svg?react';
@@ -61,9 +61,9 @@ export function ExpenseFixedPage() {
   }
 
   return (
-    <div className="bg-[#F1F5F9] relative w-full max-w-md mx-auto min-h-screen">
+    <div className="bg-slate-50 relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <ExpenseHeader title="고정지출 내역" />
+      <Header title="고정지출 내역" backPath="/home" />
 
       {/* Date Filter */}
       <div className="bg-white pt-2">
@@ -71,7 +71,7 @@ export function ExpenseFixedPage() {
           onClick={handleDateFilterClick}
           className="flex items-center gap-1 px-5 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          <div className="text-[#bfbfbf] text-[14px] font-medium">
+          <div className="text-sub-gray text-[14px] font-medium">
             {displayDateRange}
           </div>
           <ChevronDown className="w-4 h-4" />
@@ -116,7 +116,7 @@ export function ExpenseFixedPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-6 pb-32">
+              <div className="space-y-6 pb-12">
                 {groupedExpenses.map(({ date, expenses }) => (
                   <div key={date}>
                     {/* 날짜 헤더 */}

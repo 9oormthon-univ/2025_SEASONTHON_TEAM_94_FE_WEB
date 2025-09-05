@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
-import ProfileHeader from '../components/ProfileHeader';
+import ProfileHeader from '@/features/profile/components/ProfileHeader';
 import { useHome } from '@/features/home/hooks/useHome';
 import ProgressBar from '@/features/reports/components/ProgressBar';
 import { fmt } from '@/features/reports/utils/number';

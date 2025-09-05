@@ -8,10 +8,15 @@ import { useReport } from '../hooks/useReport';
 import { getMe, type UserResponse } from '@/features/profile/api/user';
 
 export default function ReportPage() {
-
   const {
-    ym, today, monthStart, monthEnd,
-    total, totalCount, monthlyGoal, isOver,
+    ym,
+    today,
+    monthStart,
+    monthEnd,
+    total,
+    totalCount,
+    monthlyGoal,
+    isOver,
   } = useReport();
 
   const [userName, setUserName] = useState<string>('사용자');
@@ -20,9 +25,9 @@ export default function ReportPage() {
     (async () => {
       try {
         const me = await getMe(ctrl.signal);
-        const name = (me.nickname?.trim() || me.username?.trim() || '사용자');
+        const name = me.nickname?.trim() || me.username?.trim() || '사용자';
         setUserName(name);
-      } catch {  }
+      } catch {}
     })();
 
     const onChanged = (e: Event) => {
@@ -32,12 +37,15 @@ export default function ReportPage() {
     window.addEventListener('nickname:changed', onChanged as EventListener);
     return () => {
       ctrl.abort();
-      window.removeEventListener('nickname:changed', onChanged as EventListener);
+      window.removeEventListener(
+        'nickname:changed',
+        onChanged as EventListener
+      );
     };
   }, []);
 
   return (
-    <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto pb-20">
+    <div className="min-h-screen bg-[rgba(235,235,235,0.35)] relative max-w-md mx-auto pb-10">
       <Header />
 
       <motion.div
@@ -45,13 +53,13 @@ export default function ReportPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.4, 0.0, 0.2, 1] }}
       >
-        <section className="bg-[#F5F5F5] py-4">
-          <div className="sticky top-10 z-10 bg-[#F5F5F5]/95 backdrop-blur supports-[backdrop-filter]:bg-[#F5F5F5]">
+        <section className="bg-gray-100 py-4">
+          <div className="sticky top-10 z-10 bg-gray-100/95 backdrop-blur supports-[backdrop-filter]:bg-gray-100">
             <div className="px-4 pt-2 pb-3">
-              <div className="flex items-center gap-1 text-sm text-[#757575]">
+              <div className="flex items-center gap-1 text-sm text-gray-600">
                 <span aria-live="polite">{`${ym.m}월 ${ym.d}일`}</span>
               </div>
-              <h2 className="mt-1 text-xl font-extrabold !text-[#002B5B]">
+              <h2 className="mt-1 text-xl font-extrabold !text-sub-blue">
                 {userName} 님의 지출분석
               </h2>
             </div>

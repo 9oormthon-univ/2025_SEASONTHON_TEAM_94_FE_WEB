@@ -22,7 +22,7 @@ export default [
   route('more', 'features/more/pages/MorePage.tsx'),
   route('home', 'features/home/pages/HomePage.tsx'),
   route('calendar', 'features/calendar/pages/ExpensesCalendarPage.tsx'),
-
+  
   route('profile', 'routes/profile.tsx'),
   route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx"),
   route("profile/nickname", "features/profile/pages/NicknamePage.tsx")

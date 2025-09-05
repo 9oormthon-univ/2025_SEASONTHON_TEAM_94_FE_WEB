@@ -10,7 +10,7 @@ export default function BottomNav() {
   return (
     <nav className="h-16 fixed bottom-0 left-0 right-0 bg-white border-t border-sub-gray flex justify-around items-center py-1 bottom-nav rounded-t-2xl shadow-lg">
       <Link
-        to="/expenses"
+        to="/home"
         className={`flex flex-col items-center py-1 px-4 ${
           location.pathname.startsWith('/home')
             ? 'text-[#1F2937]'
@@ -27,7 +27,7 @@ export default function BottomNav() {
         <span className="text-xs">홈</span>
       </Link>
       <Link
-        to="/home"
+        to="/calendar"
         className={`flex flex-col items-center py-1 px-4 ${
           location.pathname.startsWith('/calendar')
             ? 'text-[#1F2937]'

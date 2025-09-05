@@ -12,6 +12,7 @@ import nicknameIcon from '@/assets/nickname.svg';
 import goalIcon from '@/assets/goal.svg';
 import rightIcon from '@/assets/right.svg';
 
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { userName, total: totalRaw, monthlyGoal: monthlyGoalRaw, ratio: ratioRaw, isOver, hasGoal } = useHome();
@@ -37,16 +38,16 @@ export default function ProfilePage() {
     return () => abort.abort();
   }, []);
 
-  const onEditGoal = () => navigate('/reports/budget-goal');
+  const onEditGoal = () => navigate('/profile/budget-goal');
 
   return (
-    <div className="min-h-screen bg-white max-w-md mx-auto pb-12">
+    <div className="min-h-screen bg-white max-w-md mx-auto pb-28">
       <ProfileHeader nickname={nickname || userName} email={email} />
 
-      <div className="mx-5 mt-1 h-[2px] bg-[#BFBFBF] rounded-md" />
-      <div className="px-5 mt-6 space-y-8">
+      <div className="mx-5 mt-1 h-[2px] bg-sub-gray rounded-md" />
+      <div className="px-5 mt-6 space-y-3">
         <Link
-          to="/expenses"
+          to="/expenses/over"
           aria-label="지출 상세로 이동"
           className="relative block rounded-2xl bg-[#F6F6F6] px-5 py-5 min-h-[110px]"
         >
@@ -73,8 +74,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <div className="mt-2">
-              <div className="transform scale-y-75 origin-left">
+            <div className="mt-2 ">
                 <ProgressBar
                   barPercent={hasGoal ? ratioSafeNum : 0}
                   percentCenterLeft={hasGoal ? ratioSafeNum : 0}
@@ -83,11 +83,10 @@ export default function ProfilePage() {
                   isOver={isOver}
                   themeColor={themeColor}
                 />
-              </div>
             </div>
 
             <div className="mt-1 flex items-center justify-between text-[14px]">
-              <span className="font-semibold" style={{ color: '#10B981' }}>
+              <span className="font-semibold transition-colors" style={{ color: themeColor }}>
                 - {fmt(Math.max(0, total))}
               </span>
             </div>
@@ -113,21 +112,34 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <section className="space-y-8 mt-12 px-5">
-          <Link to="/terms" className="block text-[14px] text-[#BFBFBF] no-underline font-bold">
-            서비스 이용약관
-          </Link>
+        <section className="space-y-6 mt-8 px-5">
           <a
-            href="https://example.com"
+            href="https://leestana01.notion.site/25e704f432e08050a0b8d59349165246?source=copy_link"
+            target="_blank"
+            rel="noreferrer"
+            className="block text-[14px] text-[#BFBFBF] no-underline font-bold"
+          >
+            서비스 이용약관
+          </a>
+
+          <a
+            href="https://linktr.ee/2025_seasonthon_team_94"
             target="_blank"
             rel="noreferrer"
             className="block text-[14px] text-[#BFBFBF] no-underline font-bold"
           >
             개발자 링크
           </a>
-          <Link to="/reviews/new" className="block text-[14px] text-[#BFBFBF] no-underline font-bold">
+
+          <a
+            href="https://smore.im/form/AY6WvhcQId"
+            target="_blank"
+            rel="noreferrer"
+            className="block text-[14px] text-[#BFBFBF] no-underline font-bold"
+          >
             어플 리뷰 적기
-          </Link>
+          </a>
+
           <LogoutConfirm redirectTo="/auth">
             <button className="block w-full text-left text-[14px] text-[#BFBFBF] font-bold">
               로그아웃

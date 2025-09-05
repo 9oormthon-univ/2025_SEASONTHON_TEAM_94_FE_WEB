@@ -8,8 +8,8 @@ export default function ProfileHeader({ nickname, email }: ProfileHeaderProps) {
   const emailText = (email && email.trim()) || 'user@example.com';
 
   return (
-    <div className="px-5 pt-4 pb-2">
-      <div className="mt-15 text-[21px] font-bold text-[#222]">
+    <div className="px-5 pb-2">
+      <div className="mt-5 text-[21px] font-bold text-[#222]">
         {nickname ? `${nickname}님` : '사용자님'}
       </div>
 

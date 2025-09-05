@@ -24,6 +24,13 @@ export default [
   route('calendar', 'features/calendar/pages/ExpensesCalendarPage.tsx'),
   
   route('profile', 'routes/profile.tsx'),
-  route("reports/budget-goal", "features/reports/pages/BudgetGoalPage.tsx"),
-  route("profile/nickname", "features/profile/pages/NicknamePage.tsx")
+
+  // 설정 관련 페이지
+  route('report', 'routes/report.tsx'),
+  route('reports/budget-goal', 'features/reports/pages/BudgetGoalPage.tsx'),
+  route('profile/nickname', 'features/profile/pages/NicknamePage.tsx'),
+  route('profile/budget-goal', 'features/profile/pages/BudgetGoalPage.tsx'),
+
+  // 404 페이지
+  route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

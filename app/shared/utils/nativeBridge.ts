@@ -14,12 +14,12 @@ declare global {
 
 // Flutter 통신 메시지 타입 정의
 interface FlutterMessage {
-  action: string | null;
+  action: string;
   data: any;
 }
 
 interface FlutterResponse {
-  action: string | null;
+  action: string;
   data: any;
 }
 
@@ -44,7 +44,7 @@ async function sendToFlutter(
       const handleResponse = (event: MessageEvent) => {
         try {
           const response: FlutterResponse = JSON.parse(event.data);
-          if (response.action === null) {
+          if (response.action) {
             resolve(response);
             window.removeEventListener('message', handleResponse);
           }
@@ -83,7 +83,7 @@ export function showNativeNotification(title: string, message: string): void {
 export async function requestNotificationPermission(): Promise<boolean> {
   const response = await sendToFlutter({
     action: 'REQUEST_NOTIFICATION_PERMISSION',
-    data: null,
+    data: {},
   });
   return response?.data === true;
 }
@@ -94,7 +94,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
 export async function getAppVersion(): Promise<string> {
   const response = await sendToFlutter({
     action: 'GET_APP_VERSION',
-    data: null,
+    data: {},
   });
   return response?.data || 'Web Version';
 }
@@ -105,7 +105,7 @@ export async function getAppVersion(): Promise<string> {
 export async function isNetworkAvailable(): Promise<boolean> {
   const response = await sendToFlutter({
     action: 'IS_NETWORK_AVAILABLE',
-    data: null,
+    data: {},
   });
   return response?.data === true;
 }

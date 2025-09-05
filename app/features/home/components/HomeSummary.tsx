@@ -6,7 +6,7 @@ import { fmt } from '@/features/reports/utils/number';
 import { ChevronRight } from 'lucide-react';
 import type { HomeState } from '../hooks/useHome';
 import { motion } from 'motion/react';
-import PencilIcon from '@/assets/pencli.svg?react';
+import PencilIcon from '@/assets/pencil.svg?react';
 
 type Props = {
   userName: string;

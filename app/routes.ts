@@ -19,7 +19,6 @@ export default [
 
   // 바텀 탭에서 이동 가능한 페이지들
   route('report', 'routes/report.tsx'),
-  route('more', 'features/more/pages/MorePage.tsx'),
   route('home', 'features/home/pages/HomePage.tsx'),
   route('calendar', 'features/calendar/pages/ExpensesCalendarPage.tsx'),
   

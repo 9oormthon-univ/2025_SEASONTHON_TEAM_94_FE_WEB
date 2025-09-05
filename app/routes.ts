@@ -23,12 +23,14 @@ export default [
   // 바텀 탭에서 이동 가능한 페이지들
   route('home', 'features/home/pages/HomePage.tsx'),
   route('calendar', 'features/calendar/pages/ExpensesCalendarPage.tsx'),
+  
   route('profile', 'routes/profile.tsx'),
 
   // 설정 관련 페이지
   route('report', 'routes/report.tsx'),
   route('reports/budget-goal', 'features/reports/pages/BudgetGoalPage.tsx'),
   route('profile/nickname', 'features/profile/pages/NicknamePage.tsx'),
+  route('profile/budget-goal', 'features/profile/pages/BudgetGoalPage.tsx'),
 
   // 404 페이지
   route('*', 'routes/not-found.tsx'),

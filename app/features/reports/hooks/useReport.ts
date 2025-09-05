@@ -1,8 +1,8 @@
 // features/reports/hooks/useReport.ts
 import { useEffect, useState } from 'react';
-import { monthEnd, monthStart, today, ym } from '@/features/reports/utils/date';
+import { monthEnd, monthStart, today, ym } from '../utils/date';
 import { getBudgetGoalByDate } from '@/features/reports/api/budgetGoals';
-import { fetchMonthlyReportSum } from '@/features/reports/api/reportApi';
+import { fetchMonthlyReportSum } from '../api/reportApi';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
 import type { TransactionReportResponse } from '@/shared/types/expense';
 

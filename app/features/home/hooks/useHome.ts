@@ -1,13 +1,25 @@
-// features/home/hooks/useHome.ts
 import { useEffect, useMemo, useState } from 'react';
-import { monthEnd, monthStart, today, ym } from '@/features/reports/utils/date';
 import { getBudgetGoalByDate } from '@/features/reports/api/budgetGoals';
 import { fetchMonthlyReportSum } from '@/features/reports/api/reportApi';
 import { getMe } from '@/features/profile/api/user';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
 import type { TransactionReportResponse } from '@/shared/types/expense';
 
-export function useHome() {
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const toYMD = (d: Date) =>
+  `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+type UseHomeParams = { year?: number; month?: number }; // 1~12
+
+export function useHome(params?: UseHomeParams) {
+  const today = new Date();
+  const year = params?.year ?? today.getFullYear();
+  const month = params?.month ?? today.getMonth() + 1;
+
+  const startDate = useMemo(() => new Date(year, month - 1, 1), [year, month]);
+  const endDate   = useMemo(() => new Date(year, month, 0),   [year, month]);
+
+
   const [userName, setUserName] = useState('사용자');
   const [monthlyGoal, setMonthlyGoal] = useState(0);
   const [report, setReport] = useState<TransactionReportResponse | null>(null);
@@ -35,14 +47,14 @@ export function useHome() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await getBudgetGoalByDate({ date: new Date().toISOString().split('T')[0] });
+        const res = await getBudgetGoalByDate({ date: toYMD(startDate) });
         const goal: BudgetGoalResponse | null = res.data;
         setMonthlyGoal(Math.max(0, goal?.price ?? 0));
       } catch {
         setMonthlyGoal(0);
       }
     })();
-  }, []);
+  }, [year, month]);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -50,8 +62,8 @@ export function useHome() {
       setLoading(true);
       try {
         const r = await fetchMonthlyReportSum({
-          startAt: monthStart,
-          endAt: monthEnd,
+          startAt: startDate,   
+          endAt: endDate,       
           signal: ctrl.signal,
         });
         setReport(r);
@@ -60,7 +72,7 @@ export function useHome() {
       }
     })();
     return () => ctrl.abort();
-  }, [monthStart, monthEnd]);
+  }, [year, month]);
 
   const total = Math.max(0, report?.totalPrice ?? 0);
   const totalCount = report?.totalCount ?? 0;
@@ -73,13 +85,15 @@ export function useHome() {
   const state = useMemo(() => {
     if (!hasGoal && hasExpense) return 'NO_GOAL_HAS_EXPENSE';
     if (!hasExpense && hasGoal) return 'NO_EXPENSE_HAS_GOAL';
-    if (!hasExpense && !hasGoal) return 'EMPTY'; 
+    if (!hasExpense && !hasGoal) return 'EMPTY';
     return isOver ? 'OVER' : 'NORMAL';
   }, [hasGoal, hasExpense, isOver]);
 
   return {
-    ym, today, monthStart, monthEnd,
-
+    year,
+    month,
+    monthStart: startDate, 
+    monthEnd: endDate,    
     userName,
     monthlyGoal,
     total,
@@ -93,10 +107,9 @@ export function useHome() {
     loading,
   };
 }
-
 export type HomeState =
-  | 'NORMAL'               
-  | 'OVER'                
-  | 'NO_GOAL_HAS_EXPENSE'  
-  | 'NO_EXPENSE_HAS_GOAL' 
-  | 'EMPTY';               
+  | 'NORMAL'
+  | 'OVER'
+  | 'NO_GOAL_HAS_EXPENSE'
+  | 'NO_EXPENSE_HAS_GOAL'
+  | 'EMPTY';

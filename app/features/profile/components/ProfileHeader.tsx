@@ -9,12 +9,10 @@ export default function ProfileHeader({ nickname, email }: ProfileHeaderProps) {
 
   return (
     <div className="px-5 pt-4 pb-2">
-      {/* 닉네임만 살짝 더 아래로 */}
       <div className="mt-15 text-[21px] font-bold text-[#222]">
         {nickname ? `${nickname}님` : '사용자님'}
       </div>
 
-      {/* 이메일: 가운데 정렬 + 내용 길이에 맞게 pill 크기 자동 */}
       {emailText && (
         <span
             className="mt-2 inline-flex h-6 items-center justify-center px-3

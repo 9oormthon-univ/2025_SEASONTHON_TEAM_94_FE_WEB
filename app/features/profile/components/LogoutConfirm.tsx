@@ -33,7 +33,6 @@ export default function LogoutConfirm({ children, redirectTo = "/" }: Props) {
 
       <AlertDialogContent
         className={cn(
-          // 상하 공간 ↓, 좌우 공간 ↑
           "rounded-2xl px-7 py-4 max-w-xs shadow-md gap-2",
           "border border-[#E5E7EB] bg-white"
         )}
@@ -45,7 +44,6 @@ export default function LogoutConfirm({ children, redirectTo = "/" }: Props) {
           </AlertDialogTitle>
         </AlertDialogHeader>
 
-        {/* 버튼: 세로 정렬, 버튼-보더 사이 가로 여백 ↑, 세로 간격 ↓ */}
         <AlertDialogFooter className="mt-1 grid grid-cols-1 gap-2 px-3 sm:px-4">
           <AlertDialogAction
             onClick={onConfirm}

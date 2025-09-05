@@ -23,7 +23,6 @@ export default function ProfilePage() {
   const state: HomeState = !hasGoal ? 'EMPTY' : isOver ? 'OVER' : 'NORMAL';
   const themeColor = state === 'OVER' ? '#EF4444' : state === 'EMPTY' ? '#757575' : '#10B981';
 
-  // 프로필: 이메일이 비어 있으면 Header에서 placeholder 처리
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   useEffect(() => {
@@ -44,18 +43,14 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-white max-w-md mx-auto pb-12">
       <ProfileHeader nickname={nickname || userName} email={email} />
 
-      {/* 지출 카드와 동일 폭의 회색 구분선 */}
       <div className="mx-5 mt-1 h-[2px] bg-[#BFBFBF] rounded-md" />
-
       <div className="px-5 mt-6 space-y-8">
-        {/* 지출: 아이콘을 absolute로 고정 → 높이 변화 없음 */}
         <Link
           to="/expenses"
           aria-label="지출 상세로 이동"
           className="relative block rounded-2xl bg-[#F6F6F6] px-5 py-5 min-h-[110px]"
         >
           <div className="text-[15px] font-semibold text-[#111111]">지출</div>
-          {/* 화살표만 아래로 위치 조정, 카드 높이에 영향 X */}
           <img
             src={rightIcon}
             alt=""
@@ -67,7 +62,6 @@ export default function ProfilePage() {
           </div>
         </Link>
 
-        {/* 목표 지출: 지출 카드 내부 폭과 동일하게 정렬(px-5) */}
         <section>
           <div className="px-5">
             <div className="flex items-center justify-between">
@@ -79,7 +73,6 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* 바: 얇게 */}
             <div className="mt-2">
               <div className="transform scale-y-75 origin-left">
                 <ProgressBar
@@ -99,7 +92,6 @@ export default function ProfilePage() {
               </span>
             </div>
 
-            {/* 액션 버튼들 */}
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
@@ -121,7 +113,6 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* 메뉴는 그대로 아래(여백 크게) */}
         <section className="space-y-8 mt-12 px-5">
           <Link to="/terms" className="block text-[14px] text-[#BFBFBF] no-underline font-bold">
             서비스 이용약관

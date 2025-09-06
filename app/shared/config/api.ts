@@ -33,6 +33,9 @@ export const API_ENDPOINTS = {
   TRANSACTIONS_ALARM: '/api/v1/transactions/alarm',
   CATEGORIES: '/api/v1/transactions/categories',
 
+  // calendar
+  TRANSACTIONS_CALENDAR: '/api/v1/transactions/calendar',
+
   // budget goals
   BUDGET_GOALS: '/api/v1/budgetgoals',
   BUDGET_GOAL_BY_ID: (id: number) => `/api/v1/budgetgoals/${id}`,

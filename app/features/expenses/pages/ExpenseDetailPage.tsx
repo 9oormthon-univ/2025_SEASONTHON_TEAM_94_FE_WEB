@@ -172,7 +172,7 @@ export function ExpenseDetailPage() {
       className="bg-white min-h-screen max-w-md mx-2 relative flex flex-col"
     >
       {/* Header */}
-      <Header title="지출 수정" />
+      <Header title="지출 상세" />
 
       {/* Form */}
       <div className="flex-1">

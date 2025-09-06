@@ -14,7 +14,7 @@ export function OverExpenseStats({
       <div className="rounded-lg mb-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="justify-start text-xl font-bold">지출</div>
+            <div className="justify-start text-xl font-bold">초과지출</div>
             <Badge
               variant="outline"
               className="rounded-sm h-5 px-2 justify-start text-[#10B981] text-xs font-bold border-[#10B981]"

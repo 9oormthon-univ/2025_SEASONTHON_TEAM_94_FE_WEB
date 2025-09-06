@@ -12,6 +12,8 @@ type Props = {
   userName: string;
   total: number;
   totalCount: number;
+  overExpense: number;
+  fixedExpense: number;
   monthlyGoal: number;
   leftToGoal: number;
   ratio: number;
@@ -81,6 +83,8 @@ export default function HomeSummary(props: Props) {
     userName,
     total,
     totalCount,
+    overExpense,
+    fixedExpense,
     monthlyGoal,
     leftToGoal,
     ratio,
@@ -121,7 +125,7 @@ export default function HomeSummary(props: Props) {
 
   return (
     <div className="mt-3 space-y-2">
-      <ExpenseCard total={total} onOpenExpenses={onOpenExpenses} />
+      <ExpenseCard total={overExpense} onOpenExpenses={onOpenExpenses} />
 
       <Card className="rounded-2xl border-0 shadow-none">
         <CardContent className="p-5 min-h-[95px] flex flex-col justify-center">
@@ -186,7 +190,7 @@ export default function HomeSummary(props: Props) {
                 고정지출
               </div>
               <div className="mt-1 text-base font-bold text-gray-900">
-                <Money>- {fmt(total)}</Money>
+                <Money>- {fmt(fixedExpense)}</Money>
               </div>
             </div>
             <motion.div

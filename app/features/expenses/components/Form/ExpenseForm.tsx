@@ -68,7 +68,7 @@ export function ExpenseForm({
                 inputMode="numeric"
                 autoComplete="off"
                 placeholder="금액을 입력하세요."
-                value={field.value ? field.value.toLocaleString() : ''}
+                value={field.value ? `-${field.value.toLocaleString()}` : ''}
                 onChange={e => {
                   const numericValue = e.target.value.replace(/[^\d]/g, '');
                   field.onChange(numericValue ? parseInt(numericValue, 10) : 0);

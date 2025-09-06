@@ -48,8 +48,15 @@ export function ExpenseAddPage() {
 
       await createExpenseMutation.mutateAsync(transactionData);
 
-      // 성공 시 지출 목록으로 이동
-      navigate('/expenses');
+      // 성공 시 지출 유형에 따라 적절한 페이지로 이동
+      if (formData.type === EXPENSE_TYPES.OVER_EXPENSE) {
+        navigate('/expenses/over');
+      } else if (formData.type === EXPENSE_TYPES.FIXED_EXPENSE) {
+        navigate('/expenses/fixed');
+      } else {
+        // 기본값으로 초과지출 페이지로 이동
+        navigate('/expenses/over');
+      }
     } catch (error) {
       // 에러는 mutation 훅에서 toast로 처리됨
       console.error('지출 생성 실패:', error);

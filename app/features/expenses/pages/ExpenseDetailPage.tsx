@@ -56,7 +56,8 @@ export function ExpenseDetailPage() {
       category: expense.category,
       memo: expense.memo || '', // 메모 필드 추가
       app: '', // API에서 app 정보가 없으므로 빈 문자열
-      dutchPayCount: 1, // 기본값
+      dutchPayCount: expense.splitCount || 1, // 더치페이 값 반영
+      splitCount: expense.splitCount || 1, // splitCount도 함께 설정
     };
   }, [expense]);
 
@@ -65,14 +66,8 @@ export function ExpenseDetailPage() {
     if (!expense) return;
 
     try {
-      // 더치페이 적용된 실제 금액 계산
-      const finalAmount =
-        formData.dutchPayCount > 1
-          ? Math.floor(formData.price / formData.dutchPayCount)
-          : formData.price;
-
       const updateData: TransactionUpdateRequest = {
-        price: finalAmount,
+        price: formData.price, // 원본 금액 그대로 사용
         startAt: toLocalISOString(formData.selectedDate),
         title: formData.title,
         bankName: formData.bankName || expense.bankName,

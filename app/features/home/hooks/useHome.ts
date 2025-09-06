@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getBudgetGoalByDate } from '@/features/reports/api/budgetGoals';
-import { fetchMonthlyReportSum } from '@/features/reports/api/reportApi';
+import { fetchMonthlyReportSum, fetchTransactionReportByType } from '@/features/reports/api/reportApi';
 import { getMe } from '@/features/profile/api/user';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
 import type { TransactionReportResponse, TransactionResponse } from '@/shared/types/expense';
@@ -22,6 +22,8 @@ export function useHome(params?: UseHomeParams) {
   const [userName, setUserName] = useState('사용자');
   const [monthlyGoal, setMonthlyGoal] = useState(0);
   const [report, setReport] = useState<TransactionReportResponse | null>(null);
+  const [overReport, setOverReport] = useState<TransactionReportResponse | null>(null);
+  const [fixedReport, setFixedReport] = useState<TransactionReportResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [unclassifiedCount, setUnclassifiedCount] = useState(0);
 
@@ -61,12 +63,28 @@ export function useHome(params?: UseHomeParams) {
     (async () => {
       setLoading(true);
       try {
-        const r = await fetchMonthlyReportSum({
-          startAt: startDate,
-          endAt: endDate,
-          signal: ctrl.signal,
-        });
-        setReport(r);
+        const [totalReport, overReportData, fixedReportData] = await Promise.all([
+          fetchMonthlyReportSum({
+            startAt: startDate,
+            endAt: endDate,
+            signal: ctrl.signal,
+          }),
+          fetchTransactionReportByType({
+            type: 'OVER_EXPENSE',
+            startAt: startDate,
+            endAt: endDate,
+            signal: ctrl.signal,
+          }),
+          fetchTransactionReportByType({
+            type: 'FIXED_EXPENSE',
+            startAt: startDate,
+            endAt: endDate,
+            signal: ctrl.signal,
+          }),
+        ]);
+        setReport(totalReport);
+        setOverReport(overReportData);
+        setFixedReport(fixedReportData);
       } finally {
         setLoading(false);
       }
@@ -92,6 +110,8 @@ export function useHome(params?: UseHomeParams) {
 
   const total = Math.max(0, report?.totalPrice ?? 0);
   const totalCount = report?.totalCount ?? 0;
+  const overExpense = Math.max(0, overReport?.totalPrice ?? 0);
+  const fixedExpense = Math.max(0, fixedReport?.totalPrice ?? 0);
   const hasExpense = total > 0;
   const hasGoal = monthlyGoal > 0;
   const leftToGoal = Math.max(0, monthlyGoal - total);
@@ -114,6 +134,8 @@ export function useHome(params?: UseHomeParams) {
     monthlyGoal,
     total,
     totalCount,
+    overExpense,
+    fixedExpense,
     leftToGoal,
     ratio,
     isOver,

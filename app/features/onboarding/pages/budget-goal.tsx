@@ -7,7 +7,7 @@ import { useBudgetGoalMutation } from '@/features/onboarding/hooks/useBudgetGoal
 import { OnboardingHeader } from '@/features/onboarding/components/OnboardingHeader';
 
 export function BudgetGoalPage() {
-  const { budgetAmount, isFormValid, formattedAmount, handleKeyDown } =
+  const { budgetAmount, isFormValid, formattedAmount, handleInputChange, handleKeyDown, inputRef } =
     useBudgetGoalForm();
   const { createBudgetGoalMutation, handleSubmit } = useBudgetGoalMutation();
 
@@ -37,16 +37,31 @@ export function BudgetGoalPage() {
           <div>
             <div className="space-y-6">
               <div>
-                <Input
-                  id="budgetAmount"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={formattedAmount}
-                  onKeyDown={handleKeyDown}
-                  placeholder="목표 지출 금액을 입력하세요."
-                  className="w-full h-14 text-base bg-gray-50 border-0 rounded-xl focus:border-main-orange focus:ring-0 transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    ref={inputRef}
+                    id="budgetAmount"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={formattedAmount}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="목표 지출 금액을 입력하세요."
+                    className="w-full h-14 text-base bg-gray-50 border-0 rounded-xl focus:border-main-orange focus:ring-0 transition-colors"
+                    style={{
+                      textIndent: formattedAmount ? '0.5rem' : '0',
+                    }}
+                  />
+                  {formattedAmount && (
+                    <span 
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base pointer-events-none select-none"
+                      style={{ userSelect: 'none' }}
+                    >
+                      -
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

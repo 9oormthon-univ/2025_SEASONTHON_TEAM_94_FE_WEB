@@ -1,3 +1,5 @@
+import { motion } from 'motion/react';
+
 interface Props {
   barPercent: number;
   percentCenterLeft: number;
@@ -24,12 +26,19 @@ export default function ProgressBar({
 
   return (
     <div className="relative">
-      <div
+      <motion.div
         className="absolute flex flex-col items-center select-none"
         style={{
           left: `calc(${pct}% + ${edgeAdjustPx}px)`,
-          bottom: '100%',
+          bottom: '130%',
           transform: 'translate(-50%, -10px)',
+        }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ 
+          duration: 0.8, 
+          delay: 0.2,
+          ease: "easeOut"
         }}
       >
         <div className="text-sm font-semibold" style={{ color: themeColor }}>
@@ -45,12 +54,19 @@ export default function ProgressBar({
             marginTop: 2,
           }}
         />
-      </div>
+      </motion.div>
 
       <div className="mt-15 h-3 rounded-full bg-zinc-200 overflow-hidden">
-        <div
+        <motion.div
           className="h-full rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: themeColor }}
+          style={{ backgroundColor: themeColor }}
+          initial={{ width: '0%' }}
+          animate={{ width: `${pct+9}%` }}
+          transition={{ 
+            duration: 1.2, 
+            ease: "easeOut",
+            delay: 0.1
+          }}
         />
       </div>
 

@@ -22,7 +22,7 @@ export default function ExpenseCard({ total, onOpenExpenses }: Props) {
           onClick={onOpenExpenses}
         >
           <div className="flex flex-col justify-center">
-            <div className="text-sm text-gray-900 font-medium">지출</div>
+            <div className="text-sm text-gray-900 font-medium">초과지출</div>
             <div className="mt-2 text-xl font-bold text-gray-900">
               <Money>- {fmt(total)}</Money>
             </div>

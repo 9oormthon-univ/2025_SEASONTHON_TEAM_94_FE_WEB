@@ -63,7 +63,7 @@ export function ExpenseDetail({
           <ChevronLeft className="w-6 h-6" />
         </button>
         <h1 className="text-[15px] font-medium text-black tracking-[-0.165px]">
-          지출 수정
+          지출 상세
         </h1>
         <div className="w-8 flex justify-end">
           {onDelete && (

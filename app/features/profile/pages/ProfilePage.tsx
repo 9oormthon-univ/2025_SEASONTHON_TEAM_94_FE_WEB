@@ -51,7 +51,7 @@ export default function ProfilePage() {
           aria-label="지출 상세로 이동"
           className="relative block rounded-2xl bg-[#F6F6F6] px-5 py-5 min-h-[110px]"
         >
-          <div className="text-[15px] font-semibold text-[#111111]">지출</div>
+          <div className="text-[15px] font-semibold text-[#111111]">초과지출</div>
           <img
             src={rightIcon}
             alt=""

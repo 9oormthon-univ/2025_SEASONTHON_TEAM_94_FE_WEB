@@ -65,7 +65,7 @@ export function ExpenseOverPage() {
   return (
     <div className="bg-slate-50 relative w-full max-w-md mx-auto min-h-screen">
       {/* Header */}
-      <Header title="지출 내역" backPath="/home" />
+      <Header title="초과지출 내역" backPath="/home" />
 
       {/* Date Filter */}
       <div className="bg-white pt-2">

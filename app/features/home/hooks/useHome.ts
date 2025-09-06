@@ -3,11 +3,11 @@ import { getBudgetGoalByDate } from '@/features/reports/api/budgetGoals';
 import { fetchMonthlyReportSum } from '@/features/reports/api/reportApi';
 import { getMe } from '@/features/profile/api/user';
 import type { BudgetGoalResponse } from '@/shared/types/budget';
-import type { TransactionReportResponse } from '@/shared/types/expense';
+import type { TransactionReportResponse, TransactionResponse } from '@/shared/types/expense';
+import { fetchTransactions } from '@/features/expenses/api/expenseApi';
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
-const toYMD = (d: Date) =>
-  `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const toYMD = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 
 type UseHomeParams = { year?: number; month?: number }; // 1~12
 
@@ -19,11 +19,11 @@ export function useHome(params?: UseHomeParams) {
   const startDate = useMemo(() => new Date(year, month - 1, 1), [year, month]);
   const endDate   = useMemo(() => new Date(year, month, 0),   [year, month]);
 
-
   const [userName, setUserName] = useState('사용자');
   const [monthlyGoal, setMonthlyGoal] = useState(0);
   const [report, setReport] = useState<TransactionReportResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [unclassifiedCount, setUnclassifiedCount] = useState(0);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -54,7 +54,7 @@ export function useHome(params?: UseHomeParams) {
         setMonthlyGoal(0);
       }
     })();
-  }, [year, month]);
+  }, [year, month, startDate]);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -62,8 +62,8 @@ export function useHome(params?: UseHomeParams) {
       setLoading(true);
       try {
         const r = await fetchMonthlyReportSum({
-          startAt: startDate,   
-          endAt: endDate,       
+          startAt: startDate,
+          endAt: endDate,
           signal: ctrl.signal,
         });
         setReport(r);
@@ -72,7 +72,23 @@ export function useHome(params?: UseHomeParams) {
       }
     })();
     return () => ctrl.abort();
-  }, [year, month]);
+  }, [year, month, startDate, endDate]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const list: TransactionResponse[] = await fetchTransactions({
+          type: 'NONE',                             
+          startAt: toYMD(startDate),               
+          endAt: toYMD(endDate),
+          // page: 0, size: 1000,                   
+        } as any);
+        setUnclassifiedCount((list ?? []).length);
+      } catch {
+        setUnclassifiedCount(0);
+      }
+    })();
+  }, [year, month, startDate, endDate]);
 
   const total = Math.max(0, report?.totalPrice ?? 0);
   const totalCount = report?.totalCount ?? 0;
@@ -92,8 +108,8 @@ export function useHome(params?: UseHomeParams) {
   return {
     year,
     month,
-    monthStart: startDate, 
-    monthEnd: endDate,    
+    monthStart: startDate,
+    monthEnd: endDate,
     userName,
     monthlyGoal,
     total,
@@ -105,8 +121,10 @@ export function useHome(params?: UseHomeParams) {
     hasExpense,
     state,
     loading,
+    unclassifiedCount,
   };
 }
+
 export type HomeState =
   | 'NORMAL'
   | 'OVER'

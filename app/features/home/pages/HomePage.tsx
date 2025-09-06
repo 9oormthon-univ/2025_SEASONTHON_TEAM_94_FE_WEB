@@ -1,4 +1,3 @@
-// features/home/pages/HomePage.tsx
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
@@ -30,6 +29,7 @@ export default function HomePage() {
     hasGoal,
     hasExpense,
     loading,
+    unclassifiedCount,
   } = useHome({ year, month: selectedMonth });
 
   const [isMonthModalOpen, setIsMonthModalOpen] = useState(false);
@@ -57,10 +57,18 @@ export default function HomePage() {
             <button
               type="button"
               aria-label="결제 내역으로 이동"
-              className="p-1 rounded-md active:scale-95 transition"
+              className="relative p-1 rounded-md active:scale-95 transition"
               onClick={() => (window.location.href = '/expenses/unclassified')}
             >
               <img src={PaymentHistoryIcon} alt="" className="w-6 h-6" />
+
+              {unclassifiedCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1
+                                text-[10px] leading-4 text-white font-bold
+                                bg-[#FF6200] rounded-full flex items-center justify-center">
+                  {unclassifiedCount > 99 ? '99+' : unclassifiedCount}
+                </span>
+              )}
             </button>
           </div>
 

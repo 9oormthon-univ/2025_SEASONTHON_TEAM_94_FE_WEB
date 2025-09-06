@@ -16,62 +16,62 @@ const CATEGORIES: ReadonlyArray<{
   {
     id: EXPENSE_CATEGORIES.FOOD,
     label: '식사',
-    icon: '/app/assets/category/food.svg',
+    icon: '/app/assets/food.svg',
   },
   {
     id: EXPENSE_CATEGORIES.ENTERTAINMENT,
     label: '카페',
-    icon: '/app/assets/category/cafe.svg',
+    icon: '/app/assets/cafe.svg',
   },
   {
     id: EXPENSE_CATEGORIES.TRANSPORT,
     label: '교통',
-    icon: '/app/assets/category/transit.svg',
+    icon: '/app/assets/transit.svg',
   },
   {
     id: EXPENSE_CATEGORIES.BEAUTY,
     label: '패션/미용',
-    icon: '/app/assets/category/fashion.svg',
+    icon: '/app/assets/fashion.svg',
   },
   {
     id: EXPENSE_CATEGORIES.SHOPPING,
     label: '편의점',
-    icon: '/app/assets/category/convenience_store.svg',
+    icon: '/app/assets/convenience_store.svg',
   },
   {
     id: EXPENSE_CATEGORIES.GROCERIES,
     label: '생활용품',
-    icon: '/app/assets/category/essentials.svg',
+    icon: '/app/assets/essentials.svg',
   },
   {
     id: EXPENSE_CATEGORIES.HOUSING,
     label: '가구',
-    icon: '/app/assets/category/furniture.svg',
+    icon: '/app/assets/furniture.svg',
   },
   {
     id: EXPENSE_CATEGORIES.SUBSCRIPTIONS,
     label: '경조사/회비',
-    icon: '/app/assets/category/dues.svg',
+    icon: '/app/assets/dues.svg',
   },
   {
     id: EXPENSE_CATEGORIES.HEALTHCARE,
     label: '자기계발',
-    icon: '/app/assets/category/growth.svg',
+    icon: '/app/assets/growth.svg',
   },
   {
     id: EXPENSE_CATEGORIES.EDUCATION,
     label: '문화생활',
-    icon: '/app/assets/category/culture.svg',
+    icon: '/app/assets/culture.svg',
   },
   {
     id: EXPENSE_CATEGORIES.UTILITIES,
     label: '주거/통신',
-    icon: '/app/assets/category/utilities.svg',
+    icon: '/app/assets/utilities.svg',
   },
   {
     id: EXPENSE_CATEGORIES.OTHER,
     label: '기타',
-    icon: '/app/assets/category/etc.svg',
+    icon: '/app/assets/etc.svg',
   },
 ] as const;
 

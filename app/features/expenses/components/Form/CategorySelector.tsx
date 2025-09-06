@@ -7,6 +7,20 @@ import {
 } from '@/shared/types/expense';
 import type { ExpenseFormData } from '@/features/expenses/_lib/validation';
 
+// 아이콘 imports
+import FoodIcon from '@/assets/category/food.svg';
+import CafeIcon from '@/assets/category/cafe.svg';
+import TransitIcon from '@/assets/category/transit.svg';
+import FashionIcon from '@/assets/category/fashion.svg';
+import ConvenienceStoreIcon from '@/assets/category/convenience_store.svg';
+import EssentialsIcon from '@/assets/category/essentials.svg';
+import FurnitureIcon from '@/assets/category/furniture.svg';
+import DuesIcon from '@/assets/category/dues.svg';
+import GrowthIcon from '@/assets/category/growth.svg';
+import CultureIcon from '@/assets/category/culture.svg';
+import UtilitiesIcon from '@/assets/category/utilities.svg';
+import EtcIcon from '@/assets/category/etc.svg';
+
 // 카테고리 데이터 정의 (기존 EXPENSE_CATEGORIES와 매핑)
 const CATEGORIES: ReadonlyArray<{
   readonly id: ExpenseCategory;
@@ -16,62 +30,62 @@ const CATEGORIES: ReadonlyArray<{
   {
     id: EXPENSE_CATEGORIES.FOOD,
     label: '식사',
-    icon: '/app/assets/food.svg',
+    icon: FoodIcon,
   },
   {
     id: EXPENSE_CATEGORIES.ENTERTAINMENT,
     label: '카페',
-    icon: '/app/assets/cafe.svg',
+    icon: CafeIcon,
   },
   {
     id: EXPENSE_CATEGORIES.TRANSPORT,
     label: '교통',
-    icon: '/app/assets/transit.svg',
+    icon: TransitIcon,
   },
   {
     id: EXPENSE_CATEGORIES.BEAUTY,
     label: '패션/미용',
-    icon: '/app/assets/fashion.svg',
+    icon: FashionIcon,
   },
   {
     id: EXPENSE_CATEGORIES.SHOPPING,
     label: '편의점',
-    icon: '/app/assets/convenience_store.svg',
+    icon: ConvenienceStoreIcon,
   },
   {
     id: EXPENSE_CATEGORIES.GROCERIES,
     label: '생활용품',
-    icon: '/app/assets/essentials.svg',
+    icon: EssentialsIcon,
   },
   {
     id: EXPENSE_CATEGORIES.HOUSING,
     label: '가구',
-    icon: '/app/assets/furniture.svg',
+    icon: FurnitureIcon,
   },
   {
     id: EXPENSE_CATEGORIES.SUBSCRIPTIONS,
     label: '경조사/회비',
-    icon: '/app/assets/dues.svg',
+    icon: DuesIcon,
   },
   {
     id: EXPENSE_CATEGORIES.HEALTHCARE,
     label: '자기계발',
-    icon: '/app/assets/growth.svg',
+    icon: GrowthIcon,
   },
   {
     id: EXPENSE_CATEGORIES.EDUCATION,
     label: '문화생활',
-    icon: '/app/assets/culture.svg',
+    icon: CultureIcon,
   },
   {
     id: EXPENSE_CATEGORIES.UTILITIES,
     label: '주거/통신',
-    icon: '/app/assets/utilities.svg',
+    icon: UtilitiesIcon,
   },
   {
     id: EXPENSE_CATEGORIES.OTHER,
     label: '기타',
-    icon: '/app/assets/etc.svg',
+    icon: EtcIcon,
   },
 ] as const;
 

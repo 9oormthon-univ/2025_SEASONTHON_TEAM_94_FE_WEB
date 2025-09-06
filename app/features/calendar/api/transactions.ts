@@ -1,19 +1,19 @@
-// features/calendar/api/transactions.ts
 import { httpClient } from '@/shared/utils/httpClient';
-import type { Transaction } from '@/shared/types/expense';
+import { API_ENDPOINTS } from '@/shared/config/api';
 
-type ApiList<T> = { data: T };
+type CalendarTotalsResponse = {
+  data?: {
+    totals?: Record<string, number>; 
+  };
+};
 
-export async function fetchTransactionsByDate(ymd: string): Promise<Transaction[]> {
-  // httpClient.get<T>(url, params)
-  const res = await httpClient.get<ApiList<Transaction[]>>(
-    '/api/v1/transactions',
+export async function fetchCalendarTotals(dateYmd: string): Promise<Record<string, number>> {
+  const res = await httpClient.get<CalendarTotalsResponse>(
+    API_ENDPOINTS.TRANSACTIONS_CALENDAR,
     {
-      startAt: ymd,
-      endAt: ymd,
       type: 'OVER_EXPENSE',
+      date: dateYmd,
     }
   );
-
-  return res.data ?? [];
+  return res.data?.totals ?? {};
 }

@@ -1,35 +1,40 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { format, endOfToday } from 'date-fns'; 
+import { format, endOfToday } from 'date-fns';
 import { ko } from 'date-fns/locale';
-
 import { Calendar } from '@/shared/components/ui/calendar';
 import { OverExpenseItem, formatDateHeader } from '@/features/expenses';
 import emptyImage from '@/assets/empty.png';
 import { useCalendarExpenses } from '@/features/calendar/hooks/useCalendarExpenses';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
+const toYMD = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 export default function ExpensesCalendarPage() {
   const navigate = useNavigate();
+
   const {
     selectedDate,
     setSelectedDate,
+    visibleMonth,
+    setVisibleMonth,
     ymd,
     expenses,
     loading,
     error,
-    stats,
+    monthTotals, 
     handleTransactionUpdate,
   } = useCalendarExpenses();
+
 
   const todayEnd = endOfToday();
 
   // 미래 날짜 선택 방지
   const onSelect = (d?: Date) => {
     if (!d) return;
-    if (d.getTime() > todayEnd.getTime()) return; 
+    if (d.getTime() > todayEnd.getTime()) return;
     setSelectedDate(d);
   };
 
@@ -49,26 +54,46 @@ export default function ExpensesCalendarPage() {
     );
   }
 
-  const selectedTotal =
-    stats.totalAmount !== 0 ? `'-${won(Math.abs(stats.totalAmount))}원'` : `''`;
+  const DayContent = React.useMemo(() => {
+  return function DayContentImpl(props: any) {
+    const date: Date | undefined = props?.date;
+    if (!(date instanceof Date) || isNaN(date.getTime())) return props?.children ?? null;
+
+    const dayKey = String(date.getDate());                  
+    const dayNum = format(date, 'd', { locale: ko });
+    const isFuture = date.getTime() > todayEnd.getTime();
+
+    const raw = monthTotals?.[dayKey];
+    const hasAny = !isFuture && typeof raw === 'number' && raw !== 0;
+
+    return (
+      <div className="flex flex-col items-center justify-center leading-none">
+        <span>{dayNum}</span>
+        {hasAny && (
+          <span className="mt-[6px] text-[10px] leading-none text-[#ff3b30] font-semibold">
+            -{won(Math.abs(raw))}원
+          </span>
+        )}
+      </div>
+    );
+  };
+}, [monthTotals, todayEnd]);
+
+
 
   return (
     <div className="bg-slate-50 relative w-full max-w-md mx-auto min-h-screen">
       <div className="bg-white px-4 pt-2 pb-4">
         <style>{`
-          .calendar-wrapper .rdp-month { position: relative; }  
+          .calendar-wrapper .rdp-month { position: relative; }
           .calendar-wrapper .rdp-nav{
             position: absolute !important;
-            top: calc(var(--cell-size) / 2) !important;   
+            top: calc(var(--cell-size) / 2) !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 96px;                                 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            z-index: 5;                                   
-            pointer-events: auto;
+            width: 140px;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            z-index: 10; pointer-events: auto;
           }
           .calendar-wrapper .rdp-caption_label { pointer-events: none; }
 
@@ -78,57 +103,73 @@ export default function ExpensesCalendarPage() {
             box-shadow: none !important;
           }
 
-          .calendar-wrapper .rdp-day_button{ position: relative; }
-          .calendar-wrapper [data-selected-single="true"]::after{
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 3px;                
-            margin-top: 0;
-            content: var(--selected-total);
-            display: block;
-            font-size: 10px;
-            line-height: 1;
-            color: #ff3b30;
+          .calendar-wrapper .rdp-day_button {
+            position: relative;
+            height: var(--cell-size);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;            
+            overflow: visible;   
+            font-weight: 600;
           }
 
           .calendar-wrapper .rdp-day_disabled .rdp-day_button { 
             pointer-events: none; 
             cursor: default; 
           }
-          .calendar-wrapper .rdp-day_disabled .rdp-day_button > span {
+          .calendar-wrapper .rdp-day_disabled .rdp-day_button > span { 
             color: #BFBFBF !important; 
             opacity: 1 !important; 
-            font-weight: 600;
+            font-weight: 600; 
           }
 
           .calendar-wrapper .rdp-caption_label { font-weight: 700; }
           .calendar-wrapper .rdp-weekday { font-weight: 600; }
-          .calendar-wrapper .rdp-day_button { font-weight: 600; }
-          .calendar-wrapper .rdp-day_button > span { opacity: 1 !important; font-weight: 600; }
-        `}</style>
+          .calendar-wrapper .rdp-day_button > span { 
+            opacity: 1 !important; 
+            font-weight: 600; 
+          `}
+</style>
 
-        <div
-          className="calendar-wrapper flex justify-center"
-          style={
-            {
-              ['--selected-total' as any]: selectedTotal,
-            } as React.CSSProperties
-          }
-        >
+        <div className="calendar-wrapper flex justify-center">
           <Calendar
             locale={ko}
             formatters={{
-              formatCaption: month => format(month, 'M월', { locale: ko }),
-              formatWeekdayName: date => format(date, 'EEEEE', { locale: ko }),
+              formatCaption: m => format(m, 'M월', { locale: ko }),
+              formatWeekdayName: d => format(d, 'EEEEE', { locale: ko }),
             }}
             mode="single"
             selected={selectedDate}
             onSelect={onSelect}
+            month={visibleMonth}
+            onMonthChange={setVisibleMonth}
             showOutsideDays={false}
-            // 오늘 이후 날짜 비활성화
             disabled={{ after: todayEnd }}
             className="rounded-md mx-auto [--cell-size:46px]"
+
+            renderDayContent={({ date }) => {
+              const dayKey = String(date.getDate());                
+              const dayNum = format(date, 'd', { locale: ko });
+              const isFuture = date.getTime() > todayEnd.getTime();
+
+              const raw = monthTotals?.[dayKey];
+              const hasAny = !isFuture && typeof raw === 'number' && raw !== 0;
+
+              return (
+                <>
+                  <span className="leading-none">{dayNum}</span>
+                  <span
+                    className={`text-[10px] leading-[12px] h-[12px] font-semibold text-[#ff3b30] ${
+                      hasAny ? '' : 'invisible'
+                    }`}
+                  >
+                    -{won(Math.abs(raw ?? 0))}원
+                  </span>
+                </>
+              );
+            }}
           />
         </div>
       </div>
@@ -179,3 +220,4 @@ export default function ExpensesCalendarPage() {
     </div>
   );
 }
+    

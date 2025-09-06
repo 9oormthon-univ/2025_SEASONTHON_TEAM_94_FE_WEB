@@ -1,22 +1,22 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
-WORKDIR /app
-RUN npm ci
-
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
-WORKDIR /app
-RUN npm ci --omit=dev
-
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
-RUN npm run build
+# React Router 앱용 Dockerfile
+# 로컬에서 빌드하여 업로드하는 방식
 
 FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
+
+# 작업 디렉토리 설정
 WORKDIR /app
-CMD ["npm", "run", "start"]
+
+# package.json과 package-lock.json 복사
+COPY package.json package-lock.json* ./
+
+# 모든 의존성 설치
+RUN npm ci
+
+# 빌드된 앱을 컨테이너로 복사
+COPY ./build ./build
+
+# 포트 설정
+EXPOSE 3000
+
+# 앱 실행
+CMD ["npm", "start"]

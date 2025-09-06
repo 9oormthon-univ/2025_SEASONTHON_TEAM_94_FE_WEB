@@ -22,6 +22,8 @@ export default function HomePage() {
     userName,
     total,
     totalCount,
+    overExpense,
+    fixedExpense,
     monthlyGoal,
     leftToGoal,
     ratio,
@@ -97,6 +99,8 @@ export default function HomePage() {
               userName={userName}
               total={total}
               totalCount={totalCount}
+              overExpense={overExpense}
+              fixedExpense={fixedExpense}
               monthlyGoal={monthlyGoal}
               leftToGoal={leftToGoal}
               ratio={ratio}

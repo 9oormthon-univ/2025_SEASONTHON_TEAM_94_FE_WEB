@@ -20,6 +20,16 @@ export class CalculationUtils {
   }
 
   /**
+   * 목록에서 표시할 금액을 계산합니다 (더치페이 적용)
+   */
+  static calculateDisplayAmount(price: number, splitCount: number): number {
+    if (splitCount <= this.DUTCH_PAY_MIN_COUNT || !price) {
+      return price;
+    }
+    return Math.floor(price / splitCount);
+  }
+
+  /**
    * 숫자에 천 단위 구분자를 추가합니다
    */
   static formatNumberWithCommas(num: number): string {
@@ -100,7 +110,12 @@ export class CalculationUtils {
 }
 
 // 기존 함수들과의 호환성을 위한 래퍼 함수들
-export const calculateDutchPayAmount = CalculationUtils.calculateDutchPayAmount;
+export const calculateDutchPayAmount = (price: number, dutchPayCount: number): string => {
+  return CalculationUtils.calculateDutchPayAmount(price, dutchPayCount);
+};
+export const calculateDisplayAmount = (price: number, splitCount: number): number => {
+  return CalculationUtils.calculateDisplayAmount(price, splitCount);
+};
 export const formatNumberWithCommas = CalculationUtils.formatNumberWithCommas;
 export const formatCurrency = CalculationUtils.formatCurrency;
 export const calculateTotalAmount = CalculationUtils.calculateTotalAmount;

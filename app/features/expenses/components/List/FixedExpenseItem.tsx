@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import type { Transaction } from '@/shared/types/expense';
 import { getCategoryInfo } from '@/features/expenses/utils/categoryUtils';
+import { calculateDisplayAmount } from '@/features/expenses/utils/calculationUtils';
 import { Badge } from '@/shared/components/ui/badge';
 
 interface FixedExpenseItemProps {
@@ -16,6 +17,9 @@ export function FixedExpenseItem({
 }: FixedExpenseItemProps) {
   // 데이터에서 카테고리가 설정된 경우에만 표시
   const categoryInfo = getCategoryInfo(expense.category);
+  
+  // 더치페이 적용된 표시 금액 계산
+  const displayAmount = calculateDisplayAmount(expense.price, expense.splitCount || 1);
 
   return (
     <motion.div
@@ -33,7 +37,7 @@ export function FixedExpenseItem({
         {/* Amount and Category Row */}
         <div className="flex items-center justify-between">
           <div className="justify-start text-black text-xl font-bold">
-            -{expense.price.toLocaleString()}원
+            -{displayAmount.toLocaleString()}원
           </div>
 
           {/* Category Badge - 데이터에 카테고리가 있을 때만 표시 */}

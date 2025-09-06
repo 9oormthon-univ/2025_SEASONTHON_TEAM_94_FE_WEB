@@ -5,12 +5,13 @@
 /**
  * 숫자 문자열을 포맷팅된 금액 문자열로 변환
  * @param amount - 숫자 문자열
- * @returns 포맷팅된 금액 문자열 (예: "-1,000원")
+ * @returns 포맷팅된 금액 문자열 (예: "1,000원")
  */
 export function formatAmount(amount: string): string {
   if (!amount) return '';
-  return `-${parseInt(amount).toLocaleString()}원`;
+  return `${parseInt(amount).toLocaleString()}원`;
 }
+
 
 /**
  * 입력 필드에서 숫자 키 입력을 처리하는 핸들러

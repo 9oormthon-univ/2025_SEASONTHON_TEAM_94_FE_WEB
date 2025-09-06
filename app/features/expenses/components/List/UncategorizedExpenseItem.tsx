@@ -5,6 +5,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import type { Transaction } from '@/shared/types/expense';
 import { formatExpenseDate } from '@/features/expenses/utils/dateUtils';
 import { getCategoryInfo } from '@/features/expenses/utils/categoryUtils';
+import { calculateDisplayAmount } from '@/features/expenses/utils/calculationUtils';
 
 interface UncategorizedExpenseItemProps {
   expense: Transaction;
@@ -26,6 +27,12 @@ export const UncategorizedExpenseItem =
       const categoryInfo = useMemo(
         () => getCategoryInfo(expense.category),
         [expense.category]
+      );
+
+      // 더치페이 적용된 표시 금액 계산
+      const displayAmount = useMemo(
+        () => calculateDisplayAmount(expense.price, expense.splitCount || 1),
+        [expense.price, expense.splitCount]
       );
 
       return (
@@ -56,7 +63,7 @@ export const UncategorizedExpenseItem =
             {/* Amount and Category Row */}
             <div className="flex items-end justify-between">
               <div className="justify-start text-black text-xl font-bold">
-                -{expense.price.toLocaleString()}원
+                -{displayAmount.toLocaleString()}원
               </div>
 
               {/* Category Badge - 데이터에 카테고리가 있을 때만 표시 */}
